@@ -8,3 +8,4 @@ This repository hosts larger, more realistic, and more involved example Veracruz
 
 We welcome contributions of new example privacy-preserving computations that can be deployed with Veracruz.
 To contribute, please clone this repository and open a pull request with your changes.
+Each example is contained within a dedicated directory, with a descriptive name, under this repository.
