@@ -4,3 +4,11 @@
 [submodule "deep-learning-server/connxr"]
 	path = deep-learning-server/connxr
 	url = https://github.com/mofanv/cONNXr
+[submodule "video/openh264"]
+	path = video/openh264
+	url = https://github.com/veracruz-project/openh264
+	branch = veracruz
+[submodule "video/openh264-dec"]
+	path = video/openh264-dec
+	url = https://github.com/veracruz-project/openh264-dec
+	branch = veracruz
