@@ -189,7 +189,7 @@ void forward_network(network *netp)
 {
 #ifdef GPU
     if(netp->gpu_index >= 0){
-        forward_network_gpu(netp);   
+        forward_network_gpu(netp);
         return;
     }
 #endif
@@ -202,7 +202,9 @@ void forward_network(network *netp)
             fill_cpu(l.outputs * l.batch, 0, l.delta, 1);
         }
         l.forward(l, net);
+
         net.input = l.output;
+
         if(l.truth) {
             net.truth = l.output;
         }
@@ -501,6 +503,7 @@ float *network_predict(network *net, float *input)
     net->truth = 0;
     net->train = 0;
     net->delta = 0;
+
     forward_network(net);
     float *out = net->output;
     *net = orig;
@@ -544,8 +547,10 @@ void fill_network_boxes(network *net, int w, int h, float thresh, float hier, in
     int j;
     for(j = 0; j < net->n; ++j){
         layer l = net->layers[j];
+
         if(l.type == YOLO){
             int count = get_yolo_detections(l, w, h, net->w, net->h, thresh, map, relative, dets);
+
             dets += count;
         }
         if(l.type == REGION){

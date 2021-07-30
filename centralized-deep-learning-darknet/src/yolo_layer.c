@@ -317,22 +317,29 @@ int get_yolo_detections(layer l, int w, int h, int netw, int neth, float thresh,
 {
     int i,j,n;
     float *predictions = l.output;
+
     if (l.batch == 2) avg_flipped_yolo(l);
     int count = 0;
     for (i = 0; i < l.w*l.h; ++i){
         int row = i / l.w;
         int col = i % l.w;
+        //printf("i=%d, l.w*l.h=%d, row=%d, col=%d\n",i,l.w*l.h,row,col);
+        
         for(n = 0; n < l.n; ++n){
             int obj_index  = entry_index(l, 0, n*l.w*l.h + i, 4);
             float objectness = predictions[obj_index];
             if(objectness <= thresh) continue;
             int box_index  = entry_index(l, 0, n*l.w*l.h + i, 0);
+
+            //printf("n=%d, l.n=%d, obj_index=%d, objectness=%f, box_index=%d\n",n,l.n,obj_index,objectness,box_index);
+
             dets[count].bbox = get_yolo_box(predictions, l.biases, l.mask[n], box_index, col, row, l.w, l.h, netw, neth, l.w*l.h);
             dets[count].objectness = objectness;
             dets[count].classes = l.classes;
             for(j = 0; j < l.classes; ++j){
                 int class_index = entry_index(l, 0, n*l.w*l.h + i, 4 + 1 + j);
                 float prob = objectness*predictions[class_index];
+                //printf("j=%d, l.classes=%d, class_index=%d, objectness=%f, predictions[class_index]=%f, prob=%f\n",j,l.classes,class_index,objectness,predictions[class_index],prob);
                 dets[count].prob[j] = (prob > thresh) ? prob : 0;
             }
             ++count;
