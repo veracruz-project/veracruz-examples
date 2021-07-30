@@ -7,3 +7,4 @@
 .DS_Store
 darknet
 Makefile_c
+Makefile_wasm
