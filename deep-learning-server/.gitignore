@@ -1,0 +1,10 @@
+/data/mnist/images/
+/data/cifar/
+/model/
+/obj/
+/.vscode/
+*.wasm
+.DS_Store
+darknet
+Makefile_c
+Makefile_wasm
