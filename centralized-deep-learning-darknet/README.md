@@ -33,3 +33,9 @@ Run the test:
 ```
 wasmtime --dir=. darknet.wasm detect cfg/yolov3-tiny.cfg model/yolov3-tiny.weights data/dog.jpg
 ```
+
+### TODO
+1. Load multiple fictions of a dataset before training (multiple data providers in Veracruz computation)
+2. Secure aggregation support for federated learning: i) darknet model ii) other format models, e.g., Tensorflow, Pytorch, etc
+3. (TBD) In centralized learning: GPU training (privacy-preserving + integrity)
+3. (TBD) In federated learning: client-side training integrity check with GPU training
