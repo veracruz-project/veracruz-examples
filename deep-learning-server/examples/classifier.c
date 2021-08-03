@@ -1070,10 +1070,10 @@ void demo_classifier(char *datacfg, char *cfgfile, char *weightfile, int cam_ind
 
 void run_classifier(int argc, char **argv)
 {
-    if(argc < 4){
-        fprintf(stderr, "usage: %s %s [train/test/valid] [cfg] [weights (optional)]\n", argv[0], argv[1]);
-        return;
-    }
+    // if(argc < 4){
+    //     fprintf(stderr, "usage: %s %s [train/test/valid] [cfg] [weights (optional)]\n", argv[0], argv[1]);
+    //     return;
+    // }
 
     char *gpu_list = find_char_arg(argc, argv, "-gpus", 0);
     int ngpus;
@@ -1083,8 +1083,8 @@ void run_classifier(int argc, char **argv)
     int cam_index = find_int_arg(argc, argv, "-c", 0);
     int top = find_int_arg(argc, argv, "-t", 0);
     int clear = find_arg(argc, argv, "-clear");
-    char *data = argv[3];
-    char *cfg = argv[4];
+    char *data = (argc > 3) ? argv[3]: 0;
+    char *cfg = (argc > 4) ? argv[4]: 0;
     char *weights = (argc > 5) ? argv[5] : 0;
     char *filename = (argc > 6) ? argv[6]: 0;
     char *layer_s = (argc > 7) ? argv[7]: 0;
@@ -1092,7 +1092,13 @@ void run_classifier(int argc, char **argv)
     if(0==strcmp(argv[2], "predict")) predict_classifier(data, cfg, weights, filename, top);
     else if(0==strcmp(argv[2], "fout")) file_output_classifier(data, cfg, weights, filename);
     else if(0==strcmp(argv[2], "try")) try_classifier(data, cfg, weights, filename, atoi(layer_s));
-    else if(0==strcmp(argv[2], "train")) train_classifier(data, cfg, weights, gpus, ngpus, clear);
+    //else if(0==strcmp(argv[2], "train")) train_classifier(data, cfg, weights, gpus, ngpus, clear);
+    else if(0==strcmp(argv[2], "train")){
+        char *data = "cfg/mnist.dataset";
+        char *cfg = "cfg/mnist_lenet.cfg";
+        char *weights = 0; //model/mnist_lenet.weights
+        train_classifier(data, cfg, weights, gpus, ngpus, clear);
+    }
     else if(0==strcmp(argv[2], "demo")) demo_classifier(data, cfg, weights, cam_index, filename);
     else if(0==strcmp(argv[2], "gun")) gun_classifier(data, cfg, weights, cam_index, filename);
     else if(0==strcmp(argv[2], "threat")) threat_classifier(data, cfg, weights, cam_index, filename);

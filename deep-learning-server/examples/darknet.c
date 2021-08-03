@@ -399,13 +399,10 @@ void visualize(char *cfgfile, char *weightfile)
 
 int main(int argc, char **argv)
 {
-    //test_resize("data/bad.jpg");
-    //test_box();
-    //test_convolutional_layer();
-    if(argc < 2){
-        fprintf(stderr, "usage: %s <function>\n", argv[0]);
-        return 0;
-    }
+    // if(argc < 2){
+    //     fprintf(stderr, "usage: %s <function>\n", argv[0]);
+    //     return 0;
+    // }
     gpu_index = find_int_arg(argc, argv, "-i", 0);
     if(find_arg(argc, argv, "-nogpu")) {
         gpu_index = -1;
@@ -434,7 +431,11 @@ int main(int argc, char **argv)
         char *filename = (argc > 4) ? argv[4]: 0;
         char *outfile = find_char_arg(argc, argv, "-out", 0);
         int fullscreen = find_arg(argc, argv, "-fullscreen");
-        test_detector("cfg/coco.data", argv[2], argv[3], filename, thresh, .5, outfile, fullscreen);
+        //test_detector("cfg/coco.data", argv[2], argv[3], filename, thresh, .5, outfile, fullscreen);
+        char *cfgname = "cfg/yolov3-tiny.cfg";
+        char *modelname = "model/yolov3-tiny.weights";
+        char *dataname = "data/dog.jpg";
+        test_detector("cfg/coco.data", cfgname, modelname, dataname, thresh, .5, outfile, fullscreen);
     // } else if (0 == strcmp(argv[1], "cifar")){
     //     run_cifar(argc, argv);
     // } else if (0 == strcmp(argv[1], "go")){
