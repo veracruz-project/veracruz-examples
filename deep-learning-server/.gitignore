@@ -1,5 +1,5 @@
-/predictions.jpg
 /examples/aggregation.c
+
 
 /data/mnist/images/
 /data/mnist/images_*/
@@ -8,6 +8,7 @@
 /data/mnist/train-labels-idx1-ubyte
 /data/mnist/t10k-labels-idx1-ubyte
 
+/predictions.jpg
 /data/cifar/
 /model/
 /obj/
@@ -19,3 +20,5 @@
 darknet
 Makefile_c
 Makefile_wasm
+args_file_detect.cfg
+args_file_classifier.cfg

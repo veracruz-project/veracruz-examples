@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define MAX_STRINGS 100
+
 extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *filename, int top);
 extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile, int fullscreen);
 // extern void run_yolo(int argc, char **argv);
@@ -397,12 +399,46 @@ void visualize(char *cfgfile, char *weightfile)
     visualize_network(net);
 }
 
-int main(int argc, char **argv)
+
+void file_args_parser(char * args_file)
 {
-    // if(argc < 2){
-    //     fprintf(stderr, "usage: %s <function>\n", argv[0]);
-    //     return 0;
-    // }
+    int argc = 1;
+    char argv_[10][MAX_STRINGS];
+    char line[MAX_STRINGS];
+
+    FILE *file; 
+    file = fopen(args_file, "r"); 
+
+    while(fgets(line, sizeof line, file) != NULL) 
+    {
+        line[strcspn(line, "\n")] = 0;
+        strcpy(argv_[argc], line);
+        printf("argv[%d] = '%s'\n", argc, argv_[argc]);
+        argc++;
+    }
+    fclose(file);
+
+    char *argv[] = {&argv_[0][0], &argv_[1][0], &argv_[2][0], &argv_[3][0], &argv_[4][0], &argv_[5][0], 
+                    &argv_[6][0], &argv_[7][0], &argv_[8][0], &argv_[9][0], NULL};
+
+    if (0 == strcmp(argv[1], "average")){
+        average(argc, argv);
+    } else if (0 == strcmp(argv[1], "detect")){
+        float thresh = find_float_arg(argc, argv, "-thresh", .5);
+        char *filename = (argc > 4) ? argv[4]: 0;
+        char *outfile = find_char_arg(argc, argv, "-out", 0);
+        int fullscreen = find_arg(argc, argv, "-fullscreen");
+        test_detector("cfg/coco.data", argv[2], argv[3], filename, thresh, .5, outfile, fullscreen);
+    } else if (0 == strcmp(argv[1], "classifier")){
+        run_classifier(argc, argv);
+    } else {
+        fprintf(stderr, "Not an option: %s\n", argv[1]);
+    }
+}
+
+
+void cmdline_args_parser(int argc, char **argv)
+{
     gpu_index = find_int_arg(argc, argv, "-i", 0);
     if(find_arg(argc, argv, "-nogpu")) {
         gpu_index = -1;
@@ -415,7 +451,6 @@ int main(int argc, char **argv)
         cuda_set_device(gpu_index);
     }
 #endif
-
     if (0 == strcmp(argv[1], "average")){
         average(argc, argv);
     // } else if (0 == strcmp(argv[1], "yolo")){
@@ -431,11 +466,7 @@ int main(int argc, char **argv)
         char *filename = (argc > 4) ? argv[4]: 0;
         char *outfile = find_char_arg(argc, argv, "-out", 0);
         int fullscreen = find_arg(argc, argv, "-fullscreen");
-        //test_detector("cfg/coco.data", argv[2], argv[3], filename, thresh, .5, outfile, fullscreen);
-        char *cfgname = "cfg/yolov3-tiny.cfg";
-        char *modelname = "model/yolov3-tiny.weights";
-        char *dataname = "data/dog.jpg";
-        test_detector("cfg/coco.data", cfgname, modelname, dataname, thresh, .5, outfile, fullscreen);
+        test_detector("cfg/coco.data", argv[2], argv[3], filename, thresh, .5, outfile, fullscreen);
     // } else if (0 == strcmp(argv[1], "cifar")){
     //     run_cifar(argc, argv);
     // } else if (0 == strcmp(argv[1], "go")){
@@ -498,6 +529,22 @@ int main(int argc, char **argv)
     //     test_resize(argv[2]);
     } else {
         fprintf(stderr, "Not an option: %s\n", argv[1]);
+    }
+}
+
+
+int main(int argc, char **argv)
+{
+    char *args_file = "args_file.cfg";
+    FILE *fp = fopen(args_file, "r");
+    if(fp != NULL){
+        file_args_parser(args_file);
+    
+    }else if(argc > 2){
+        cmdline_args_parser(argc, argv);
+
+    }else{
+        fprintf(stderr, "Argument file not found. \nCommand-line arguments not found.\n");
     }
     return 0;
 }
