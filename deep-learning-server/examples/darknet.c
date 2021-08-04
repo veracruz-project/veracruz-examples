@@ -6,6 +6,7 @@
 
 #define MAX_STRINGS 100
 
+extern void average(int argc, char *argv[]);
 extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *filename, int top);
 extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile, int fullscreen);
 // extern void run_yolo(int argc, char **argv);
@@ -24,61 +25,6 @@ extern void run_classifier(int argc, char **argv);
 // extern void run_super(int argc, char **argv);
 // extern void run_lsd(int argc, char **argv);
 
-void average(int argc, char *argv[])
-{
-    char *cfgfile = argv[2];
-    char *outfile = argv[3];
-    gpu_index = -1;
-    network *net = parse_network_cfg(cfgfile);
-    network *sum = parse_network_cfg(cfgfile);
-
-    char *weightfile = argv[4];   
-    load_weights(sum, weightfile);
-
-    int i, j;
-    int n = argc - 5;
-    for(i = 0; i < n; ++i){
-        weightfile = argv[i+5];   
-        load_weights(net, weightfile);
-        for(j = 0; j < net->n; ++j){
-            layer l = net->layers[j];
-            layer out = sum->layers[j];
-            if(l.type == CONVOLUTIONAL){
-                int num = l.n*l.c*l.size*l.size;
-                axpy_cpu(l.n, 1, l.biases, 1, out.biases, 1);
-                axpy_cpu(num, 1, l.weights, 1, out.weights, 1);
-                if(l.batch_normalize){
-                    axpy_cpu(l.n, 1, l.scales, 1, out.scales, 1);
-                    axpy_cpu(l.n, 1, l.rolling_mean, 1, out.rolling_mean, 1);
-                    axpy_cpu(l.n, 1, l.rolling_variance, 1, out.rolling_variance, 1);
-                }
-            }
-            if(l.type == CONNECTED){
-                axpy_cpu(l.outputs, 1, l.biases, 1, out.biases, 1);
-                axpy_cpu(l.outputs*l.inputs, 1, l.weights, 1, out.weights, 1);
-            }
-        }
-    }
-    n = n+1;
-    for(j = 0; j < net->n; ++j){
-        layer l = sum->layers[j];
-        if(l.type == CONVOLUTIONAL){
-            int num = l.n*l.c*l.size*l.size;
-            scal_cpu(l.n, 1./n, l.biases, 1);
-            scal_cpu(num, 1./n, l.weights, 1);
-                if(l.batch_normalize){
-                    scal_cpu(l.n, 1./n, l.scales, 1);
-                    scal_cpu(l.n, 1./n, l.rolling_mean, 1);
-                    scal_cpu(l.n, 1./n, l.rolling_variance, 1);
-                }
-        }
-        if(l.type == CONNECTED){
-            scal_cpu(l.outputs, 1./n, l.biases, 1);
-            scal_cpu(l.outputs*l.inputs, 1./n, l.weights, 1);
-        }
-    }
-    save_weights(sum, outfile);
-}
 
 long numops(network *net)
 {
@@ -421,7 +367,7 @@ void file_args_parser(char * args_file)
     char *argv[] = {&argv_[0][0], &argv_[1][0], &argv_[2][0], &argv_[3][0], &argv_[4][0], &argv_[5][0], 
                     &argv_[6][0], &argv_[7][0], &argv_[8][0], &argv_[9][0], NULL};
 
-    if (0 == strcmp(argv[1], "average")){
+    if (0 == strcmp(argv[1], "aggregation")){
         average(argc, argv);
     } else if (0 == strcmp(argv[1], "detect")){
         float thresh = find_float_arg(argc, argv, "-thresh", .5);
@@ -451,7 +397,7 @@ void cmdline_args_parser(int argc, char **argv)
         cuda_set_device(gpu_index);
     }
 #endif
-    if (0 == strcmp(argv[1], "average")){
+    if (0 == strcmp(argv[1], "aggregation")){
         average(argc, argv);
     // } else if (0 == strcmp(argv[1], "yolo")){
     //     run_yolo(argc, argv);
@@ -537,13 +483,14 @@ int main(int argc, char **argv)
 {
     char *args_file = "args_file.cfg";
     FILE *fp = fopen(args_file, "r");
-    if(fp != NULL){
-        file_args_parser(args_file);
     
-    }else if(argc > 2){
+    if(argc >= 2){
         cmdline_args_parser(argc, argv);
-
-    }else{
+    }else if(fp != NULL)
+    {
+        file_args_parser(args_file);
+    }else
+    {
         fprintf(stderr, "Argument file not found. \nCommand-line arguments not found.\n");
     }
     return 0;

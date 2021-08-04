@@ -15,7 +15,7 @@ CFLAGS+=$(OPTS)
 LDFLAGS= -lm -g
 
 OBJ=gemm.wasm utils.wasm cuda.wasm deconvolutional_layer.wasm convolutional_layer.wasm list.wasm image.wasm activations.wasm im2col.wasm col2im.wasm blas.wasm crop_layer.wasm dropout_layer.wasm maxpool_layer.wasm softmax_layer.wasm data.wasm matrix.wasm network.wasm connected_layer.wasm cost_layer.wasm parser.wasm option_list.wasm detection_layer.wasm route_layer.wasm upsample_layer.wasm box.wasm normalization_layer.wasm avgpool_layer.wasm layer.wasm local_layer.wasm shortcut_layer.wasm logistic_layer.wasm activation_layer.wasm rnn_layer.wasm gru_layer.wasm crnn_layer.wasm demo.wasm batchnorm_layer.wasm region_layer.wasm reorg_layer.wasm tree.wasm  lstm_layer.wasm l2norm_layer.wasm yolo_layer.wasm iseg_layer.wasm
-EXECOBJA=classifier.wasm detector.wasm darknet.wasm
+EXECOBJA=aggregation.wasm classifier.wasm detector.wasm darknet.wasm
 
 
 EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
