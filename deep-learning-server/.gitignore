@@ -5,6 +5,8 @@
 /data/mnist/train-labels-idx1-ubyte
 /data/mnist/t10k-labels-idx1-ubyte
 
+/data/labels/*.png
+
 /predictions.jpg
 /data/cifar/
 /model/

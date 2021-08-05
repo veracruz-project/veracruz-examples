@@ -4,6 +4,7 @@ import pipes
 
 font = 'futura-normal'
 
+# install `imagemagick` for using `convert` sh command
 def make_labels(s):
     l = string.printable
     for word in l:
