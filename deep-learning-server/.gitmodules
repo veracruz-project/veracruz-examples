@@ -1,4 +1,3 @@
 [submodule "src"]
 	path = src
-	url = https://github.com/mofanv/darknet-src
-	branch = main
+	url = https://github.com/mofanv/darknet-src.git
