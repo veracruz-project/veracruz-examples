@@ -11,6 +11,10 @@
 
 /predictions.jpg
 /data/cifar/
+/cfg/cifar.data
+/cfg/vgg-7_cifar10.cfg 
+/cfg/yolov3.cfg
+
 /model/
 /obj/
 /.vscode/
