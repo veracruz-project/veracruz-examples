@@ -50,6 +50,11 @@ Run the test on one image:
 wasmtime --dir=. darknet.wasm detect cfg/yolov3-tiny.cfg model/yolov3-tiny.weights data/dog.jpg
 ```
 
+All commands can be configured in the `args_file.txt`. Then one can run without command-line arguments, such as:
+```
+wasmtime --dir=. darknet.wasm
+```
+
 ### TODO
 1. Load multiple fictions of a dataset before training (multiple data providers in Veracruz computation) (Done)
 2. Secure aggregation support for federated learning: i) darknet model (Done) ii) other format models, e.g., Tensorflow, Pytorch, etc
