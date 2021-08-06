@@ -1,3 +1,3 @@
 [submodule "deep-learning-server/src"]
 	path = deep-learning-server/src
-	url = git@github.com:mofanv/darknet-src.git
+	url = https://github.com/mofanv/darknet-src.git
