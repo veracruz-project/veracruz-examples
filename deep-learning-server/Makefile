@@ -9,18 +9,24 @@
 # See the `LICENSE_MIT.markdown` file in the Veracruz deep learning server 
 # example repository root directory for copyright and licensing information.
 
-
 VPATH=./src/:./examples
 EXEC=darknet.wasm
 OBJDIR=./obj/
 
-CC=/Users/fanvincentmo/Documents/wasi-sdk-12.0/bin/clang --sysroot=/Users/fanvincentmo/Documents/wasi-sdk-12.0/share/wasi-sysroot
-
 COMMON= -Iinclude/ -Isrc/
+
+CC=../wasi-sdk-12.0/bin/clang --sysroot=../wasi-sdk-12.0/share/wasi-sysroot
 
 CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC
 OPTS=-Ofast
 #OPTS=-O0 -g
+
+ifeq ($(shell uname), Darwin)
+OS=macos
+endif
+ifeq ($(shell uname), Linux)
+OS=linux
+endif
 
 CFLAGS+=$(OPTS)
 
@@ -34,8 +40,17 @@ EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
 DEPS = $(wildcard src/*.h) Makefile include/darknet.h
 
-all: obj $(EXEC)
+.PHONY: download clean
 
+all: download obj $(EXEC)
+
+download:
+	if [ ! -d "../wasi-sdk-12.0" ]; then \
+		wget -P ../ https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-12/wasi-sdk-12.0-$(OS).tar.gz; \
+		mkdir ../wasi-sdk-12.0; \
+		tar xvf ../wasi-sdk-12.0-$(OS).tar.gz -C ../; \
+		rm -f ../wasi-sdk-12.0-macos.tar.gz; \
+	fi
 
 $(EXEC): $(EXECOBJ) $(OBJS)
 	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
@@ -46,8 +61,6 @@ $(OBJDIR)%.wasm: %.c $(DEPS)
 obj:
 	mkdir -p obj
 
-.PHONY: clean
-
 clean:
-	rm -rf $(OBJS) $(SLIB) $(ALIB) $(EXEC) $(EXECOBJ) $(OBJDIR)/* obj
+	rm -rf $(OBJS) $(SLIB) $(ALIB) $(EXEC) $(EXECOBJ) $(OBJDIR)/* obj ../wasi-sdk-12.0
 

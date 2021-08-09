@@ -1,5 +1,5 @@
 /*
-This file define function calls in the main wasm binary.
+This file defines function calls in the main wasm binary.
 
 AUTHORS
 
