@@ -1,16 +1,14 @@
 ## Centralized Deep Learning Application
 
-This is an application that supports training neural networks inside TEEs by leveraging Veracruz. 
-
-This application is actively under development. Please keep in touch!
+This is a Veracruz example that supports training neural networks inside an isolated area on an untrusted device.
+(Note: currently only standalone execution is supported. No policy files are provided.)
 
 ### Build
-
-1- Install `WASI SDK` by following [https://github.com/WebAssembly/wasi-sdk](https://github.com/WebAssembly/wasi-sdk)
-
-2- Replace the `CC` as your wasi-sdk directory in `Makefile`, and run `make`
-
-3- Now you should see `darknet.wasm` under the main directory
+```
+cd veracruz-examples/deep-learning-server
+make all
+```
+This will also download `wasi-sdk` for compiling this example. A `dl-server.wasm` binary will be outputted to the example root directory.
 
 ### Run test (model training)
 
@@ -60,3 +58,4 @@ wasmtime --dir=. darknet.wasm
 2. Secure aggregation support for federated learning: i) darknet model (Done) ii) other format models, e.g., Tensorflow, Pytorch, etc
 3. (TBD) In centralized learning: GPU training (privacy-preserving + integrity)
 3. (TBD) In federated learning: client-side training integrity check with GPU training
+Previously

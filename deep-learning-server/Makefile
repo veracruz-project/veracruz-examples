@@ -10,7 +10,7 @@
 # example repository root directory for copyright and licensing information.
 
 VPATH=./src/:./examples
-EXEC=darknet.wasm
+EXEC=dl-server.wasm
 OBJDIR=./obj/
 
 COMMON= -Iinclude/ -Isrc/
@@ -40,17 +40,9 @@ EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
 DEPS = $(wildcard src/*.h) Makefile include/darknet.h
 
-.PHONY: download clean
+all: wasisdk obj $(EXEC)
 
-all: download obj $(EXEC)
-
-download:
-	if [ ! -d "../wasi-sdk-12.0" ]; then \
-		wget -P ../ https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-12/wasi-sdk-12.0-$(OS).tar.gz; \
-		mkdir ../wasi-sdk-12.0; \
-		tar xvf ../wasi-sdk-12.0-$(OS).tar.gz -C ../; \
-		rm -f ../wasi-sdk-12.0-macos.tar.gz; \
-	fi
+examples: mnist_training yolo_detection
 
 $(EXEC): $(EXECOBJ) $(OBJS)
 	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
@@ -58,9 +50,29 @@ $(EXEC): $(EXECOBJ) $(OBJS)
 $(OBJDIR)%.wasm: %.c $(DEPS)
 	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
 
+wasisdk:
+	if [ ! -d "../wasi-sdk-12.0" ]; then \
+		wget -P ../ https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-12/wasi-sdk-12.0-$(OS).tar.gz; \
+		mkdir ../wasi-sdk-12.0; \
+		tar xvf ../wasi-sdk-12.0-$(OS).tar.gz -C ../; \
+		rm -f ../wasi-sdk-12.0-macos.tar.gz; \
+	fi
+
 obj:
 	mkdir -p obj
 
+mnist_training:
+	python data/mnist/mnist_preparation.py --num-clients=10
+
+yolo_detection:
+	if [ "$(OS)" = "macos" ]; then \
+		brew install imagemagick ghostscript; \
+	elif [ "$(OS)" = "linux" ]; then \
+		sudo apt install imagemagick; \
+	fi
+	python data/labels/make_labels.py
+
+.PHONY: wasisdk clean
+
 clean:
 	rm -rf $(OBJS) $(SLIB) $(ALIB) $(EXEC) $(EXECOBJ) $(OBJDIR)/* obj ../wasi-sdk-12.0
-
