@@ -1,3 +1,16 @@
+/*
+This header file define function calls in the main wasm binary.
+
+ AUTHORS
+
+ The Veracruz Development Team.
+
+ COPYRIGHT AND LICENSING
+
+ See the `LICENSE_MIT.markdown` file in the Veracruz deep learning server 
+ example repository root directory for copyright and licensing information.
+*/
+
 #ifndef DARKNET_API
 #define DARKNET_API
 #include <stdlib.h>

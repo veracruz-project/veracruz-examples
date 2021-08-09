@@ -1,5 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# AUTHORS
+
+# The Veracruz Development Team.
+
+# COPYRIGHT AND LICENSING
+
+# See the `LICENSE_MIT.markdown` file in the Veracruz deep learning server 
+# example repository root directory for copyright and licensing information.
 
 import numpy as np
 import cv2
