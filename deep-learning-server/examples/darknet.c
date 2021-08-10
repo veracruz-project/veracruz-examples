@@ -1,5 +1,5 @@
 /*
-This file defines function calls in the main wasm binary.
+This file defines function calls and the entry in the main wasm binary.
 
 AUTHORS
 
@@ -66,18 +66,8 @@ void file_args_parser(char * args_file)
 
 void cmdline_args_parser(int argc, char **argv)
 {
-    gpu_index = find_int_arg(argc, argv, "-i", 0);
-    if(find_arg(argc, argv, "-nogpu")) {
-        gpu_index = -1;
-    }
-
-#ifndef GPU
     gpu_index = -1;
-#else
-    if(gpu_index >= 0){
-        cuda_set_device(gpu_index);
-    }
-#endif
+
     if (0 == strcmp(argv[1], "aggregation")){
         average(argc, argv);
     } else if (0 == strcmp(argv[1], "detect")){

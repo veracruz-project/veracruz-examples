@@ -18,23 +18,6 @@ This header file define function calls in the main wasm binary.
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
-//#include <pthread.h>
-
-#ifdef GPU
-    #define BLOCK 512
-
-    #include "cuda_runtime.h"
-    #include "curand.h"
-    #include "cublas_v2.h"
-
-    #ifdef CUDNN
-    #include "cudnn.h"
-    #endif
-#endif
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 #define SECRET_NUM -1234
 extern int gpu_index;
@@ -345,94 +328,6 @@ struct layer{
     tree *softmax_tree;
 
     size_t workspace_size;
-
-#ifdef GPU
-    int *indexes_gpu;
-
-    float *z_gpu;
-    float *r_gpu;
-    float *h_gpu;
-
-    float *temp_gpu;
-    float *temp2_gpu;
-    float *temp3_gpu;
-
-    float *dh_gpu;
-    float *hh_gpu;
-    float *prev_cell_gpu;
-    float *cell_gpu;
-    float *f_gpu;
-    float *i_gpu;
-    float *g_gpu;
-    float *o_gpu;
-    float *c_gpu;
-    float *dc_gpu; 
-
-    float *m_gpu;
-    float *v_gpu;
-    float *bias_m_gpu;
-    float *scale_m_gpu;
-    float *bias_v_gpu;
-    float *scale_v_gpu;
-
-    float * combine_gpu;
-    float * combine_delta_gpu;
-
-    float * prev_state_gpu;
-    float * forgot_state_gpu;
-    float * forgot_delta_gpu;
-    float * state_gpu;
-    float * state_delta_gpu;
-    float * gate_gpu;
-    float * gate_delta_gpu;
-    float * save_gpu;
-    float * save_delta_gpu;
-    float * concat_gpu;
-    float * concat_delta_gpu;
-
-    float * binary_input_gpu;
-    float * binary_weights_gpu;
-
-    float * mean_gpu;
-    float * variance_gpu;
-
-    float * rolling_mean_gpu;
-    float * rolling_variance_gpu;
-
-    float * variance_delta_gpu;
-    float * mean_delta_gpu;
-
-    float * x_gpu;
-    float * x_norm_gpu;
-    float * weights_gpu;
-    float * weight_updates_gpu;
-    float * weight_change_gpu;
-
-    float * biases_gpu;
-    float * bias_updates_gpu;
-    float * bias_change_gpu;
-
-    float * scales_gpu;
-    float * scale_updates_gpu;
-    float * scale_change_gpu;
-
-    float * output_gpu;
-    float * loss_gpu;
-    float * delta_gpu;
-    float * rand_gpu;
-    float * squared_gpu;
-    float * norms_gpu;
-#ifdef CUDNN
-    cudnnTensorDescriptor_t srcTensorDesc, dstTensorDesc;
-    cudnnTensorDescriptor_t dsrcTensorDesc, ddstTensorDesc;
-    cudnnTensorDescriptor_t normTensorDesc;
-    cudnnFilterDescriptor_t weightDesc;
-    cudnnFilterDescriptor_t dweightDesc;
-    cudnnConvolutionDescriptor_t convDesc;
-    cudnnConvolutionFwdAlgo_t fw_algo;
-    cudnnConvolutionBwdDataAlgo_t bd_algo;
-    cudnnConvolutionBwdFilterAlgo_t bf_algo;
-#endif
 #endif
 };
 
@@ -500,13 +395,6 @@ typedef struct network{
     int index;
     float *cost;
     float clip;
-
-#ifdef GPU
-    float *input_gpu;
-    float *truth_gpu;
-    float *delta_gpu;
-    float *output_gpu;
-#endif
 
 } network;
 
@@ -616,7 +504,6 @@ typedef struct list{
     node *back;
 } list;
 
-//pthread_t load_data(load_args args);
 void load_data_single_thread(load_args args);
 list *read_data_cfg(char *filename);
 list *read_cfg(char *filename);
@@ -639,27 +526,7 @@ void normalize_cpu(float *x, float *mean, float *variance, int batch, int filter
 void softmax(float *input, int n, float temp, int stride, float *output);
 
 int best_3d_shift_r(image a, image b, int min, int max);
-#ifdef GPU
-void axpy_gpu(int N, float ALPHA, float * X, int INCX, float * Y, int INCY);
-void fill_gpu(int N, float ALPHA, float * X, int INCX);
-void scal_gpu(int N, float ALPHA, float * X, int INCX);
-void copy_gpu(int N, float * X, int INCX, float * Y, int INCY);
 
-void cuda_set_device(int n);
-void cuda_free(float *x_gpu);
-float *cuda_make_array(float *x, size_t n);
-void cuda_pull_array(float *x_gpu, float *x, size_t n);
-float cuda_mag_array(float *x_gpu, size_t n);
-void cuda_push_array(float *x_gpu, float *x, size_t n);
-
-void forward_network_gpu(network *net);
-void backward_network_gpu(network *net);
-void update_network_gpu(network *net);
-
-float train_networks(network **nets, int n, data d, int interval);
-void sync_nets(network **nets, int n, int interval);
-void harmless_update_network_gpu(network *net);
-#endif
 image get_label(image **characters, char *string, int size);
 void draw_label(image a, int r, int c, image label, const float *rgb);
 void save_image(image im, const char *name);
@@ -770,15 +637,9 @@ void do_nms_sort(detection *dets, int total, int classes, float thresh);
 
 matrix make_matrix(int rows, int cols);
 
-#ifdef OPENCV
-void *open_video_stream(const char *f, int c, int w, int h, int fps);
-image get_image_from_stream(void *p);
-void make_window(char *name, int w, int h, int fullscreen);
-#endif
-
 void free_image(image m);
 float train_network(network *net, data d);
-//pthread_t load_data_in_thread(load_args args);
+
 void load_data_blocking(load_args args);
 list *get_paths(char *filename);
 void hierarchy_predictions(float *predictions, int n, tree *hier, int only_leaves, int stride);
@@ -793,7 +654,7 @@ void find_replace(char *str, char *orig, char *rep, char *output);
 void free_ptrs(void **ptrs, int n);
 char *fgetl(FILE *fp);
 void strip(char *s);
-//float sec(clock_t clocks);
+
 void **list_to_array(list *l);
 void top_k(float *a, int n, int k, int *index);
 int *read_map(char *filename);

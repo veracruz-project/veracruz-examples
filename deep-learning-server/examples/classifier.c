@@ -19,7 +19,6 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 #include <assert.h>
 
 
-// ----------------------------------------------------------------------
 // function for training the classifier
 void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus, int ngpus, int clear)
 {

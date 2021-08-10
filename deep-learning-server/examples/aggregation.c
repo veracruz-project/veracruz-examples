@@ -1,6 +1,6 @@
 /*
 This file contains the functions for supporting aggregation in federated
-learning.
+learning (currently only plain average supported).
 
 AUTHORS
 
@@ -8,8 +8,8 @@ The Veracruz Development Team.
 
 COPYRIGHT AND LICENSING
 
-See the `LICENSE_MIT.markdown` file in the Veracruz deep learning server example 
-repository root directory for copyright and licensing information.
+See the `LICENSE_MIT.markdown` file in the Veracruz deep learning server 
+example repository root directory for copyright and licensing information.
 Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/LICENSE
 */
 
@@ -23,6 +23,10 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 // this function reads all clients' weights file, load them into seperate 
 // networks, then from the first layer to the last layer, averages all 
 // weights if this layer has (i.e., Sum / No. of clients).
+//
+// - Input: all input arguments, including 1) network cfg 2) clients weight files
+// - Ouput: Aggregated weights file
+//
 void average(int argc, char *argv[])
 {
     // parse network based on cfg file
@@ -39,9 +43,9 @@ void average(int argc, char *argv[])
     int i, j;
     int n = argc - 5;
 
-    // for all other weights file
+    // for all other weights files
     for(i = 0; i < n; ++i){
-        weightfile = argv[i+5];   
+        weightfile = argv[i+5];
         load_weights(net, weightfile);
 
         // SUM: for every layer, do addition opration
