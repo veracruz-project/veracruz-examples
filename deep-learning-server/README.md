@@ -44,8 +44,6 @@ cp args_file_detect.cfg args_file.cfg
 wasmtime --dir=./ darknet.wasm
 ```
 
-Note: all commands are configured in the `args_file.cfg`.
-
 
 ### Run Use Case 3 (model aggregation)
 
@@ -55,6 +53,7 @@ cp args_file_aggregation.cfg args_file.cfg
 wasmtime --dir=./ darknet.wasm
 ```
 
+Note: all commands are configured in the `args_file.cfg`. Editing this file to test different datasets, models, and functions.
 
 ### TODO
 1. Secure other format models, e.g., Tensorflow, Pytorch, etc aggregation support for federated learning
