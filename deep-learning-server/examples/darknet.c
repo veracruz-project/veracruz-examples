@@ -29,7 +29,7 @@ extern void run_detector(int argc, char **argv);
 extern void run_classifier(int argc, char **argv);
 
 
-// the function run one specific example based on input arguments
+// the function runs one specific example based on input arguments
 //
 // - Input: 1) number of args, 2) strings of args
 // - Output: NONE
@@ -60,7 +60,7 @@ void run_example(int argc, char **argv)
 }
 
 
-// the function that reads args from a file. At the end, this file
+// a function that reads args from a file. In the end, this file
 // will pass args and call the `run_example` function directly
 //
 // - Input: path to the file
