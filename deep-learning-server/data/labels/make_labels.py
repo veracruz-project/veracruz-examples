@@ -6,6 +6,7 @@
 
 # See the `LICENSE_MIT.markdown` file in the Veracruz deep learning server 
 # example repository root directory for copyright and licensing information.
+# Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/LICENSE
 
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-

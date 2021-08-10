@@ -6,6 +6,7 @@
 
 # See the `LICENSE_MIT.markdown` file in the Veracruz deep learning server 
 # example repository root directory for copyright and licensing information.
+# Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/LICENSE
 
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
@@ -21,8 +22,6 @@ parser.add_argument('--num-clients', type=int, default=1,
                     help='the number of clients who held fractions of the dataset')
 parser.add_argument('--data-dist', type=str, default='iid',
                     help="the data distribution among clients [iid] or [non-iid] (NOT IMPLEMENTED)")
-#parser.add_argument('--relat-path-list', type=bool, default=True,
-#                    help="whether to use relative image path in the loading list or not")
 args = parser.parse_args()
 
 mnist_path = 'data/mnist/'
