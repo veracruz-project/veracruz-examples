@@ -39,6 +39,6 @@ def make_labels(s):
         else:
             os.system("convert -fill black -background white -bordercolor white -pointsize %d label:%s \"data/labels/%d_%d.png\""%(s,pipes.quote(word), ord(word),s/12-1))
 
-# for different font size
+# for different font sizes
 for i in [12,24,36,48,60,72,84,96]:
     make_labels(i)

@@ -24,7 +24,7 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 // extern functions in `aggregation`, `classifier`, and `detector`
 extern void average(int argc, char *argv[]);
 extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *filename, int top);
-extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile, int fullscreen);
+extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile);
 extern void run_detector(int argc, char **argv);
 extern void run_classifier(int argc, char **argv);
 
@@ -46,8 +46,7 @@ void run_example(int argc, char **argv)
         float thresh = find_float_arg(argc, argv, "-thresh", .5);
         char *filename = (argc > 4) ? argv[4]: 0;
         char *outfile = find_char_arg(argc, argv, "-out", 0);
-        int fullscreen = find_arg(argc, argv, "-fullscreen");
-        test_detector("cfg/coco.data", argv[2], argv[3], filename, thresh, .5, outfile, fullscreen);
+        test_detector("cfg/coco.data", argv[2], argv[3], filename, thresh, .5, outfile);
     
     // call the classifier example
     } else if (0 == strcmp(argv[1], "classifier")){
@@ -107,13 +106,11 @@ int main(int argc, char **argv)
         run_example(argc, argv);
 
     // else if the args file exists, read files (and run example)
-    }else if(fp != NULL)
-    {
+    }else if(fp != NULL){
         file_args_parser(args_file);
 
     // else args not found
-    }else
-    {
+    }else{
         fprintf(stderr, "Argument file not found. \nCommand-line arguments not found.\n");
     }
     return 0;
