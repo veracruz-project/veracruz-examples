@@ -8,8 +8,8 @@ The Veracruz Development Team.
 
 COPYRIGHT AND LICENSING
 
-See the `LICENSE_MIT.markdown` file in the Veracruz deep learning server 
-example repository root directory for copyright and licensing information.
+See the `LICENSE_MIT.markdown` file in the Veracruz deep learning server example 
+repository root directory for copyright and licensing information.
 Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/LICENSE
 */
 
@@ -19,22 +19,33 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 #include <stdlib.h>
 #include <stdio.h>
 
+
+// this function reads all clients' weights file, load them into seperate 
+// networks, then from the first layer to the last layer, averages all 
+// weights if this layer has (i.e., Sum / No. of clients).
 void average(int argc, char *argv[])
 {
+    // parse network based on cfg file
     char *cfgfile = argv[2];
     char *outfile = argv[3];
     gpu_index = -1;
     network *net = parse_network_cfg(cfgfile);
     network *sum = parse_network_cfg(cfgfile);
 
+    // load the first weights file into sum network (as output later)
     char *weightfile = argv[4];
     load_weights(sum, weightfile);
 
     int i, j;
     int n = argc - 5;
+
+    // for all other weights file
     for(i = 0; i < n; ++i){
         weightfile = argv[i+5];   
         load_weights(net, weightfile);
+
+        // SUM: for every layer, do addition opration
+        // only CONVOLUTIONAL and CONNECTED has weights
         for(j = 0; j < net->n; ++j){
             layer l = net->layers[j];
             layer out = sum->layers[j];
@@ -54,6 +65,8 @@ void average(int argc, char *argv[])
             }
         }
     }
+
+    // /No. of clients: for every layer, do division operation
     n = n+1;
     for(j = 0; j < net->n; ++j){
         layer l = sum->layers[j];
@@ -72,5 +85,7 @@ void average(int argc, char *argv[])
             scal_cpu(l.outputs*l.inputs, 1./n, l.weights, 1);
         }
     }
+
+    // save the weights of sum network
     save_weights(sum, outfile);
 }
