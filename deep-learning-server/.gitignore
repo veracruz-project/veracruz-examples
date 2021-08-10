@@ -15,7 +15,7 @@
 /cfg/vgg-7_cifar10.cfg 
 /cfg/yolov3.cfg
 
-/model/
+/model/yolov3-tiny.weights
 /obj/
 /.vscode/
 *.wasm

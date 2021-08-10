@@ -21,6 +21,7 @@ import cv2
 import os
 import argparse
 
+
 # arguments
 parser = argparse.ArgumentParser(description='Arguments to process the dataset')
 parser.add_argument('--num-clients', type=int, default=1,

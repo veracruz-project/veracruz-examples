@@ -1,5 +1,5 @@
 /*
-This header file define function calls in the main wasm binary.
+This header file defines function calls in the main wasm binary.
 
  AUTHORS
 
@@ -328,7 +328,6 @@ struct layer{
     tree *softmax_tree;
 
     size_t workspace_size;
-#endif
 };
 
 void free_layer(layer);
@@ -676,7 +675,4 @@ size_t rand_size_t();
 float rand_normal();
 float rand_uniform(float min, float max);
 
-#ifdef __cplusplus
-}
-#endif
 #endif

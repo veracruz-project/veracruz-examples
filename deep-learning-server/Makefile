@@ -18,8 +18,8 @@ COMMON= -Iinclude/ -Isrc/
 CC=../wasi-sdk-12.0/bin/clang --sysroot=../wasi-sdk-12.0/share/wasi-sysroot
 
 CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC
-OPTS=-Ofast
-#OPTS=-O0 -g
+#OPTS=-Ofast
+OPTS=-O0 -g
 
 ifeq ($(shell uname), Darwin)
 OS=macos
@@ -71,6 +71,7 @@ yolo_detection:
 		sudo apt install imagemagick; \
 	fi
 	python data/labels/make_labels.py
+	wget -P model/ https://pjreddie.com/media/files/yolov3-tiny.weights
 
 .PHONY: wasisdk clean
 
