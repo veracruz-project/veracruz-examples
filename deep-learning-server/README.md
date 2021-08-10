@@ -3,59 +3,59 @@
 This is a Veracruz example that supports training neural networks inside an isolated area on an untrusted device.
 (Note: currently only standalone execution is supported. No policy files are provided.)
 
+
 ### Build
+
+1- To build the wasm binary, run:
 ```
 cd veracruz-examples/deep-learning-server
 make all
 ```
 This will also download `wasi-sdk` for compiling this example. A `dl-server.wasm` binary will be outputted to the example root directory.
 
-### Run test (model training)
 
-Train a LeNet model on MNIST dataset. 
+### Run Use Case  1 (model training)
 
-First download and convert the dataset:
+To get the data prepared, first run:
 ```
-cd deep-learning-server/data/mnist
-python mnist_preparation.py
+make mnist_training num-clients=10
 ```
+`num-clients` determines the number of clients who hold different fractions of the complete dataset.
 
-Then start training the a model:
+Then, train a LeNet model on MNIST dataset by:
 ```
-wasmtime --dir=. darknet.wasm classifier train cfg/mnist.dataset cfg/mnist_lenet.cfg
+cp args_file_classifier.cfg args_file.cfg
+wasmtime --dir=./ dl-server.wasm
 ```
 
 The trained model will be saved into `model` directory.
 
-### Run test (YOLO object detection)
 
-Download a YOLO model into `model` folder by:
+### Run Use Case 2 (YOLO object detection)
 
+To get the YOLO pre-trained model prepared, first run:
 ```
-mkdir deep-learning-server/model
-cd deep-learning-server/model
-wget https://pjreddie.com/media/files/yolov3-tiny.weights`.
+make yolo_detection
 ```
 
-Create the labels that will be used in presenting detected objects:
+Then you can run the test on one image:
 ```
-cd deep-learning-server/data/labels
-python make_labels.py
-```
-
-Run the test on one image:
-```
-wasmtime --dir=. darknet.wasm detect cfg/yolov3-tiny.cfg model/yolov3-tiny.weights data/dog.jpg
+cp args_file_detect.cfg args_file.cfg
+wasmtime --dir=./ darknet.wasm
 ```
 
-All commands can be configured in the `args_file.txt`. Then one can run without command-line arguments, such as:
+Note: all commands are configured in the `args_file.cfg`.
+
+
+### Run Use Case 3 (model aggregation)
+
+To aggregation several existing models as one:
 ```
-wasmtime --dir=. darknet.wasm
+cp args_file_aggregation.cfg args_file.cfg
+wasmtime --dir=./ darknet.wasm
 ```
+
 
 ### TODO
-1. Load multiple fictions of a dataset before training (multiple data providers in Veracruz computation) (Done)
-2. Secure aggregation support for federated learning: i) darknet model (Done) ii) other format models, e.g., Tensorflow, Pytorch, etc
-3. (TBD) In centralized learning: GPU training (privacy-preserving + integrity)
-3. (TBD) In federated learning: client-side training integrity check with GPU training
-Previously
+1. Secure other format models, e.g., Tensorflow, Pytorch, etc aggregation support for federated learning
+2. (TBD) In federated learning: client-side training integrity check with GPU training

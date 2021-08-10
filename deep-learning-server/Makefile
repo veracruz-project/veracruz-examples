@@ -21,13 +21,6 @@ CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC
 #OPTS=-Ofast
 OPTS=-O0 -g
 
-ifeq ($(shell uname), Darwin)
-OS=macos
-endif
-ifeq ($(shell uname), Linux)
-OS=linux
-endif
-
 CFLAGS+=$(OPTS)
 
 LDFLAGS= -lm -g
@@ -35,14 +28,14 @@ LDFLAGS= -lm -g
 OBJ=gemm.wasm utils.wasm cuda.wasm deconvolutional_layer.wasm convolutional_layer.wasm list.wasm image.wasm activations.wasm im2col.wasm col2im.wasm blas.wasm crop_layer.wasm dropout_layer.wasm maxpool_layer.wasm softmax_layer.wasm data.wasm matrix.wasm network.wasm connected_layer.wasm cost_layer.wasm parser.wasm option_list.wasm detection_layer.wasm route_layer.wasm upsample_layer.wasm box.wasm normalization_layer.wasm avgpool_layer.wasm layer.wasm local_layer.wasm shortcut_layer.wasm logistic_layer.wasm activation_layer.wasm rnn_layer.wasm gru_layer.wasm crnn_layer.wasm demo.wasm batchnorm_layer.wasm region_layer.wasm reorg_layer.wasm tree.wasm  lstm_layer.wasm l2norm_layer.wasm yolo_layer.wasm iseg_layer.wasm
 EXECOBJA=aggregation.wasm classifier.wasm detector.wasm darknet.wasm
 
-
 EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
 DEPS = $(wildcard src/*.h) Makefile include/darknet.h
 
-all: wasisdk obj $(EXEC)
 
+all: wasisdk obj $(EXEC)
 examples: mnist_training yolo_detection
+
 
 $(EXEC): $(EXECOBJ) $(OBJS)
 	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
@@ -50,6 +43,13 @@ $(EXEC): $(EXECOBJ) $(OBJS)
 $(OBJDIR)%.wasm: %.c $(DEPS)
 	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
 
+
+ifeq ($(shell uname), Darwin)
+	OS=macos
+endif
+ifeq ($(shell uname), Linux)
+	OS=linux
+endif
 wasisdk:
 	if [ ! -d "../wasi-sdk-12.0" ]; then \
 		wget -P ../ https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-12/wasi-sdk-12.0-$(OS).tar.gz; \
@@ -58,11 +58,18 @@ wasisdk:
 		rm -f ../wasi-sdk-12.0-macos.tar.gz; \
 	fi
 
+
 obj:
 	mkdir -p obj
 
+
+NC=$(num-clients)
+ifeq ($(NC), )
+	NC=10
+endif
 mnist_training:
-	python data/mnist/mnist_preparation.py --num-clients=10
+	python data/mnist/mnist_preparation.py --num-clients=$(NC)
+
 
 yolo_detection:
 	if [ "$(OS)" = "macos" ]; then \
@@ -73,7 +80,9 @@ yolo_detection:
 	python data/labels/make_labels.py
 	wget -P model/ https://pjreddie.com/media/files/yolov3-tiny.weights
 
+
 .PHONY: wasisdk clean
+
 
 clean:
 	rm -rf $(OBJS) $(SLIB) $(ALIB) $(EXEC) $(EXECOBJ) $(OBJDIR)/* obj ../wasi-sdk-12.0
