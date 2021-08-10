@@ -34,6 +34,10 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
     printf("%s\n", base);
     printf("%d\n", ngpus);
     network **nets = calloc(ngpus, sizeof(network*));
+    if (nets == NULL){
+        printf("ERROR: allocating memory failure. \n");
+        exit(EXIT_FAILURE);
+    }
 
     // load into network based cfg and weights file
     for(i = 0; i < ngpus; ++i){
@@ -196,6 +200,10 @@ void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
     float avg_acc = 0;
     float avg_topk = 0;
     int *indexes = calloc(topk, sizeof(int));
+    if (indexes == NULL){
+        printf("ERROR: allocating memory failure. \n");
+        exit(EXIT_FAILURE);
+    }
 
     // predict on all data samples
     for(i = 0; i < m; ++i){
@@ -252,6 +260,11 @@ void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *fi
     char **names = get_labels(name_list);
 
     int *indexes = calloc(top, sizeof(int));
+    if (indexes == NULL){
+        printf("ERROR: allocating memory failure. \n");
+        exit(EXIT_FAILURE);
+    }
+
     char buff[256];
     char *input = buff;
 
