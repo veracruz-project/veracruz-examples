@@ -288,7 +288,7 @@ void run_classifier(int argc, char **argv)
 {   
     // parse all arguments
     if(argc < 4){
-        fprintf(stderr, "usage: %s %s [train/test/valid] [cfg] [weights (optional)]\n", argv[0], argv[1]);
+        fprintf(stderr, "usage: %s %s [train/predict/valid] [cfg] [weights (optional)]\n", argv[0], argv[1]);
         return;
     }
 

@@ -91,7 +91,7 @@ void run_detector(int argc, char **argv)
     int frame_skip = find_int_arg(argc, argv, "-s", 0);
     int avg = find_int_arg(argc, argv, "-avg", 3);
     if(argc < 4){
-        fprintf(stderr, "usage: %s %s [train/test/valid] [cfg] [weights (optional)]\n", argv[0], argv[1]);
+        fprintf(stderr, "usage: %s %s [test/demo] [cfg] [weights (optional)]\n", argv[0], argv[1]);
         return;
     }
 

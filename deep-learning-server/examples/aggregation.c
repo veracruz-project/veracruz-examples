@@ -30,6 +30,11 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 void average(int argc, char *argv[])
 {
     // parse network based on cfg file
+    if(argc < 4){
+        fprintf(stderr, "usage: %s %s [cfg] [weights_1/weights_2/...]\n", argv[0], argv[1]);
+        return;
+    }
+
     char *cfgfile = argv[2];
     char *outfile = argv[3];
     gpu_index = -1;
