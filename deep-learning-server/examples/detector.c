@@ -76,7 +76,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
 }
 
 
-// this function run the detector for training or inference
+// this function is the entry to run the detector inference
 //
 // - Input: all input arguments, including 1) cfg file, 2) weight files 
 //          if exists, 3) input data if exists
@@ -107,7 +107,7 @@ void run_detector(int argc, char **argv)
     char *weights = (argc > 5) ? argv[5] : 0;
     char *filename = (argc > 6) ? argv[6]: 0;
 
-    // use test or train function
+    // use test or demo function
     if(0==strcmp(argv[2], "test")) test_detector(datacfg, cfg, weights, filename, thresh, hier_thresh, outfile);
     else if(0==strcmp(argv[2], "demo")) { // one particular demo using test function
         list *options = read_data_cfg(datacfg);
@@ -115,5 +115,7 @@ void run_detector(int argc, char **argv)
         char *name_list = option_find_str(options, "names", "data/names.list");
         char **names = get_labels(name_list);
         demo(cfg, weights, thresh, cam_index, filename, names, classes, frame_skip, prefix, avg, hier_thresh, width, height, fps, fullscreen);
+    }else{
+        fprintf(stderr, "Not an option under classifier: %s\n", argv[2]);
     }
 }
