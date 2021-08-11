@@ -9,7 +9,7 @@ This is a Veracruz example that supports training neural networks inside an isol
 1- To build the wasm binary, run:
 ```
 cd veracruz-examples/deep-learning-server
-make all
+make
 ```
 This will also download `wasi-sdk` for compiling this example. A `dl-server.wasm` binary will be outputted to the example root directory.
 
@@ -28,32 +28,34 @@ cp args_file_classifier.cfg args_file.cfg
 wasmtime --dir=./ dl-server.wasm
 ```
 
-The trained model will be saved into `model` directory.
+Arguments in the `args_file.cfg` will be automatically loaded. After training, the trained model will be saved into `model` directory.
 
 
 ### Run Use Case 2 (YOLO object detection)
 
-To get the YOLO pre-trained model prepared, first run:
+To get the YOLO pre-trained model and labels prepared, first run:
 ```
 make yolo_detection
 ```
 
-Then you can run the test on one image:
+Then you can run the object detection on one image:
 ```
 cp args_file_detect.cfg args_file.cfg
 wasmtime --dir=./ darknet.wasm
 ```
 
+The prediction image can be found under the example root directory.
+
 
 ### Run Use Case 3 (model aggregation)
 
-To aggregation several existing models as one:
+To aggregate several existing models as a global one:
 ```
 cp args_file_aggregation.cfg args_file.cfg
 wasmtime --dir=./ darknet.wasm
 ```
 
-Note: all commands are configured in the `args_file.cfg`. Editing this file to test different datasets, models, and functions.
+Note: all commands are configured in the `args_file.cfg`. Check different `args_file_XXX.xfg` to see how the arguments are configured, and edit this file to test different datasets, models, and functions.
 
 ### TODO
 1. Secure other format models, e.g., Tensorflow, Pytorch, etc aggregation support for federated learning
