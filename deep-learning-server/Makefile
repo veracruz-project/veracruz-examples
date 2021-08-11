@@ -81,7 +81,7 @@ yolo_detection:
 	wget -P model/ https://pjreddie.com/media/files/yolov3-tiny.weights
 
 
-.PHONY: wasisdk clean
+.PHONY: wasisdk mnist_training yolo_detection clean
 
 
 clean:
