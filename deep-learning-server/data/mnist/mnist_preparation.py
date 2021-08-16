@@ -30,18 +30,32 @@ parser.add_argument('--data-dist', type=str, default='iid',
                     help="the data distribution among clients [iid] or [non-iid] (NOT IMPLEMENTED)")
 args = parser.parse_args()
 
+
 mnist_path = 'data/mnist/'
 
+train_image_ubytefile = 'train-images-idx3-ubyte'
+train_label_ubytefile = 'train-labels-idx1-ubyte'
+train_list_filename = 'mnist.train.list'
+train_num = 60000
+
+valid_image_ubytefile = 't10k-images-idx3-ubyte'
+valid_label_ubytefile = 't10k-labels-idx1-ubyte'
+valid_list_filename = 'mnist.valid.list'
+valid_num = 10000
+
+mnist_lecun_url = 'http://yann.lecun.com/exdb/mnist/'
+
+
 # if MNIST file not exist, then download into `mnist_path` and unzip
-if not os.path.exists(mnist_path + 'train-images-idx3-ubyte'):
+if not os.path.exists(mnist_path + train_image_ubytefile):
     print("Downloading mnist files...")
-    data_files=["train-images-idx3-ubyte.gz",
-    "train-labels-idx1-ubyte.gz",
-    "t10k-images-idx3-ubyte.gz",
-    "t10k-labels-idx1-ubyte.gz"]
+    data_files=[train_image_ubytefile + '.gz',
+        train_label_ubytefile + '.gz',
+        valid_image_ubytefile + '.gz',
+        valid_label_ubytefile + '.gz']
 
     for data_file in data_files:
-        os.system('wget -P ' + mnist_path + ' http://yann.lecun.com/exdb/mnist/' + data_file)
+        os.system('wget -P ' + mnist_path + ' ' + mnist_lecun_url + data_file)
         os.system('gunzip ' + mnist_path + data_file + ' ' + mnist_path)
 
 
@@ -104,5 +118,5 @@ def conv_mnist(img_file, label_file, num, path, list, label):
 
 # call the conv_mnist function on 1) valid source files 2) training 
 # source files
-conv_mnist('t10k-images-idx3-ubyte', 't10k-labels-idx1-ubyte', 10000, img_path, "mnist.valid.list", "v")
-conv_mnist('train-images-idx3-ubyte', 'train-labels-idx1-ubyte', 60000, img_path, "mnist.train.list", "t")
+conv_mnist(valid_image_ubytefile, valid_label_ubytefile, valid_num, img_path, valid_list_filename, "v")
+conv_mnist(train_image_ubytefile, train_label_ubytefile, train_num, img_path, train_list_filename, "t")
