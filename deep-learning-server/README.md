@@ -41,7 +41,7 @@ make yolo_detection
 Then you can run the object detection on one image:
 ```
 cp args_file_detect.cfg args_file.cfg
-wasmtime --dir=./ darknet.wasm
+wasmtime --dir=./ dl-server.wasm
 ```
 
 The prediction image can be found under the example root directory.
@@ -52,7 +52,7 @@ The prediction image can be found under the example root directory.
 To aggregate several existing models as a global one:
 ```
 cp args_file_aggregation.cfg args_file.cfg
-wasmtime --dir=./ darknet.wasm
+wasmtime --dir=./ dl-server.wasm
 ```
 
 Note: all commands are configured in the `args_file.cfg`. Check different `args_file_XXX.xfg` to see how the arguments are configured, and edit this file to test different datasets, models, and functions.
