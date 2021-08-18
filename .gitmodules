@@ -1,6 +1,6 @@
 [submodule "deep-learning-server/src"]
 	path = deep-learning-server/src
-	url = https://github.com/mofanv/darknet-src.git
+	url = https://github.com/mofanv/darknet-src
 [submodule "deep-learning-server/connxr"]
 	path = deep-learning-server/connxr
 	url = https://github.com/mofanv/cONNXr

@@ -22,7 +22,7 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 
 
 // extern functions in `aggregation`, `classifier`, and `detector`
-extern void average(int argc, char *argv[]);
+extern void run_aggregation(int argc, char **argv);
 extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *filename, int top);
 extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile);
 extern void run_detector(int argc, char **argv);
@@ -39,7 +39,7 @@ void run_example(int argc, char **argv)
     
     // call the aggregation example
     if (0 == strcmp(argv[1], "aggregation")){
-        average(argc, argv);
+        run_aggregation(argc, argv);
     
     // call the detection example
     } else if (0 == strcmp(argv[1], "detect")){

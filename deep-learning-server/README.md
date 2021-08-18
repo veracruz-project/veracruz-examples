@@ -57,6 +57,7 @@ wasmtime --dir=./ dl-server.wasm
 
 Note: all commands are configured in the `args_file.cfg`. Check different `args_file_XXX.xfg` to see how the arguments are configured, and edit this file to test different datasets, models, and functions.
 
+
 ### TODO
 1. Secure aggregation of ONNX model, which then supports Tensorflow, Pytorch, etc. for federated learning
 2. (TBD) In federated learning: client-side training integrity check with GPU training

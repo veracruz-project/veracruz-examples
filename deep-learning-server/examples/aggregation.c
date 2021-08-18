@@ -14,12 +14,15 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 */
 
 #include "darknet.h"
+#include "../connxr/include/utils.h"
+#include "../connxr/protobuf/onnx.pb-c.h"
 
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
 
 
+// For Darknet format weights
 // this function reads all clients' weights file, load them into seperate 
 // networks, then from the first layer to the last layer, averages all 
 // weights if this layer has (i.e., Sum / No. of clients).
@@ -27,22 +30,16 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 // - Input: all input arguments, including 1) network cfg 2) clients weight files
 // - Ouput: Aggregated weights file
 //
-void average(int argc, char *argv[])
+void average_darknet(int argc, char *argv[])
 {
-    // parse network based on cfg file
-    if(argc < 4){
-        fprintf(stderr, "usage: %s %s [cfg] [weights_1/weights_2/...]\n", argv[0], argv[1]);
-        return;
-    }
-
-    char *cfgfile = argv[2];
-    char *outfile = argv[3];
+    char *cfgfile = argv[3];
+    char *outfile = argv[4];
     gpu_index = -1;
     network *net = parse_network_cfg(cfgfile);
     network *sum = parse_network_cfg(cfgfile);
 
     // load the first weights file into sum network (as output later)
-    char *weightfile = argv[4];
+    char *weightfile = argv[5];
     load_weights(sum, weightfile);
 
     int i, j;
@@ -50,11 +47,11 @@ void average(int argc, char *argv[])
 
     // for all other weights files
     for(i = 0; i < n; ++i){
-        weightfile = argv[i+5];
+        weightfile = argv[i+6];
         load_weights(net, weightfile);
 
         // SUM: for every layer, do addition opration
-        // only CONVOLUTIONAL and CONNECTED has weights
+        // only CONVOLUTIONAL and CONNECTED have weights
         for(j = 0; j < net->n; ++j){
             layer l = net->layers[j];
             layer out = sum->layers[j];
@@ -97,4 +94,141 @@ void average(int argc, char *argv[])
 
     // save the weights of sum network
     save_weights(sum, outfile);
+}
+
+
+// For ONNX format weights
+// this function reads all clients' weights file, load them into seperate 
+// networks, then from the first layer to the last layer, averages all 
+// weights if this layer has (i.e., Sum / No. of clients).
+//
+// - Input: all input arguments, including 1) network cfg 2) clients weight files
+// - Ouput: Aggregated weights file
+//
+void average_onnx(int argc, char *argv[])
+{
+    char *output_file_dir = argv[3];
+
+    // load the first weights file into sum network (as output later)
+    Onnx__ModelProto *model_sum = openOnnxFile(argv[4]);
+    if (model_sum != NULL){printf("model c1 loaded\n");}
+
+    // for all other weights files
+    int n = argc - 5;
+    for(int i = 0; i < n; ++i){
+        Onnx__ModelProto *model_c = openOnnxFile(argv[i+5]);
+        if (model_c != NULL){printf("model c%d loaded\n", i+2);}
+
+        // SUM: for each tensor in the graph
+        for(int j=0; j < model_sum->graph->n_initializer; j++){
+            int32_t dt = model_sum->graph->initializer[j]->data_type; //data type
+
+            //FLOAT or COMPLEX64
+            if (dt == 1 || dt == 14){
+                int ts = model_sum->graph->initializer[j]->n_float_data;
+                float *td_sum = model_sum->graph->initializer[j]->float_data;
+                float *td_c = model_c->graph->initializer[j]->float_data;
+                for(int k=0; k < ts; k++){
+                    td_sum[k] = td_sum[k] + td_c[k];
+                }
+                
+            // INT32, INT16, INT8, UINT16, UINT8, BOOL, or FLOAT16
+            }else if (dt==2 || dt==3 || dt==4 || dt==5 || dt==6 || dt==9 || dt==10){
+                int ts = model_sum->graph->initializer[j]->n_int32_data;
+                int32_t *td_sum = model_sum->graph->initializer[j]->int32_data;
+                int32_t *td_c = model_c->graph->initializer[j]->int32_data;
+                for(int k=0; k < ts; k++){
+                    td_sum[k] = td_sum[k] + td_c[k];
+                }
+
+            // INT64
+            }else if (dt == 7){
+                int ts = model_sum->graph->initializer[j]->n_int64_data;
+                int64_t *td_sum = model_sum->graph->initializer[j]->int64_data;
+                int64_t *td_c = model_c->graph->initializer[j]->int64_data;
+                for(int k=0; k < ts; k++){
+                    td_sum[k] = td_sum[k] + td_c[k];
+                }
+            
+            // DOUBLE or COMPLEX128
+            }else if (dt == 11 || dt == 15){
+                int ts = model_sum->graph->initializer[j]->n_double_data;
+                double *td_sum = model_sum->graph->initializer[j]->double_data;
+                double *td_c = model_c->graph->initializer[j]->double_data;
+                for(int k=0; k < ts; k++){
+                    td_sum[k] = td_sum[k] + td_c[k];
+                }
+
+            }else{
+                fprintf(stderr, "unknown or undefined data types [%d]: tensor no.%d\n", dt, j);
+            }
+        }
+    }
+
+    // AVERAGE: for each tensor in the graph
+    for(int j=0; j < model_sum->graph->n_initializer; j++){
+        int32_t dt = model_sum->graph->initializer[j]->data_type; //data type
+
+        //FLOAT or COMPLEX64
+        if (dt == 1 || dt == 14){
+            int ts = model_sum->graph->initializer[j]->n_float_data;
+            float *td_sum = model_sum->graph->initializer[j]->float_data;
+            for(int k=0; k < ts; k++){
+                td_sum[k] = td_sum[k] / (n+1);
+            }
+
+        // INT32, INT16, INT8, UINT16, UINT8, BOOL, or FLOAT16
+        }else if (dt==2 || dt==3 || dt==4 || dt==5 || dt==6 || dt==9 || dt==10){
+            int ts = model_sum->graph->initializer[j]->n_int32_data;
+            int32_t *td_sum = model_sum->graph->initializer[j]->int32_data;
+            for(int k=0; k < ts; k++){
+                td_sum[k] = td_sum[k] / (n+1);
+            }
+            
+        // INT64
+        }else if (dt == 7){
+            int ts = model_sum->graph->initializer[j]->n_int64_data;
+            int64_t *td_sum = model_sum->graph->initializer[j]->int64_data;
+            for(int k=0; k < ts; k++){
+                td_sum[k] = td_sum[k] / (n+1);
+            }
+
+        // DOUBLE or COMPLEX128
+        }else if (dt == 11 || dt == 15){
+            int ts = model_sum->graph->initializer[j]->n_double_data;
+            double *td_sum = model_sum->graph->initializer[j]->double_data;
+            for(int k=0; k < ts; k++){
+                td_sum[k] = td_sum[k] / (n+1);
+            }
+        }else{
+            fprintf(stderr, "unknown or undefined data types [%d]: tensor no.%d\n", dt, j);
+        }
+    }
+
+    // save onnx weights
+    saveOnnxFile(model_sum, output_file_dir);
+    printf("save aggregation model to '%s' done!\n", output_file_dir);
+}
+
+
+// this function is the entry to run the classifier in terms of both training  
+// and inference.
+//
+// - Input: all input arguments, including 1) cfg file, 2) weight files 
+//          if exists, 3) input data if exists
+// - Ouput: NONE
+void run_aggregation(int argc, char **argv)
+{   
+    // parse network based on cfg file
+    if(argc < 4){
+        fprintf(stderr, "usage: %s %s [weights_format] [cfg]/NONE [weights_1/weights_2/...]\n", argv[0], argv[1]);
+        return;
+    }
+
+    // use darknet or onnx weight format
+    if(0==strcmp(argv[2], "darknet")) average_darknet(argc, argv);
+    else if(0==strcmp(argv[2], "onnx")) average_onnx(argc, argv);
+    else{
+        fprintf(stderr, "Not an option under aggregation: %s\n", argv[2]);
+    }
 }

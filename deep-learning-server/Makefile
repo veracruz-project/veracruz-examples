@@ -13,7 +13,7 @@ VPATH=./src/:./examples
 EXEC=dl-server.wasm
 OBJDIR=./obj/
 
-COMMON= -Iinclude/ -Isrc/
+COMMON= -Iinclude/ -Isrc/ -Iconnxr/src -Iconnxr/include -Iconnxr/protobuf
 
 CC=../wasi-sdk-12.0/bin/clang --sysroot=../wasi-sdk-12.0/share/wasi-sysroot
 
@@ -28,20 +28,51 @@ LDFLAGS= -lm -g
 OBJ=gemm.wasm utils.wasm cuda.wasm deconvolutional_layer.wasm convolutional_layer.wasm list.wasm image.wasm activations.wasm im2col.wasm col2im.wasm blas.wasm crop_layer.wasm dropout_layer.wasm maxpool_layer.wasm softmax_layer.wasm data.wasm matrix.wasm network.wasm connected_layer.wasm cost_layer.wasm parser.wasm option_list.wasm detection_layer.wasm route_layer.wasm upsample_layer.wasm box.wasm normalization_layer.wasm avgpool_layer.wasm layer.wasm local_layer.wasm shortcut_layer.wasm logistic_layer.wasm activation_layer.wasm rnn_layer.wasm gru_layer.wasm crnn_layer.wasm demo.wasm batchnorm_layer.wasm region_layer.wasm reorg_layer.wasm tree.wasm  lstm_layer.wasm l2norm_layer.wasm yolo_layer.wasm iseg_layer.wasm
 EXECOBJA=aggregation.wasm classifier.wasm detector.wasm darknet.wasm
 
+
+INCDIR+=connxr/include
+INCDIR+=connxr/protobuf
+INCDIR+=connxr/src
+CPPFLAGS+=$(foreach DIR, $(INCDIR),-I $(DIR) )
+
+CONNXR_BUILDDIR?=obj/connxr
+SRCDIR+=connxr/src/operators
+SRCDIR+=connxr/protobuf
+SRCS+=$(foreach DIR, $(SRCDIR), $(shell find $(DIR) -type f -name '*.c'))
+SRCS+=connxr/src/inference.c
+SRCS+=connxr/src/trace.c
+SRCS+=connxr/src/utils.c
+SRCS+=connxr/src/test/test_utils.c
+ONNXOBJ=$(SRCS:%.c=$(CONNXR_BUILDDIR)/%.wasm)
+
+
 EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
 DEPS = $(wildcard src/*.h) Makefile include/darknet.h
+CONNXRDEPS = $(wildcard connxr/src/*.h) $(wildcard connxr/protobuf/*.h) $(wildcard connxr/include/*.h)
 
 
 all: wasisdk obj $(EXEC)
+
 examples: mnist_training yolo_detection
 
-
-$(EXEC): $(EXECOBJ) $(OBJS)
+$(EXEC): $(EXECOBJ) $(OBJS) $(ONNXOBJ)
 	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-$(OBJDIR)%.wasm: %.c $(DEPS)
+$(OBJDIR)%.wasm: %.c $(DEPS) $(CONNXRDEPS)
 	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
+
+$(CONNXR_BUILDDIR)/%.wasm: %.c
+	@mkdir -p $(dir $@)
+	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $^
+
+# obj/aggregation.wasm: examples/aggregation.c $(DEPS) $(CONNXRDEPS)
+# 	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
+
+# connxr: $(CONNXR_BUILDDIR)/connxr.wasm
+# $(CONNXR_BUILDDIR)/connxr.wasm: $(ONNXOBJ)
+# 	$(CC) -o $@ connxr/src/connxr.c $^ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)
+
+
 
 
 ifeq ($(shell uname), Darwin)
@@ -57,6 +88,10 @@ wasisdk:
 		tar xvf ../wasi-sdk-12.0-$(OS).tar.gz -C ../; \
 		rm -f ../wasi-sdk-12.0-macos.tar.gz; \
 	fi
+
+
+onnx:
+	$(MAKE) -C connxr
 
 
 obj:
@@ -81,8 +116,10 @@ yolo_detection:
 	wget -P model/ https://pjreddie.com/media/files/yolov3-tiny.weights
 
 
-.PHONY: wasisdk mnist_training yolo_detection clean
+.PHONY: wasisd mnist_training yolo_detection clean
 
 
 clean:
-	rm -rf $(OBJS) $(SLIB) $(ALIB) $(EXEC) $(EXECOBJ) $(OBJDIR)/* obj ../wasi-sdk-12.0
+	rm -rf $(OBJS) $(EXEC) $(EXECOBJ) $(OBJDIR)/* obj connxr/build
+
+# ../wasi-sdk-12.0
