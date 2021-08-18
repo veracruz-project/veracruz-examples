@@ -29,19 +29,14 @@ OBJ=gemm.wasm utils.wasm cuda.wasm deconvolutional_layer.wasm convolutional_laye
 EXECOBJA=aggregation.wasm classifier.wasm detector.wasm darknet.wasm
 
 
-INCDIR+=connxr/include
-INCDIR+=connxr/protobuf
-INCDIR+=connxr/src
+INCDIR+=connxr/include connxr/protobuf connxr/src
 CPPFLAGS+=$(foreach DIR, $(INCDIR),-I $(DIR) )
 
 CONNXR_BUILDDIR?=obj/connxr
-SRCDIR+=connxr/src/operators
-SRCDIR+=connxr/protobuf
+SRCDIR+=connxr/src/operators connxr/protobuf
 SRCS+=$(foreach DIR, $(SRCDIR), $(shell find $(DIR) -type f -name '*.c'))
-SRCS+=connxr/src/inference.c
-SRCS+=connxr/src/trace.c
-SRCS+=connxr/src/utils.c
-SRCS+=connxr/src/test/test_utils.c
+
+SRCS+=connxr/src/inference.c connxr/src/trace.c connxr/src/utils.c connxr/src/test/test_utils.c
 ONNXOBJ=$(SRCS:%.c=$(CONNXR_BUILDDIR)/%.wasm)
 
 
@@ -49,6 +44,7 @@ EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
 OBJS = $(addprefix $(OBJDIR), $(OBJ))
 DEPS = $(wildcard src/*.h) Makefile include/darknet.h
 CONNXRDEPS = $(wildcard connxr/src/*.h) $(wildcard connxr/protobuf/*.h) $(wildcard connxr/include/*.h)
+
 
 
 all: wasisdk obj $(EXEC)
@@ -64,14 +60,6 @@ $(OBJDIR)%.wasm: %.c $(DEPS) $(CONNXRDEPS)
 $(CONNXR_BUILDDIR)/%.wasm: %.c
 	@mkdir -p $(dir $@)
 	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $^
-
-# obj/aggregation.wasm: examples/aggregation.c $(DEPS) $(CONNXRDEPS)
-# 	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
-
-# connxr: $(CONNXR_BUILDDIR)/connxr.wasm
-# $(CONNXR_BUILDDIR)/connxr.wasm: $(ONNXOBJ)
-# 	$(CC) -o $@ connxr/src/connxr.c $^ $(CPPFLAGS) $(CFLAGS) $(LDFLAGS)
-
 
 
 
