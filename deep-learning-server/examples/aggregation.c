@@ -212,8 +212,8 @@ void average_onnx(int argc, char *argv[])
 }
 
 
-// this function is the entry to run the classifier in terms of both training  
-// and inference.
+// this function is the entry to run the aggregation in terms of two format
+// : Darknet or ONNX.
 //
 // - Input: all input arguments, including 1) cfg file, 2) weight files 
 //          if exists, 3) input data if exists

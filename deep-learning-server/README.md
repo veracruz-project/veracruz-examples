@@ -28,7 +28,7 @@ cp args_files/classifier.cfg args.cfg
 wasmtime --dir=./ dl-server.wasm
 ```
 
-Arguments in the `args_file.cfg` will be automatically loaded. After training, the trained model will be saved into `model` directory.
+Arguments in the `args.cfg` will be automatically loaded. After training, the trained model will be saved into `model` directory.
 
 
 ### Run Use Case 2 (YOLO object detection)
