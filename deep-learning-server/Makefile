@@ -116,10 +116,8 @@ yolo_detection:
 	wget -P model/ https://pjreddie.com/media/files/yolov3-tiny.weights
 
 
-.PHONY: wasisd mnist_training yolo_detection clean
+.PHONY: wasisdk mnist_training yolo_detection clean
 
 
 clean:
-	rm -rf $(OBJS) $(EXEC) $(EXECOBJ) $(OBJDIR)/* obj connxr/build
-
-# ../wasi-sdk-12.0
+	rm -rf $(OBJS) $(EXEC) $(EXECOBJ) $(OBJDIR)/* obj connxr/build ../wasi-sdk-12.0
