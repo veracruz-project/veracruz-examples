@@ -51,14 +51,14 @@ The prediction image can be found under the example root directory.
 
 We support two model formats 1) Darknet 2) ONNX.
 
-**Darknet** is default format in our example, which all the above training and YOLO detection are based on.
+**Darknet** is the default format in our example, which all the above training and YOLO detection are based on.
 To aggregate several existing Darknet models as a global one:
 ```
 cp args_files/aggregation_darknet.cfg args.cfg
 wasmtime --dir=./ dl-server.wasm
 ```
 
-**ONNX**, i.e., [Open Neural Network Exchange](https://onnx.ai/), is a interoperable model format, which can act as the intermediate among models of Tensorflow, Pytorch, etc.
+**ONNX**, i.e., [Open Neural Network Exchange](https://onnx.ai/), is an interoperable model format, which can act as the intermediate among models of Tensorflow, Pytorch, etc.
 To aggregate several existing ONNX models as a global one:
 ```
 cp args_files/aggregation_onnx.cfg args.cfg
@@ -72,5 +72,5 @@ Note: all commands are configured in the `args.cfg`. Check different `args_files
 ### TODO
 - Tests such as 1) prediction results of training 2) aggregation results
 - Run inside freestanding execution engine
-- ONNX model federated learning: clients use Tensorflow, Pytorch, then export trained model to ONNX for our aggregation
+- ONNX model federated learning: clients use Tensorflow, Pytorch, and then export trained model to ONNX for our aggregation
 - Run inside real-time Veracruz execution engine (Policy, etc)
