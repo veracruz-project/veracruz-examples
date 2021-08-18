@@ -97,7 +97,7 @@ void file_args_parser(char * args_file)
 // - Output: 0
 int main(int argc, char **argv)
 {
-    char *args_file = "args_file.cfg";
+    char *args_file = "args.cfg";
     FILE *fp = fopen(args_file, "r");
 
     // if number of args >= 2 (the first is the name of wasm itself),
