@@ -1,4 +1,4 @@
-## Centralized Deep Learning Application
+## Deep Learning Server Application
 
 This is a Veracruz example that supports training neural networks inside an isolated area on an untrusted device.
 (Note: currently only standalone execution is supported. No policy files are provided.)
