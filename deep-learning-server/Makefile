@@ -98,7 +98,7 @@ ifeq ($(NC), )
 	NC=10
 endif
 mnist_training:
-	python data/mnist/mnist_preparation.py --num-clients=$(NC)
+	python3 data/mnist/mnist_preparation.py --num-clients=$(NC)
 
 
 ##########################################################
