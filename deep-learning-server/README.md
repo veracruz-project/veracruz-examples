@@ -30,6 +30,20 @@ wasmtime --dir=./ dl-server.wasm
 
 Arguments in the `args.cfg` will be automatically loaded. After training, the trained model will be saved into `model` directory.
 
+After training (by default it is `2000` batches, see `mnist_lenet.cfg` file), you can then conduct prediction or valid on this built model.
+
+To test on one image, using the commands below. You will see the prediction of this image.
+```
+cp args_files/prediction_one.cfg args.cfg
+wasmtime --dir=./ dl-server.wasm
+```
+
+To test on the validation dataset (10000 images), using the commands below. You will see all predictions and the top 1 and top 5 average accuracies.
+```
+cp args_files/prediction_multi.cfg args.cfg
+wasmtime --dir=./ dl-server.wasm
+```
+
 
 ### Run Use Case 2 (YOLO object detection)
 

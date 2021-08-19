@@ -18,8 +18,8 @@ COMMON= -Iinclude/ -Isrc/ -Iconnxr/src -Iconnxr/include -Iconnxr/protobuf
 CC=../wasi-sdk-12.0/bin/clang --sysroot=../wasi-sdk-12.0/share/wasi-sysroot
 
 CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC
-#OPTS=-Ofast
-OPTS=-O0 -g
+OPTS=-Ofast
+#OPTS=-O0 -g
 
 CFLAGS+=$(OPTS)
 

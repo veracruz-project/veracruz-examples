@@ -22,6 +22,7 @@
 
 .DS_Store
 
+model/mnist_lenet.backup
 model/mnist_model_sum.onnx
 model/mnist_lenet_sum.weights
 darknet
