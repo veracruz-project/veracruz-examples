@@ -1,3 +1,5 @@
+args.cfg
+
 /data/mnist/images/
 /data/mnist/images_*/
 /data/mnist/train-images-idx3-ubyte
