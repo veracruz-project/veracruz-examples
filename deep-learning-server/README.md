@@ -27,7 +27,7 @@ Then, train a LeNet model on MNIST dataset by:
 cp args_files/classifier.cfg args.cfg
 wasmtime --dir=./ dl-server.wasm
 
-# or using freestanding execution engine
+# or use freestanding execution engine
 RUST_LOG=“info” [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-source args.cfg cfg data --output-source model -d -e
 ```
 
@@ -40,7 +40,7 @@ To test on one image, using the commands below. You will see the prediction of t
 cp args_files/prediction_one.cfg args.cfg
 wasmtime --dir=./ dl-server.wasm
 
-# or using freestanding execution engine
+# or use freestanding execution engine
 RUST_LOG=“info” [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-source args.cfg cfg model data/mnist/mnist.names.list data/mnist/images_client1/t_00000_c5.png -d -e
 ```
 
@@ -49,7 +49,7 @@ To test on the validation dataset (10000 images), using the commands below. You 
 cp args_files/prediction_multi.cfg args.cfg
 wasmtime --dir=./ dl-server.wasm
 
-# or using freestanding execution engine
+# or use freestanding execution engine
 RUST_LOG=“info” [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-source args.cfg cfg model data -d -e
 ```
 
@@ -66,7 +66,7 @@ Then you can run the object detection on one image:
 cp args_files/detect.cfg args.cfg
 wasmtime --dir=./ dl-server.wasm
 
-# or using freestanding execution engine
+# or use freestanding execution engine
 RUST_LOG=“info” [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-source args.cfg cfg model data/coco.names data/dog.jpg --output-source ./ -d -e
 ```
 
@@ -83,7 +83,7 @@ To aggregate several existing Darknet models as a global one:
 cp args_files/aggregation_darknet.cfg args.cfg
 wasmtime --dir=./ dl-server.wasm
 
-# or using freestanding execution engine
+# or use freestanding execution engine
 RUST_LOG=“info” [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-source args.cfg cfg model --output-source model -d -e
 ```
 
@@ -93,7 +93,7 @@ To aggregate several existing ONNX models as a global one:
 cp args_files/aggregation_onnx.cfg args.cfg
 wasmtime --dir=./ dl-server.wasm
 
-# or using freestanding execution engine
+# or use freestanding execution engine
 RUST_LOG=“info” [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-source args.cfg model --output-source model -d -e
 ```
 

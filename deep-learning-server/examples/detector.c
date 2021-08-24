@@ -15,7 +15,6 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 
 #include "darknet.h"
 
-
 // the function to test a object detector, aka detection inference. The prediction
 // is outputted as a `prediction` file
 // - Input: 1) data cfg (name of all objects), 2) network cfg, 3) weights file
@@ -38,36 +37,42 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     double time;
     char buff[256];
     char *input = buff;
-    float nms=.45;
+    float nms = .45;
 
-    if(!filename){
+    if (!filename)
+    {
         fprintf(stderr, "file not exists: %s\n", filename);
-
-    }else{
+    }
+    else
+    {
         // load image
         strncpy(input, filename, 256);
-        image im = load_image_color(input,0,0);
+        image im = load_image_color(input, 0, 0);
         image sized = letterbox_image(im, net->w, net->h);
-        layer l = net->layers[net->n-1];
+        layer l = net->layers[net->n - 1];
 
         // prediction
         float *X = sized.data;
-        time=what_time_is_it_now();
+        time = what_time_is_it_now();
         network_predict(net, X);
-        printf("%s: Predicted in %f seconds.\n", input, what_time_is_it_now()-time);
-        
+        printf("%s: Predicted in %f seconds.\n", input, what_time_is_it_now() - time);
+
         // add boxes for objects
         int nboxes = 0;
         detection *dets = get_network_boxes(net, im.w, im.h, thresh, hier_thresh, 0, 1, &nboxes);
         //printf("%d\n", nboxes);
-        if (nms) do_nms_sort(dets, nboxes, l.classes, nms);
+        if (nms)
+            do_nms_sort(dets, nboxes, l.classes, nms);
         draw_detections(im, dets, nboxes, thresh, names, alphabet, l.classes);
         free_detections(dets, nboxes);
 
         // output the file
-        if(outfile){
+        if (outfile)
+        {
             save_image(im, outfile);
-        }else{
+        }
+        else
+        {
             save_image(im, "predictions");
         }
         free_image(im);
@@ -75,10 +80,9 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     }
 }
 
-
 // this function is the entry to run the detector inference
 //
-// - Input: all input arguments, including 1) cfg file, 2) weight files 
+// - Input: all input arguments, including 1) cfg file, 2) weight files
 //          if exists, 3) input data if exists
 // - Ouput: NONE
 void run_detector(int argc, char **argv)
@@ -90,7 +94,8 @@ void run_detector(int argc, char **argv)
     int cam_index = find_int_arg(argc, argv, "-c", 0);
     int frame_skip = find_int_arg(argc, argv, "-s", 0);
     int avg = find_int_arg(argc, argv, "-avg", 3);
-    if(argc < 4){
+    if (argc < 4)
+    {
         fprintf(stderr, "usage: %s %s [test/demo] [cfg] [weights (optional)]\n", argv[0], argv[1]);
         return;
     }
@@ -105,17 +110,21 @@ void run_detector(int argc, char **argv)
     char *datacfg = argv[3];
     char *cfg = argv[4];
     char *weights = (argc > 5) ? argv[5] : 0;
-    char *filename = (argc > 6) ? argv[6]: 0;
+    char *filename = (argc > 6) ? argv[6] : 0;
 
     // use test or demo function
-    if(0==strcmp(argv[2], "test")) test_detector(datacfg, cfg, weights, filename, thresh, hier_thresh, outfile);
-    else if(0==strcmp(argv[2], "demo")) { // one particular demo using test function
+    if (0 == strcmp(argv[2], "test"))
+        test_detector(datacfg, cfg, weights, filename, thresh, hier_thresh, outfile);
+    else if (0 == strcmp(argv[2], "demo"))
+    { // one particular demo using test function
         list *options = read_data_cfg(datacfg);
         int classes = option_find_int(options, "classes", 20);
         char *name_list = option_find_str(options, "names", "data/names.list");
         char **names = get_labels(name_list);
         demo(cfg, weights, thresh, cam_index, filename, names, classes, frame_skip, prefix, avg, hier_thresh, width, height, fps, fullscreen);
-    }else{
+    }
+    else
+    {
         fprintf(stderr, "Not an option under classifier: %s\n", argv[2]);
     }
 }

@@ -18,11 +18,10 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 #include <sys/time.h>
 #include <assert.h>
 
-
 // The function for training the classifier. Weights file are saved after
 // training.
 // - Input: 1) data cfg (list of data paths), 2) network cfg, 3) weights file
-//          4) gpus index 5) number of gpus 6) whether to clear the trained 
+//          4) gpus index 5) number of gpus 6) whether to clear the trained
 //          previous batches
 // - Output: None
 void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus, int ngpus, int clear)
@@ -33,14 +32,16 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
     char *base = basecfg(cfgfile);
     printf("%s\n", base);
     printf("%d\n", ngpus);
-    network **nets = calloc(ngpus, sizeof(network*));
-    if (nets == NULL){
+    network **nets = calloc(ngpus, sizeof(network *));
+    if (nets == NULL)
+    {
         printf("ERROR: allocating memory failure. \n");
         exit(EXIT_FAILURE);
     }
 
     // load into network based cfg and weights file
-    for(i = 0; i < ngpus; ++i){
+    for (i = 0; i < ngpus; ++i)
+    {
         nets[i] = load_network(cfgfile, weightfile, clear);
         nets[i]->learning_rate *= ngpus;
     }
@@ -56,11 +57,13 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
     char *label_list = option_find_str(options, "labels", "data/labels.list");
     char *train_list = option_find_str(options, "train", "data/train.list");
     char *tree = option_find_str(options, "tree", 0);
-    if (tree) net->hierarchy = read_tree(tree);
+    if (tree)
+        net->hierarchy = read_tree(tree);
     int classes = option_find_int(options, "classes", 2);
 
     char **labels = 0;
-    if(!tag){
+    if (!tag)
+    {
         labels = get_labels(label_list);
     }
     list *plist = get_paths(train_list);
@@ -74,8 +77,8 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
     args.h = net->h;
     args.hierarchy = net->hierarchy;
 
-    args.min = net->min_ratio*net->w;
-    args.max = net->max_ratio*net->w;
+    args.min = net->min_ratio * net->w;
+    args.max = net->max_ratio * net->w;
     printf("%d %d\n", args.min, args.max);
     args.angle = net->angle;
     args.aspect = net->aspect;
@@ -89,9 +92,12 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
     args.n = imgs;
     args.m = N;
     args.labels = labels;
-    if (tag){
+    if (tag)
+    {
         args.type = TAG_DATA;
-    } else {
+    }
+    else
+    {
         args.type = CLASSIFICATION_DATA;
     }
 
@@ -102,24 +108,27 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 
     // start training on each batch
     int count = 0;
-    int epoch = (*net->seen)/N;
-    while(get_current_batch(net) < net->max_batches || net->max_batches == 0){
-        if(net->random && count++%40 == 0){
+    int epoch = (*net->seen) / N;
+    while (get_current_batch(net) < net->max_batches || net->max_batches == 0)
+    {
+        if (net->random && count++ % 40 == 0)
+        {
             printf("Resizing\n");
             int dim = (rand() % 11 + 4) * 32;
             printf("%d\n", dim);
             args.w = dim;
             args.h = dim;
             args.size = dim;
-            args.min = net->min_ratio*dim;
-            args.max = net->max_ratio*dim;
+            args.min = net->min_ratio * dim;
+            args.max = net->max_ratio * dim;
             printf("%d %d\n", args.min, args.max);
 
             train = buffer;
             free_data(train);
             load_data_single_thread(args);
 
-            for(i = 0; i < ngpus; ++i){
+            for (i = 0; i < ngpus; ++i)
+            {
                 resize_network(nets[i], dim, dim);
             }
             net = nets[0];
@@ -129,28 +138,31 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
         train = buffer;
         load_data_single_thread(args);
 
-        printf("Loaded: %lf seconds\n", what_time_is_it_now()-time);
+        printf("Loaded: %lf seconds\n", what_time_is_it_now() - time);
         time = what_time_is_it_now();
 
         float loss = 0;
 
         loss = train_network(net, train);
 
-        if(avg_loss == -1) avg_loss = loss;
-        avg_loss = avg_loss*.9 + loss*.1;
-        printf("%ld, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n", get_current_batch(net), (float)(*net->seen)/N, loss, avg_loss, get_current_rate(net), what_time_is_it_now()-time, *net->seen);
+        if (avg_loss == -1)
+            avg_loss = loss;
+        avg_loss = avg_loss * .9 + loss * .1;
+        printf("%ld, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n", get_current_batch(net), (float)(*net->seen) / N, loss, avg_loss, get_current_rate(net), what_time_is_it_now() - time, *net->seen);
         free_data(train);
-        
+
         // save weights as backup
-        if(*net->seen/N > epoch){
-            epoch = *net->seen/N;
+        if (*net->seen / N > epoch)
+        {
+            epoch = *net->seen / N;
             char buff[256];
-            sprintf(buff, "%s/%s_%d.weights",backup_directory,base, epoch);
+            sprintf(buff, "%s/%s_%d.weights", backup_directory, base, epoch);
             save_weights(net, buff);
         }
-        if(get_current_batch(net)%1000 == 0){
+        if (get_current_batch(net) % 1000 == 0)
+        {
             char buff[256];
-            sprintf(buff, "%s/%s.backup",backup_directory,base);
+            sprintf(buff, "%s/%s.backup", backup_directory, base);
             save_weights(net, buff);
         }
     }
@@ -162,12 +174,12 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 
     // free buffer
     free_network(net);
-    if(labels) free_ptrs((void**)labels, classes);
-    free_ptrs((void**)paths, plist->size);
+    if (labels)
+        free_ptrs((void **)labels, classes);
+    free_ptrs((void **)paths, plist->size);
     free_list(plist);
     free(base);
 }
-
 
 //  The function for validating the classifier on one dataset, aka, a list of
 //  data samples. Predictions are outputted in command line.
@@ -185,7 +197,8 @@ void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
     list *options = read_data_cfg(datacfg);
     char *label_list = option_find_str(options, "labels", "data/labels.list");
     char *leaf_list = option_find_str(options, "leaves", 0);
-    if(leaf_list) change_leaves(net->hierarchy, leaf_list);
+    if (leaf_list)
+        change_leaves(net->hierarchy, leaf_list);
     char *valid_list = option_find_str(options, "valid", "data/train.list");
     int classes = option_find_int(options, "classes", 2);
     int topk = option_find_int(options, "top", 1);
@@ -200,17 +213,21 @@ void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
     float avg_acc = 0;
     float avg_topk = 0;
     int *indexes = calloc(topk, sizeof(int));
-    if (indexes == NULL){
+    if (indexes == NULL)
+    {
         printf("ERROR: allocating memory failure. \n");
         exit(EXIT_FAILURE);
     }
 
     // predict on all data samples
-    for(i = 0; i < m; ++i){
+    for (i = 0; i < m; ++i)
+    {
         int class = -1;
         char *path = paths[i];
-        for(j = 0; j < classes; ++j){
-            if(strstr(path, labels[j])){
+        for (j = 0; j < classes; ++j)
+        {
+            if (strstr(path, labels[j]))
+            {
                 class = j;
                 break;
             }
@@ -221,22 +238,25 @@ void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
         image crop = center_crop_image(im, net->w, net->h);
 
         float *pred = network_predict(net, crop.data);
-        if(net->hierarchy) hierarchy_predictions(pred, net->outputs, net->hierarchy, 1, 1);
+        if (net->hierarchy)
+            hierarchy_predictions(pred, net->outputs, net->hierarchy, 1, 1);
 
         free_image(im);
         free_image(crop);
         top_k(pred, classes, topk, indexes);
 
-        if(indexes[0] == class) avg_acc += 1;
-        for(j = 0; j < topk; ++j){
-            if(indexes[j] == class) avg_topk += 1;
+        if (indexes[0] == class)
+            avg_acc += 1;
+        for (j = 0; j < topk; ++j)
+        {
+            if (indexes[j] == class)
+                avg_topk += 1;
         }
 
         printf("%s, %d, %f, %f, \n", paths[i], class, pred[0], pred[1]);
-        printf("%d: top 1: %f, top %d: %f\n", i, avg_acc/(i+1), topk, avg_topk/(i+1));
+        printf("%d: top 1: %f, top %d: %f\n", i, avg_acc / (i + 1), topk, avg_topk / (i + 1));
     }
 }
-
 
 //  The function for validating the classifier on one data sample. Prediction
 //  is outputted in command line.
@@ -253,14 +273,17 @@ void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *fi
     // load data based cfg
     list *options = read_data_cfg(datacfg);
     char *name_list = option_find_str(options, "names", 0);
-    if(!name_list) name_list = option_find_str(options, "labels", "data/labels.list");
-    if(top == 0) top = option_find_int(options, "top", 1);
+    if (!name_list)
+        name_list = option_find_str(options, "labels", "data/labels.list");
+    if (top == 0)
+        top = option_find_int(options, "top", 1);
 
     int i = 0;
     char **names = get_labels(name_list);
 
     int *indexes = calloc(top, sizeof(int));
-    if (indexes == NULL){
+    if (indexes == NULL)
+    {
         printf("ERROR: allocating memory failure. \n");
         exit(EXIT_FAILURE);
     }
@@ -268,39 +291,44 @@ void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *fi
     char buff[256];
     char *input = buff;
 
-    if(!filename){
+    if (!filename)
+    {
         fprintf(stderr, "file not exists: %s\n", filename);
-
-    }else{
+    }
+    else
+    {
         strncpy(input, filename, 256);
         image im = load_image_color(input, 0, 0);
         image r = letterbox_image(im, net->w, net->h);
 
         float *X = r.data;
         float *predictions = network_predict(net, X);
-        if(net->hierarchy) hierarchy_predictions(predictions, net->outputs, net->hierarchy, 1, 1);
+        if (net->hierarchy)
+            hierarchy_predictions(predictions, net->outputs, net->hierarchy, 1, 1);
         top_k(predictions, net->outputs, top, indexes);
         fprintf(stderr, "%s: Predicted.\n", input);
-        for(i = 0; i < top; ++i){
+        for (i = 0; i < top; ++i)
+        {
             int index = indexes[i];
-            printf("%5.2f%%: %s\n", predictions[index]*100, names[index]);
+            printf("%5.2f%%: %s\n", predictions[index] * 100, names[index]);
         }
-        if(r.data != im.data) free_image(r);
+        if (r.data != im.data)
+            free_image(r);
         free_image(im);
     }
 }
 
-
-// this function is the entry to run the classifier in terms of both training  
+// this function is the entry to run the classifier in terms of both training
 // and inference.
 //
-// - Input: all input arguments, including 1) cfg file, 2) weight files 
+// - Input: all input arguments, including 1) cfg file, 2) weight files
 //          if exists, 3) input data if exists
 // - Ouput: NONE
 void run_classifier(int argc, char **argv)
-{   
+{
     // parse all arguments
-    if(argc < 4){
+    if (argc < 4)
+    {
         fprintf(stderr, "usage: %s %s [train/predict/valid] [cfg] [weights (optional)]\n", argv[0], argv[1]);
         return;
     }
@@ -311,18 +339,20 @@ void run_classifier(int argc, char **argv)
 
     int top = find_int_arg(argc, argv, "-t", 0);
     int clear = find_arg(argc, argv, "-clear");
-    char *data = (argc > 3) ? argv[3]: 0;
-    char *cfg = (argc > 4) ? argv[4]: 0;
+    char *data = (argc > 3) ? argv[3] : 0;
+    char *cfg = (argc > 4) ? argv[4] : 0;
     char *weights = (argc > 5) ? argv[5] : 0;
-    char *filename = (argc > 6) ? argv[6]: 0;
+    char *filename = (argc > 6) ? argv[6] : 0;
 
     // use test or train function
-    if(0==strcmp(argv[2], "predict")) predict_classifier(data, cfg, weights, filename, top);
-    else if(0==strcmp(argv[2], "train")) train_classifier(data, cfg, weights, gpus, ngpus, clear);
-    else if(0==strcmp(argv[2], "valid")) validate_classifier_single(data, cfg, weights);
-    else{
+    if (0 == strcmp(argv[2], "predict"))
+        predict_classifier(data, cfg, weights, filename, top);
+    else if (0 == strcmp(argv[2], "train"))
+        train_classifier(data, cfg, weights, gpus, ngpus, clear);
+    else if (0 == strcmp(argv[2], "valid"))
+        validate_classifier_single(data, cfg, weights);
+    else
+    {
         fprintf(stderr, "Not an option under classifier: %s\n", argv[2]);
     }
 }
-
-

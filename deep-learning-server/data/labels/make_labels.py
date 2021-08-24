@@ -1,4 +1,4 @@
-# This file uses `convert` system function to convert character (such as
+# This file uses the `convert` system function to convert character (such as
 # letter, numbers, symbols) to png format images, which will be used to
 # annotate objects in YOLO detection.
 #
