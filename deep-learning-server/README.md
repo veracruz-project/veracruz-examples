@@ -97,6 +97,20 @@ wasmtime --dir=./ dl-server.wasm
 RUST_LOG=“info” [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-source args.cfg model --output-source model -d -e
 ```
 
+**ONNX** with Tensorflow and Pytorch as local training framework. (UNDER ARRANGEMENT)
+```
+# Client 1 (preliminary: tensorflow and tf2onnx installed)
+cd model && python mnist_tensorflow.py
+python -m tf2onnx.convert --saved-model tensorflow_mnist --output tensorflow_mnist.onnx
+
+# Client 2 (preliminary: pytorch installed)
+cd model && python mnist_pytorch.py
+
+# aggregate two ONNX models
+cp args_files/aggregation_onnx_c2.cfg args.cfg
+wasmtime --dir=./ dl-server.wasm
+```
+
 
 Note: all commands are configured in the `args.cfg`. Check different `args_files/_XXX.xfg` to see how the arguments are configured, and edit this file to test different datasets, models, and functions.
 
