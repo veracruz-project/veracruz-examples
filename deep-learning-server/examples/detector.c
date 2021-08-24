@@ -35,19 +35,20 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     // load image
     image **alphabet = load_alphabet();
     double time;
-    char buff[256];
-    char *input = buff;
     float nms = .45;
+    //char buff[256];
+    //char *input = buff;
+    
 
     if (!filename)
     {
-        fprintf(stderr, "file not exists: %s\n", filename);
+        fprintf(stderr, "image file not defined: %s\n", filename);
     }
     else
     {
         // load image
-        strncpy(input, filename, 256);
-        image im = load_image_color(input, 0, 0);
+        //strncpy(input, filename, 256); // TODO: buff when loading multiple images
+        image im = load_image_color(filename, 0, 0);
         image sized = letterbox_image(im, net->w, net->h);
         layer l = net->layers[net->n - 1];
 
