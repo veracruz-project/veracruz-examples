@@ -17,10 +17,12 @@ Based on cONNXr, MIT LICENSE https://github.com/alrevuelta/cONNXr/blob/master/LI
 #include "darknet.h"
 #include "../connxr/include/utils.h"
 #include "../connxr/protobuf/onnx.pb-c.h"
+#include "../connxr/include/inference.h"
 
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 
 // For Darknet format weights
@@ -168,6 +170,7 @@ void average_onnx(int argc, char *argv[])
 
     // AVERAGE: for each tensor in the graph
     for(int j=0; j < model_sum->graph->n_initializer; j++){
+        //printf("aggregating layer %d in %d\n", j, model_sum->graph->n_initializer);
         int32_t dt = model_sum->graph->initializer[j]->data_type; //data type
 
         //FLOAT or COMPLEX64
@@ -212,6 +215,41 @@ void average_onnx(int argc, char *argv[])
 }
 
 
+
+// this function here is provided to test the onnx model by using a  
+// inference function. Prediction is outputted with `n_float_data`
+//
+// - Input: all input arguments, including 1) model 2) input data
+// - Ouput: NONE
+void predict_onnx(int argc, char *argv[]){
+
+    // load the weights file
+    Onnx__ModelProto *model = openOnnxFile(argv[3]);
+    if (model != NULL){printf("model loaded\n");}
+    
+    // load the input data
+    char *input_str = argv[4];
+    Onnx__TensorProto *inp0set0 = openTensorProtoFile(input_str);
+    if (inp0set0 != NULL){printf("Loading input %s... ok!\n", input_str);}
+    convertRawDataOfTensorProto(inp0set0);
+    inp0set0->name = model->graph->input[0]->name;
+    Onnx__TensorProto *inputs[] = { inp0set0 };
+
+    // resolve the model and run inference
+    printf("Resolving model...\n");
+    resolve(model, inputs, 1);
+    printf("Running inference on %s model...\n", model->graph->name);
+    inference(model, inputs, 1);
+    printf("finished!\n");
+
+    // print the last output which should be the model output
+    for (int i = 0; i < all_context[_populatedIdx].outputs[0]->n_float_data; i++){
+        printf("n_float_data[%d] = %f\n", i, all_context[_populatedIdx].outputs[0]->float_data[i]);
+    }
+}
+
+
+
 // this function is the entry to run the aggregation in terms of two format
 // : Darknet or ONNX.
 //
@@ -229,6 +267,7 @@ void run_aggregation(int argc, char **argv)
     // use darknet or onnx weight format
     if(0==strcmp(argv[2], "darknet")) average_darknet(argc, argv);
     else if(0==strcmp(argv[2], "onnx")) average_onnx(argc, argv);
+    else if(0==strcmp(argv[2], "onnx_predict")) predict_onnx(argc, argv);
     else{
         fprintf(stderr, "Not an option under aggregation: %s\n", argv[2]);
     }
