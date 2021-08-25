@@ -1,4 +1,4 @@
-# Pytorch example on MNIST
+# Pytorch example on MNIST from
 # https://github.com/pytorch/examples/blob/master/mnist/main.py
 
 from __future__ import print_function
@@ -33,7 +33,7 @@ class Net(nn.Module):
         x = F.relu(x)
         x = self.dropout2(x)
         x = self.fc2(x)
-        output = F.log_softmax(x, dim=1)
+        output = F.softmax(x, dim=1)
         return output
 
 
@@ -43,7 +43,7 @@ def train(args, model, device, train_loader, optimizer, epoch):
         data, target = data.to(device), target.to(device)
         optimizer.zero_grad()
         output = model(data)
-        loss = F.nll_loss(output, target)
+        loss = F.cross_entropy(output, target)
         loss.backward()
         optimizer.step()
         if batch_idx % args.log_interval == 0:
@@ -62,7 +62,7 @@ def test(model, device, test_loader):
         for data, target in test_loader:
             data, target = data.to(device), target.to(device)
             output = model(data)
-            test_loss += F.nll_loss(output, target, reduction='sum').item()  # sum up batch loss
+            test_loss += F.cross_entropy(output, target, reduction='sum').item()  # sum up batch loss
             pred = output.argmax(dim=1, keepdim=True)  # get the index of the max log-probability
             correct += pred.eq(target.view_as(pred)).sum().item()
 
@@ -135,8 +135,8 @@ def main():
     if args.save_model:
         torch.save(model.state_dict(), "pytorch_mnist.pt")
         
-        dummy_input = torch.randn(64, 1, 28, 28)
-        torch.onnx.export(model, dummy_input, "pytorch_mnist.onnx", opset_version=12)
+        dummy_input = torch.randn(22, 1, 28, 28)
+        torch.onnx.export(model, dummy_input, "pytorch_mnist.onnx", opset_version=9, verbose=True)
 
 
 if __name__ == '__main__':

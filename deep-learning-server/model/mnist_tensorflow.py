@@ -1,4 +1,4 @@
-# Tensorflow example on MNIST
+# Tensorflow example on MNIST from
 # https://www.tensorflow.org/tutorials/quickstart/beginner
 
 import tensorflow as tf
