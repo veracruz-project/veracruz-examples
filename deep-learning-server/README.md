@@ -116,7 +116,4 @@ Note: all commands are configured in the `args.cfg`. Check different `args_files
 
 
 ### TODO
-- Tests such as 1) prediction results of training 2) aggregation results
-- Run inside freestanding execution engine
-- ONNX model federated learning: clients use Tensorflow, Pytorch, and then export trained model to ONNX for our aggregation
 - Run inside real-time Veracruz execution engine (Policy, etc)
