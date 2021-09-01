@@ -56,7 +56,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         float *X = sized.data;
         time = what_time_is_it_now();
         network_predict(net, X);
-        printf("%s: Predicted in %f seconds.\n", input, what_time_is_it_now() - time);
+        printf("%s: Predicted in %f seconds.\n", filename, what_time_is_it_now() - time);
 
         // add boxes for objects
         int nboxes = 0;
