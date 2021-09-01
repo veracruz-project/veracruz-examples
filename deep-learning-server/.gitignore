@@ -27,9 +27,6 @@ args.cfg
 model/mnist_lenet.backup
 model/mnist_model_sum.onnx
 model/mnist_lenet_sum.weights
-darknet
-Makefile_c
-Makefile_wasm
 
 model/tensorflow_mnist.onnx
 model/pytorch_mnist.pt
