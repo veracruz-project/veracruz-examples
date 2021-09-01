@@ -109,7 +109,7 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
     // start training on each batch
     int count = 0;
     int epoch = (*net->seen) / N;
-    while (get_current_batch(net) < net->max_batches || net->max_batches == 0)
+    while (get_current_batch(net) < net->max_batches)
     {
         if (net->random && count++ % 40 == 0)
         {
