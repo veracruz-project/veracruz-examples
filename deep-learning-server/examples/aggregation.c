@@ -47,7 +47,7 @@ void average_darknet(int argc, char *argv[])
     load_weights(sum, weightfile);
 
     int i, j;
-    int n = argc - 5;
+    int n = argc - 6;
 
     // for all other weights files
     for (i = 0; i < n; ++i)
