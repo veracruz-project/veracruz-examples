@@ -334,6 +334,9 @@ void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *fi
             free_image(r);
         free_image(im);
     }
+
+    // TODO: for `output` in veracruz runtime
+    save_weights(net, "output");
 }
 
 // this function is the entry to run the classifier in terms of both training
