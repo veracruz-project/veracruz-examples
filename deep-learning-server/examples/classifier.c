@@ -26,6 +26,9 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 // - Output: None
 void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus, int ngpus, int clear)
 {
+    double time;
+    time  = what_time_is_it_now(); // time stamp for loading and parsing arguments
+
     // read cfg files
     int i;
     float avg_loss = -1;
@@ -70,7 +73,6 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
     char **paths = (char **)list_to_array(plist);
     printf("%d\n", plist->size);
     int N = plist->size;
-    double time;
 
     load_args args = {0};
     args.w = net->w;
@@ -105,6 +107,8 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
     data buffer;
     args.d = &buffer;
     load_data_single_thread(args);
+    
+    debug_print("1- Arguments loaded and network parsed: %lf seconds\n", what_time_is_it_now() - time);
 
     // start training on each batch
     int count = 0;
@@ -133,13 +137,13 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
             }
             net = nets[0];
         }
-        time = what_time_is_it_now();
+        time = what_time_is_it_now();  // time stamp for loading dataset (one batch)
 
         train = buffer;
         load_data_single_thread(args);
 
-        printf("Loaded: %lf seconds\n", what_time_is_it_now() - time);
-        time = what_time_is_it_now();
+        debug_print("2- One batch data loaded: %lf seconds\n", what_time_is_it_now() - time);
+        time = what_time_is_it_now(); // time stamp for training on one batch
 
         float loss = 0;
 
@@ -149,6 +153,7 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
             avg_loss = loss;
         avg_loss = avg_loss * .9 + loss * .1;
         printf("%ld, %.3f: %f, %f avg, %f rate, %lf seconds, %ld images\n", get_current_batch(net), (float)(*net->seen) / N, loss, avg_loss, get_current_rate(net), what_time_is_it_now() - time, *net->seen);
+        debug_print("3- One batch data trained: %lf seconds\n", what_time_is_it_now() - time);
         free_data(train);
 
         // save weights as backup
@@ -167,10 +172,13 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
         }
     }
 
+    time = what_time_is_it_now(); // time stamp for saving the weights
+
     // save weights in the end
     char buff[256];
     sprintf(buff, "%s/%s.weights", backup_directory, base);
     save_weights(net, buff);
+    debug_print("4- Weights saved: %lf seconds\n", what_time_is_it_now() - time);
 
     // free buffer
     free_network(net);
@@ -188,6 +196,9 @@ void train_classifier(char *datacfg, char *cfgfile, char *weightfile, int *gpus,
 // - Output: None
 void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
 {
+    double time;
+    time  = what_time_is_it_now(); // time stamp for loading and parsing arguments
+
     // load network based on cfg and weights files
     int i, j;
     network *net = load_network(filename, weightfile, 0);
@@ -219,6 +230,8 @@ void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
         exit(EXIT_FAILURE);
     }
 
+    debug_print("1- Arguments loaded and network parsed: %lf seconds\n", what_time_is_it_now() - time);
+
     // predict on all data samples
     for (i = 0; i < m; ++i)
     {
@@ -234,8 +247,12 @@ void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
         }
 
         // load one image and predict
+        time = what_time_is_it_now(); // time stamp for loading one image
         image im = load_image_color(paths[i], 0, 0);
         image crop = center_crop_image(im, net->w, net->h);
+        
+        debug_print("2- One image loaded: %lf seconds\n", what_time_is_it_now() - time);
+        time = what_time_is_it_now(); // time stamp for predicting one image
 
         float *pred = network_predict(net, crop.data);
         if (net->hierarchy)
@@ -255,6 +272,7 @@ void validate_classifier_single(char *datacfg, char *filename, char *weightfile)
 
         printf("%s, %d, %f, %f, \n", paths[i], class, pred[0], pred[1]);
         printf("%d: top 1: %f, top %d: %f\n", i, avg_acc / (i + 1), topk, avg_topk / (i + 1));
+        debug_print("3- One image predicted: %lf seconds\n", what_time_is_it_now() - time);
     }
 }
 

@@ -97,7 +97,7 @@ wasmtime --dir=./ dl-server.wasm
 RUST_LOG=info [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-source args.cfg model --output-source model -d -e
 ```
 
-**ONNX** with Tensorflow and Pytorch as local training framework. (UNDER ARRANGEMENT)
+**ONNX** with Tensorflow and Pytorch as local training framework. (The best way to set up these ML framework is using conda + python 3.7)
 ```
 # Client 1 (preliminary: tensorflow and tf2onnx installed)
 cd model && python mnist_tensorflow.py

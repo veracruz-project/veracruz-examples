@@ -12,7 +12,7 @@
 
 ##########################################################
 VPATH=./src/:./examples
-EXEC=dl-server
+EXEC=dl-server.wasm
 OBJDIR=./obj/
 
 ############
@@ -26,7 +26,7 @@ endif
 ############
 COMMON= -Iinclude/ -Isrc/ -Iconnxr/src -Iconnxr/include -Iconnxr/protobuf
 
-CC=gcc
+CC=../wasi-sdk-12.0/bin/clang --sysroot=../wasi-sdk-12.0/share/wasi-sysroot
 
 CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC
 OPTS=-Ofast
@@ -37,8 +37,8 @@ CFLAGS+=$(OPTS)
 LDFLAGS= -lm
 
 ############
-OBJ=gemm.o utils.o cuda.o deconvolutional_layer.o convolutional_layer.o list.o image.o activations.o im2col.o col2im.o blas.o crop_layer.o dropout_layer.o maxpool_layer.o softmax_layer.o data.o matrix.o network.o connected_layer.o cost_layer.o parser.o option_list.o detection_layer.o route_layer.o upsample_layer.o box.o normalization_layer.o avgpool_layer.o layer.o local_layer.o shortcut_layer.o logistic_layer.o activation_layer.o rnn_layer.o gru_layer.o crnn_layer.o demo.o batchnorm_layer.o region_layer.o reorg_layer.o tree.o  lstm_layer.o l2norm_layer.o yolo_layer.o iseg_layer.o
-EXECOBJA=aggregation.o classifier.o detector.o darknet.o
+OBJ=gemm.wasm utils.wasm cuda.wasm deconvolutional_layer.wasm convolutional_layer.wasm list.wasm image.wasm activations.wasm im2col.wasm col2im.wasm blas.wasm crop_layer.wasm dropout_layer.wasm maxpool_layer.wasm softmax_layer.wasm data.wasm matrix.wasm network.wasm connected_layer.wasm cost_layer.wasm parser.wasm option_list.wasm detection_layer.wasm route_layer.wasm upsample_layer.wasm box.wasm normalization_layer.wasm avgpool_layer.wasm layer.wasm local_layer.wasm shortcut_layer.wasm logistic_layer.wasm activation_layer.wasm rnn_layer.wasm gru_layer.wasm crnn_layer.wasm demo.wasm batchnorm_layer.wasm region_layer.wasm reorg_layer.wasm tree.wasm  lstm_layer.wasm l2norm_layer.wasm yolo_layer.wasm iseg_layer.wasm
+EXECOBJA=aggregation.wasm classifier.wasm detector.wasm darknet.wasm
 
 INCDIR+=connxr/include connxr/protobuf connxr/src
 CPPFLAGS+=$(foreach DIR, $(INCDIR),-I $(DIR) )
@@ -48,7 +48,7 @@ SRCDIR+=connxr/src/operators connxr/protobuf
 SRCS+=$(foreach DIR, $(SRCDIR), $(shell find $(DIR) -type f -name '*.c'))
 
 SRCS+=connxr/src/inference.c connxr/src/trace.c connxr/src/utils.c connxr/src/test/test_utils.c
-ONNXOBJ=$(SRCS:%.c=$(CONNXR_BUILDDIR)/%.o)
+ONNXOBJ=$(SRCS:%.c=$(CONNXR_BUILDDIR)/%.wasm)
 
 
 EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
@@ -84,10 +84,10 @@ obj:
 $(EXEC): $(EXECOBJ) $(OBJS) $(ONNXOBJ)
 	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-$(OBJDIR)%.o: %.c $(DEPS) $(CONNXRDEPS)
+$(OBJDIR)%.wasm: %.c $(DEPS) $(CONNXRDEPS)
 	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
 
-$(CONNXR_BUILDDIR)/%.o: %.c
+$(CONNXR_BUILDDIR)/%.wasm: %.c
 	@mkdir -p $(dir $@)
 	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $^
 

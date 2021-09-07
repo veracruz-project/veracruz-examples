@@ -23,6 +23,9 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 // - Output: None
 void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile)
 {
+    double time;
+    time  = what_time_is_it_now(); // time stamp for loading and parsing arguments
+
     // read cfg file
     list *options = read_data_cfg(datacfg);
     char *name_list = option_find_str(options, "names", "data/names.list");
@@ -34,11 +37,11 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
 
     // load image
     image **alphabet = load_alphabet();
-    double time;
     float nms = .45;
     //char buff[256];
     //char *input = buff;
-    
+
+    debug_print("1- Arguments loaded and network parsed: %lf seconds\n", what_time_is_it_now() - time);
 
     if (!filename)
     {
@@ -46,17 +49,24 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     }
     else
     {
+        time = what_time_is_it_now();  // time stamp for loading image
+
         // load image
         //strncpy(input, filename, 256); // TODO: buff when loading multiple images
         image im = load_image_color(filename, 0, 0);
         image sized = letterbox_image(im, net->w, net->h);
         layer l = net->layers[net->n - 1];
 
+        debug_print("2- One image loaded: %lf seconds\n", what_time_is_it_now() - time);
+        time = what_time_is_it_now(); // time stamp for predicting one image
+
         // prediction
         float *X = sized.data;
-        time = what_time_is_it_now();
         network_predict(net, X);
         printf("%s: Predicted in %f seconds.\n", filename, what_time_is_it_now() - time);
+
+        debug_print("3- One image predicted: %lf seconds\n", what_time_is_it_now() - time);
+        time = what_time_is_it_now(); // time stamp for boxing and outputting one image
 
         // add boxes for objects
         int nboxes = 0;
@@ -78,6 +88,8 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         }
         free_image(im);
         free_image(sized);
+
+        debug_print("4- One image boxed and ouputted: %lf seconds\n", what_time_is_it_now() - time);
     }
 }
 
