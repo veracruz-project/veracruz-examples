@@ -33,6 +33,9 @@ Based on cONNXr, MIT LICENSE https://github.com/alrevuelta/cONNXr/blob/master/LI
 // - Ouput: Aggregated weights file
 void average_darknet(int argc, char *argv[])
 {
+    double time;
+    time  = what_time_is_it_now(); // time stamp for loading and aggregating the model
+
     char *cfgfile = argv[3];
     char *outfile = argv[4];
     gpu_index = -1;
@@ -102,8 +105,12 @@ void average_darknet(int argc, char *argv[])
         }
     }
 
+    debug_print("1- Models loaded and averaged: %lf seconds\n", what_time_is_it_now() - time);
+    time = what_time_is_it_now();
+
     // save the weights of sum network
     save_weights(sum, outfile);
+    debug_print("2- Models saved: %lf seconds\n", what_time_is_it_now() - time);
 }
 
 // For ONNX format weights
@@ -115,6 +122,9 @@ void average_darknet(int argc, char *argv[])
 // - Ouput: Aggregated weights file
 void average_onnx(int argc, char *argv[])
 {
+    double time;
+    time  = what_time_is_it_now(); // time stamp for loading and aggregating the model
+
     char *output_file_dir = argv[3];
 
     // load the first weights file into sum network (as output later)
@@ -242,9 +252,13 @@ void average_onnx(int argc, char *argv[])
         }
     }
 
+    debug_print("1- Models loaded and averaged: %lf seconds\n", what_time_is_it_now() - time);
+    time = what_time_is_it_now();
+
     // save onnx weights
     saveOnnxFile(model_sum, output_file_dir);
     printf("save aggregation model to '%s' done!\n", output_file_dir);
+    debug_print("2- Models saved: %lf seconds\n", what_time_is_it_now() - time);
 }
 
 // this function here is provided to test the onnx model by using a

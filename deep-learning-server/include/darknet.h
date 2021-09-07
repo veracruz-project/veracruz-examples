@@ -19,6 +19,10 @@ This header file defines function calls in the main wasm binary.
 #include <string.h>
 #include <sys/time.h>
 
+#define DEBUG 1
+#define debug_print(fmt, ...) \
+            do { if (DEBUG) fprintf(stderr, fmt, __VA_ARGS__); } while (0)
+
 #define SECRET_NUM -1234
 extern int gpu_index;
 
