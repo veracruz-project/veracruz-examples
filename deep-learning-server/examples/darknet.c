@@ -21,11 +21,10 @@ Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/L
 #define MAX_STRINGS 100
 
 // extern functions in `aggregation`, `classifier`, and `detector`
-extern void run_aggregation(int argc, char **argv);
-extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *filename, int top);
-extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile);
-extern void run_detector(int argc, char **argv);
 extern void run_classifier(int argc, char **argv);
+extern void run_detector(int argc, char **argv);
+extern void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile);
+extern void run_aggregation(int argc, char **argv);
 
 // the function runs one specific example based on input arguments
 //
@@ -33,8 +32,6 @@ extern void run_classifier(int argc, char **argv);
 // - Output: NONE
 void run_example(int argc, char **argv)
 {
-    gpu_index = -1;
-
     // call the aggregation example
     if (0 == strcmp(argv[1], "aggregation"))
     {
@@ -53,7 +50,7 @@ void run_example(int argc, char **argv)
     {
         run_classifier(argc, argv);
     }
-    // Not a implmented example
+    // Not an implmented example
     else
     {
         fprintf(stderr, "Not an option: %s\n", argv[1]);
@@ -68,7 +65,7 @@ void run_example(int argc, char **argv)
 void file_args_parser(char *args_file)
 {
     int argc = 1;
-    char argv_[10][MAX_STRINGS]; // max 10 args for now
+    char argv_[10][MAX_STRINGS]; // TODO: max 10 args for now
     char line[MAX_STRINGS];
 
     FILE *file;

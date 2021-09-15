@@ -52,7 +52,6 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         time = what_time_is_it_now();  // time stamp for loading image
 
         // load image
-        //strncpy(input, filename, 256); // TODO: buff when loading multiple images
         image im = load_image_color(filename, 0, 0);
         image sized = letterbox_image(im, net->w, net->h);
         layer l = net->layers[net->n - 1];

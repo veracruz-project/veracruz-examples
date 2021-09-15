@@ -38,7 +38,6 @@ void average_darknet(int argc, char *argv[])
 
     char *cfgfile = argv[3];
     char *outfile = argv[4];
-    gpu_index = -1;
     network *net = parse_network_cfg(cfgfile);
     network *sum = parse_network_cfg(cfgfile);
 
@@ -135,8 +134,9 @@ void average_onnx(int argc, char *argv[])
     }
 
     // for all other weights files
+    int i, j, k;
     int n = argc - 5;
-    for (int i = 0; i < n; ++i)
+    for (i = 0; i < n; ++i)
     {
         Onnx__ModelProto *model_c = openOnnxFile(argv[i + 5]);
         if (model_c != NULL)
@@ -145,7 +145,7 @@ void average_onnx(int argc, char *argv[])
         }
 
         // SUM: for each tensor in the graph
-        for (int j = 0; j < model_sum->graph->n_initializer; j++)
+        for (j = 0; j < model_sum->graph->n_initializer; j++)
         {
             int32_t dt = model_sum->graph->initializer[j]->data_type; //data type
 
@@ -155,7 +155,7 @@ void average_onnx(int argc, char *argv[])
                 int ts = model_sum->graph->initializer[j]->n_float_data;
                 float *td_sum = model_sum->graph->initializer[j]->float_data;
                 float *td_c = model_c->graph->initializer[j]->float_data;
-                for (int k = 0; k < ts; k++)
+                for (k = 0; k < ts; k++)
                 {
                     td_sum[k] = td_sum[k] + td_c[k];
                 }
@@ -166,7 +166,7 @@ void average_onnx(int argc, char *argv[])
                 int ts = model_sum->graph->initializer[j]->n_int32_data;
                 int32_t *td_sum = model_sum->graph->initializer[j]->int32_data;
                 int32_t *td_c = model_c->graph->initializer[j]->int32_data;
-                for (int k = 0; k < ts; k++)
+                for (k = 0; k < ts; k++)
                 {
                     td_sum[k] = td_sum[k] + td_c[k];
                 }
@@ -177,7 +177,7 @@ void average_onnx(int argc, char *argv[])
                 int ts = model_sum->graph->initializer[j]->n_int64_data;
                 int64_t *td_sum = model_sum->graph->initializer[j]->int64_data;
                 int64_t *td_c = model_c->graph->initializer[j]->int64_data;
-                for (int k = 0; k < ts; k++)
+                for (k = 0; k < ts; k++)
                 {
                     td_sum[k] = td_sum[k] + td_c[k];
                 }
@@ -188,7 +188,7 @@ void average_onnx(int argc, char *argv[])
                 int ts = model_sum->graph->initializer[j]->n_double_data;
                 double *td_sum = model_sum->graph->initializer[j]->double_data;
                 double *td_c = model_c->graph->initializer[j]->double_data;
-                for (int k = 0; k < ts; k++)
+                for (k = 0; k < ts; k++)
                 {
                     td_sum[k] = td_sum[k] + td_c[k];
                 }
@@ -201,7 +201,7 @@ void average_onnx(int argc, char *argv[])
     }
 
     // AVERAGE: for each tensor in the graph
-    for (int j = 0; j < model_sum->graph->n_initializer; j++)
+    for (j = 0; j < model_sum->graph->n_initializer; j++)
     {
         //printf("aggregating layer %d in %d\n", j, model_sum->graph->n_initializer);
         int32_t dt = model_sum->graph->initializer[j]->data_type; //data type
@@ -211,7 +211,7 @@ void average_onnx(int argc, char *argv[])
         {
             int ts = model_sum->graph->initializer[j]->n_float_data;
             float *td_sum = model_sum->graph->initializer[j]->float_data;
-            for (int k = 0; k < ts; k++)
+            for (k = 0; k < ts; k++)
             {
                 td_sum[k] = td_sum[k] / (n + 1);
             }
@@ -221,7 +221,7 @@ void average_onnx(int argc, char *argv[])
         {
             int ts = model_sum->graph->initializer[j]->n_int32_data;
             int32_t *td_sum = model_sum->graph->initializer[j]->int32_data;
-            for (int k = 0; k < ts; k++)
+            for (k = 0; k < ts; k++)
             {
                 td_sum[k] = td_sum[k] / (n + 1);
             }
@@ -231,7 +231,7 @@ void average_onnx(int argc, char *argv[])
         {
             int ts = model_sum->graph->initializer[j]->n_int64_data;
             int64_t *td_sum = model_sum->graph->initializer[j]->int64_data;
-            for (int k = 0; k < ts; k++)
+            for (k = 0; k < ts; k++)
             {
                 td_sum[k] = td_sum[k] / (n + 1);
             }
@@ -241,7 +241,7 @@ void average_onnx(int argc, char *argv[])
         {
             int ts = model_sum->graph->initializer[j]->n_double_data;
             double *td_sum = model_sum->graph->initializer[j]->double_data;
-            for (int k = 0; k < ts; k++)
+            for (k = 0; k < ts; k++)
             {
                 td_sum[k] = td_sum[k] / (n + 1);
             }
@@ -295,7 +295,8 @@ void predict_onnx(int argc, char *argv[])
     printf("finished!\n");
 
     // print the last output which should be the model output
-    for (int i = 0; i < all_context[_populatedIdx].outputs[0]->n_float_data; i++)
+    int i;
+    for (i = 0; i < all_context[_populatedIdx].outputs[0]->n_float_data; i++)
     {
         printf("n_float_data[%d] = %f\n", i, all_context[_populatedIdx].outputs[0]->float_data[i]);
     }
