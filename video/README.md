@@ -3,6 +3,10 @@
 This example decodes an H264 video and saves the decoded frames to a file.
 
 ## Build
+* Update the submodules:
+  ```
+  git submodule update --init
+  ```
 * Run `make` to build [`openh264`](https://github.com/veracruz-project/openh264), [`openh264-dec`](https://github.com/veracruz-project/openh264-dec) and the example
 
 ## Run
