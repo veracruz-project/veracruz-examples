@@ -1,3 +1,14 @@
+# Makefile for the video decoding example
+#
+# AUTHORS
+#
+# The Veracruz Development Team.
+#
+# COPYRIGHT AND LICENSING
+#
+# See the `LICENSE_MIT.markdown` file in the video decoding example's root
+# directory for copyright and licensing information.
+
 OPENH264_LIB_PATH = openh264
 OPENH264DEC_LIB_PATH = openh264-dec
 
