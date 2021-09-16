@@ -1,10 +1,10 @@
-## Deep Learning Server Application
+# Deep Learning Server Application
 
 This is a Veracruz example that supports training neural networks inside an isolated area on an untrusted device.
 (Note: currently only standalone execution is supported. No policy files are provided.)
 
 
-### Build
+## Build
 
 1- To build the wasm binary, run:
 ```
@@ -14,7 +14,7 @@ make
 This will also download `wasi-sdk` for compiling this example. A `dl-server.wasm` binary will be outputted to the example root directory.
 
 
-### Run Use Case  1 (model training)
+## Run Use Case 1 (model training)
 
 To get the data prepared, first run:
 ```
@@ -30,6 +30,8 @@ wasmtime --dir=./ dl-server.wasm
 # or use freestanding execution engine
 RUST_LOG=info [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-source args.cfg cfg data --output-source model -d -e
 ```
+
+To set up the freestanding exeuction engine (FEE), see [Getting Started with FEE](https://github.com/veracruz-project/veracruz/tree/main/sdk/freestanding-execution-engine) at Veracruz project.
 
 Arguments in the `args.cfg` will be automatically loaded. After training, the trained model will be saved into `model` directory.
 
@@ -54,7 +56,7 @@ RUST_LOG=info [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-sour
 ```
 
 
-### Run Use Case 2 (YOLO object detection)
+## Run Use Case 2 (YOLO object detection)
 
 To get the YOLO pre-trained model and labels prepared, first run:
 ```
@@ -73,9 +75,11 @@ RUST_LOG=info [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-sour
 The prediction image can be found under the example root directory.
 
 
-### Run Use Case 3 (model aggregation)
+## Run Use Case 3 (model aggregation)
 
 We support two model formats 1) Darknet 2) ONNX.
+
+### Darknet
 
 **Darknet** is the default format in our example, which all the above training and YOLO detection are based on.
 To aggregate several existing Darknet models as a global one:
@@ -87,6 +91,8 @@ wasmtime --dir=./ dl-server.wasm
 RUST_LOG=info [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-source args.cfg cfg model --output-source model -d -e
 ```
 
+### ONNX
+
 **ONNX**, i.e., [Open Neural Network Exchange](https://onnx.ai/), is an interoperable model format, which can act as the intermediate among models of Tensorflow, Pytorch, etc.
 To aggregate several existing ONNX models as a global one:
 ```
@@ -97,7 +103,9 @@ wasmtime --dir=./ dl-server.wasm
 RUST_LOG=info [FREESTANDING EE EXECUTABLE] --program dl-server.wasm --input-source args.cfg model --output-source model -d -e
 ```
 
-**ONNX** with Tensorflow and Pytorch as local training framework. (The best way to set up these ML framework is using conda + python 3.7)
+**ONNX** with Tensorflow and Pytorch as local training framework. 
+
+The best way to set up these ML frameworks is using conda + python 3.7, and then install all needed libraries when running through.
 ```
 # Client 1 (preliminary: tensorflow and tf2onnx installed)
 cd model && python mnist_tensorflow.py
@@ -110,7 +118,6 @@ cd model && python mnist_pytorch.py
 cp args_files/aggregation_onnx_c2.cfg args.cfg
 wasmtime --dir=./ dl-server.wasm
 ```
-
 
 Note: all commands are configured in the `args.cfg`. Check different `args_files/_XXX.xfg` to see how the arguments are configured, and edit this file to test different datasets, models, and functions.
 
