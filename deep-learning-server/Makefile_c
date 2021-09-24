@@ -1,0 +1,116 @@
+# Makefile for the deep learning server example
+#
+# AUTHORS
+#
+# The Veracruz Development Team.
+#
+# COPYRIGHT AND LICENSING
+#
+# See the `LICENSE_MIT.markdown` file in the Veracruz deep learning server 
+# example repository root directory for copyright and licensing information.
+
+
+##########################################################
+VPATH=./src/:./examples
+EXEC=dl-server
+OBJDIR=./obj/
+
+############
+ifeq ($(shell uname), Darwin)
+	OS=macos
+endif
+ifeq ($(shell uname), Linux)
+	OS=linux
+endif
+
+############
+COMMON= -Iinclude/ -Isrc/ -Iconnxr/src -Iconnxr/include -Iconnxr/protobuf
+
+CC=gcc
+
+CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC
+OPTS=-Ofast
+#OPTS=-O0 -g
+
+CFLAGS+=$(OPTS)
+
+LDFLAGS= -lm
+
+############
+OBJ=gemm.o utils.o cuda.o deconvolutional_layer.o convolutional_layer.o list.o image.o activations.o im2col.o col2im.o blas.o crop_layer.o dropout_layer.o maxpool_layer.o softmax_layer.o data.o matrix.o network.o connected_layer.o cost_layer.o parser.o option_list.o detection_layer.o route_layer.o upsample_layer.o box.o normalization_layer.o avgpool_layer.o layer.o local_layer.o shortcut_layer.o logistic_layer.o activation_layer.o rnn_layer.o gru_layer.o crnn_layer.o demo.o batchnorm_layer.o region_layer.o reorg_layer.o tree.o  lstm_layer.o l2norm_layer.o yolo_layer.o iseg_layer.o
+EXECOBJA=aggregation.o classifier.o detector.o darknet.o
+
+INCDIR+=connxr/include connxr/protobuf connxr/src
+CPPFLAGS+=$(foreach DIR, $(INCDIR),-I $(DIR) )
+
+CONNXR_BUILDDIR?=obj/connxr
+SRCDIR+=connxr/src/operators connxr/protobuf
+SRCS+=$(foreach DIR, $(SRCDIR), $(shell find $(DIR) -type f -name '*.c'))
+
+SRCS+=connxr/src/inference.c connxr/src/trace.c connxr/src/utils.c connxr/src/test/test_utils.c
+ONNXOBJ=$(SRCS:%.c=$(CONNXR_BUILDDIR)/%.o)
+
+
+EXECOBJ = $(addprefix $(OBJDIR), $(EXECOBJA))
+OBJS = $(addprefix $(OBJDIR), $(OBJ))
+DEPS = $(wildcard src/*.h) Makefile include/darknet.h
+CONNXRDEPS = $(wildcard connxr/src/*.h) $(wildcard connxr/protobuf/*.h) $(wildcard connxr/include/*.h)
+
+
+##########################################################
+.PHONY: wasisdk mnist_training yolo_detection clean
+.DEFAULT_GOAL := all
+
+all: wasisdk obj $(EXEC)
+examples: mnist_training yolo_detection
+
+
+##########################################################
+wasisdk:
+	if [ ! -d "../wasi-sdk-12.0" ]; then \
+		wget -P ../ https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-12/wasi-sdk-12.0-$(OS).tar.gz; \
+		mkdir ../wasi-sdk-12.0; \
+		tar xvf ../wasi-sdk-12.0-$(OS).tar.gz -C ../; \
+		rm -f ../wasi-sdk-12.0-macos.tar.gz; \
+	fi
+
+
+##########################################################
+obj:
+	mkdir -p obj
+
+
+##########################################################
+$(EXEC): $(EXECOBJ) $(OBJS) $(ONNXOBJ)
+	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+
+$(OBJDIR)%.o: %.c $(DEPS) $(CONNXRDEPS)
+	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
+
+$(CONNXR_BUILDDIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) -o $@ -c $(CFLAGS) $(CPPFLAGS) $^
+
+
+##########################################################
+NC=$(num-clients)
+ifeq ($(NC), )
+	NC=10
+endif
+mnist_training:
+	python3 data/mnist/mnist_preparation.py --num-clients=$(NC)
+
+
+##########################################################
+yolo_detection:
+	if [ "$(OS)" = "macos" ]; then \
+		brew install imagemagick ghostscript; \
+	elif [ "$(OS)" = "linux" ]; then \
+		sudo apt install imagemagick; \
+	fi
+	python data/labels/make_labels.py
+	wget -P model/ https://pjreddie.com/media/files/yolov3-tiny.weights
+
+
+clean:
+	rm -rf $(OBJS) $(EXEC) $(EXECOBJ) $(OBJDIR)/* obj connxr/build ../wasi-sdk-12.0
