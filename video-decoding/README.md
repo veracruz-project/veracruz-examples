@@ -20,7 +20,7 @@ This example decodes an H.264 video and saves the decoded frames to a file.
   ```
 * Or in the freestanding execution engine:
   ```
-  RUST_LOG=debug RUST_BACKTRACE=1 cargo run -- -d in.h264 -p dec.wasm -x interp -o true -e true
+  RUST_LOG=info RUST_BACKTRACE=1 cargo run -- -d in.h264 -p dec.wasm -x jit -o true -e true -c true
   ```
 * Read the output with VLC (adjust fps and video width and height to the original video):
   ```
