@@ -48,7 +48,7 @@ void init_darknet_detector(char *datacfg, char *cfgfile, char *weightfile)
 }
 
 // Two images are required: the image to be processed by the model, and the initial Darknet image to be annotated with the detection boxes
-void run_darknet_detector(image im, image im_sized, float thresh, float hier_thresh, char *outfile, char draw_detection_boxes)
+void run_darknet_detector(image im, image im_sized, float thresh, float hier_thresh, char *outfile, bool draw_detection_boxes)
 {
     float nms = .45;
 
@@ -120,7 +120,7 @@ void onFrameReady(SBufferInfo *bufInfo) {
     debug_print("Image normalized and resized: %lf seconds\n", what_time_is_it_now() - time);
 
     time = what_time_is_it_now();
-    run_darknet_detector(im, im_sized, .5, .5, "predictions", 0);
+    run_darknet_detector(im, im_sized, .5, .5, "predictions", true);
     debug_print("Detector run: %lf seconds\n", what_time_is_it_now() - time);
 	frames_processed++;
 }
