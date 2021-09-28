@@ -4,3 +4,14 @@
 [submodule "deep-learning-server/connxr"]
 	path = deep-learning-server/connxr
 	url = https://github.com/mofanv/cONNXr
+[submodule "video-object-detection/darknet"]
+	path = video-object-detection/darknet
+	url = https://github.com/mofanv/darknet-src
+[submodule "video-object-detection/openh264"]
+	path = video-object-detection/openh264
+	url = https://github.com/veracruz-project/openh264
+	branch = veracruz
+[submodule "video-object-detection/openh264-dec"]
+	path = video-object-detection/openh264-dec
+	url = https://github.com/veracruz-project/openh264-dec
+	branch = veracruz
