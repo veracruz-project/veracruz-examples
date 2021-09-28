@@ -1,5 +1,5 @@
 /*
-This header file defines function calls in the main wasm binary.
+This header file defines functions used in the main program.
 
  AUTHORS
 
@@ -7,8 +7,8 @@ This header file defines function calls in the main wasm binary.
 
  COPYRIGHT AND LICENSING
 
- See the `LICENSE_MIT.markdown` file in the Veracruz deep learning server 
- example repository root directory for copyright and licensing information.
+ See the `LICENSE_MIT.markdown` file in the example's root directory for
+ copyright and licensing information.
  Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/LICENSE
 */
 

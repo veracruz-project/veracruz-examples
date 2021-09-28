@@ -1,6 +1,9 @@
 /*
-This file contains the functions for supporting detection (YOLO object 
-detection).
+This file contains the main functions for performing object detection.
+First, the object detection model is loaded, then the video decoder executes
+until every frame in the video is decoded.
+A callback is configured to be called whenever a frame is available, whereupon
+it is fed to the object detection model which outputs a prediction.
 
 AUTHORS
 
@@ -20,18 +23,21 @@ extern "C" {
 #include "h264dec.h"
 #include "utils.h"
 
+// Keep track of the number of frames processed
 int frames_processed = 0;
+
 // Network state, to be initialized by `init_detector()`
 char **names;
 network *net;
 image **alphabet;
 
-// the function to test a object detector, aka detection inference. The prediction
-// is outputted as a `prediction` file
-// - Input: 1) data cfg (name of all objects), 2) network cfg, 3) weights file
-//          4) file to be tested (e.g., a image) 5) threshold for detection
-//          6) hierarchy threshold 7) output file path
-// - Output: None
+// Initialize the Darknet model (neural network)
+// The prediction is outputted as a `prediction` file
+// Input:
+//   - data cfg (name of all objects)
+//   - network cfg
+//   - weights file
+// Output: None
 void init_darknet_detector(char *datacfg, char *cfgfile, char *weightfile)
 {
     // read cfg file
@@ -47,7 +53,15 @@ void init_darknet_detector(char *datacfg, char *cfgfile, char *weightfile)
     alphabet = load_alphabet();
 }
 
-// Two images are required: the image to be processed by the model, and the initial Darknet image to be annotated with the detection boxes
+// Feed an image to the object detection model.
+// Input:
+//   - initial image to be annotated with the detection boxes
+//   - image to be processed by the model
+//   - detection threshold
+//   - hierarchy threshold
+//   - output file path
+//   - whether detection boxes should be drawn and saved to a file
+// Output: None
 void run_darknet_detector(image im, image im_sized, float thresh, float hier_thresh, char *outfile, bool draw_detection_boxes)
 {
     float nms = .45;
@@ -85,7 +99,9 @@ void run_darknet_detector(image im, image im_sized, float thresh, float hier_thr
     free_image(im_sized);
 }
 
-// Convert OpenH264 I420 frame into a darknet image structure, then convert it to RGB
+// Convert OpenH264 I420 frame into a Darknet image structure, then convert it to RGB
+// Input: OpenH264 I420 frame buffer
+// Output: Darknet-compatible image
 image normalize_frame(SBufferInfo *bufInfo)
 {
     int width = bufInfo->UsrData.sSystemBuffer.iWidth;
@@ -104,6 +120,8 @@ image normalize_frame(SBufferInfo *bufInfo)
 }
 
 // Callback called by the H.264 decoder whenever a frame is decoded and ready
+// Input: OpenH264 I420 frame buffer
+// Output: None
 void onFrameReady(SBufferInfo *bufInfo) {
     image im, im_sized;
     double time;
