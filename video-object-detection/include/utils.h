@@ -15,6 +15,8 @@ This header file defines functions used in the main program.
 #ifndef UTILS_H
 #define UTILS_H
 
-void linearize_openh264_frame_buffer(SBufferInfo *bufInfo, unsigned char *buffer_linearized);
+#define CHANNELS 3
+
+image load_image_from_raw_yuv(SBufferInfo *bufInfo);
 
 #endif

@@ -1,9 +1,11 @@
 #include <assert.h>
 
 extern "C" {
-	#include "image.h"
+    #include "image.h"
+    #include "stb_image.h"
 }
 #include "codec_def.h"
+#include "utils.h"
 
 // Print detection probability for each object detected
 void print_detection_probabilities(image im, detection *dets, int num, float thresh, char **names, int classes)
@@ -24,24 +26,12 @@ void print_detection_probabilities(image im, detection *dets, int num, float thr
         printf("No objects detected\n");
 }
 
-static float get_pixel(image m, int x, int y, int c)
-{
-    assert(x < m.w && y < m.h && c < m.c);
-    return m.data[c*m.h*m.w + y*m.w + x];
-}
-
-static void set_pixel(image m, int x, int y, int c, float val)
-{
-    if (x < 0 || y < 0 || c < 0 || x >= m.w || y >= m.h || c >= m.c) return;
-    assert(x < m.w && y < m.h && c < m.c);
-    m.data[c*m.h*m.w + y*m.w + x] = val;
-}
-
-// Make image contiguous.
+// Linearize OpenH264 frame buffer and revert chroma subsampling by doubling Cb and Cr pixels.
 // OpenH264 outputs frames whose rows are not contiguous (separated by a variable stride)
+// TODO: test with images with odd width or height 
 void linearize_openh264_frame_buffer(SBufferInfo *bufInfo, unsigned char *buffer_linearized)
 {
-    int i;
+    int i, j;
     int w = bufInfo->UsrData.sSystemBuffer.iWidth;
     int h = bufInfo->UsrData.sSystemBuffer.iHeight;
     int stride0 = bufInfo->UsrData.sSystemBuffer.iStride[0];
@@ -56,109 +46,91 @@ void linearize_openh264_frame_buffer(SBufferInfo *bufInfo, unsigned char *buffer
         buffer_linearized += w;
     }
 
-    w = w / 2;
-    h = h / 2;
-
     // Cb channel
     ptr = bufInfo->pDst[1];
     for(i = 0; i < h; i++) {
-        memcpy(buffer_linearized, ptr, w);
-        ptr += stride1;
-        buffer_linearized += w;
+        for(j = 0; j < w; j++) {
+            buffer_linearized[j + i*w] = ptr[j/2];
+        }
+        // Use each Cb row twice
+        if(i > 0 && i % 2 == 0)
+            ptr += stride1;
     }
 
     // Cr channel
     ptr = bufInfo->pDst[2];
+    buffer_linearized += w*h;
     for(i = 0; i < h; i++) {
-        memcpy(buffer_linearized, ptr, w);
-        ptr += stride1;
-        buffer_linearized += w;
+        for(j = 0; j < w; j++) {
+            buffer_linearized[j + i*w] = ptr[j/2];
+        }
+        // Use each Cr row twice
+        if(i > 0 && i % 2 == 0)
+            ptr += stride1;
     }
 }
 
-// Convert to JFIF YUV colorspace (cf. ITU-T T.871)
-// TODO: make sure this colorspace transformation works for any H264 video
-void yuv_jfif_to_rgb(image im)
+// Convert frame from JFIF YUV to RGB color space (cf. ITU-T T.871).
+// Copied and adapted from Darknet's codebase
+#define stbi__float2fixed(x)  (((int) ((x) * 4096.0f + 0.5f)) << 8)
+static void stbi__YCbCr_to_RGB_row(stbi_uc *out, const stbi_uc *y, const stbi_uc *pcb, const stbi_uc *pcr, int width, int height)
 {
-    assert(im.c == 3);
-    int i, j;
-    float r, g, b;
-    float y, u, v;
-    for(j = 0; j < im.h; ++j){
-        for(i = 0; i < im.w; ++i){
-            y = get_pixel(im, i, j, 0);
-            u = get_pixel(im, i, j, 1);
-            v = get_pixel(im, i, j, 2);
-
-            r = y + 1.402*(v-0.5);
-            g = y + -.34414*(u-0.5) + -.71414*(v-0.5);
-            b = y + 1.772*(u-0.5);
-
-            set_pixel(im, i, j, 0, r);
-            set_pixel(im, i, j, 1, g);
-            set_pixel(im, i, j, 2, b);
-        }
-    }
+   int i;
+   for (i=0; i < width*height; ++i) {
+      int y_fixed = (y[i] << 20) + (1<<19); // rounding
+      int r,g,b;
+      int cr = pcr[i] - 128;
+      int cb = pcb[i] - 128;
+      r = y_fixed +  cr* stbi__float2fixed(1.40200f);
+      g = y_fixed + (cr*-stbi__float2fixed(0.71414f)) + ((cb*-stbi__float2fixed(0.34414f)) & 0xffff0000);
+      b = y_fixed                                     +   cb* stbi__float2fixed(1.77200f);
+      r >>= 20;
+      g >>= 20;
+      b >>= 20;
+      if ((unsigned) r > 255) { if (r < 0) r = 0; else r = 255; }
+      if ((unsigned) g > 255) { if (g < 0) g = 0; else g = 255; }
+      if ((unsigned) b > 255) { if (b < 0) b = 0; else b = 255; }
+      out[i] = (stbi_uc)r;
+      out[i + width*height] = (stbi_uc)g;
+      out[i + width*height*2] = (stbi_uc)b;
+   }
 }
 
-// Load image from YUV data (I420)
-// TODO: test with images with odd width or height 
-image load_image_from_raw_yuv(unsigned char *yuv_data, int w, int h, int c)
+// Convert OpenH264 I420 frame into a Darknet image structure.
+// Process:
+//   1 - Linearize OpenH264 frame buffer (I420 YUV pixel format)
+//   2 - Revert chroma subsampling: duplicate Cb and Cr pixels
+//   3 - Transform to RGB color space
+//   4 - Convert integer array to Darknet image (float array)
+// Input: OpenH264 I420 frame buffer
+// Output: Darknet-compatible RGB image
+image load_image_from_raw_yuv(SBufferInfo *bufInfo)
 {
-    if (!yuv_data) {
-        fprintf(stderr, "Cannot load image\n");
-        exit(0);
-    }
-    int i,j,k;
-    image im = make_image(w, h, c);
+    int i;
+    int w = bufInfo->UsrData.sSystemBuffer.iWidth;
+    int h = bufInfo->UsrData.sSystemBuffer.iHeight;
+    unsigned char *yuv_data;
 
-    // Luminance (Y) channel
-    k = 0;
-    for(j = 0; j < h; ++j){
-        for(i = 0; i < w; ++i){
-            int dst_index = i + w*j + w*h*k;
-            int src_index = dst_index;
-            im.data[dst_index] = (float)yuv_data[src_index]/255.;
-        }
-    }
+    yuv_data = (unsigned char *) malloc(w*h*CHANNELS);
 
-    // Cb channel
-	k = 1;
-	for(j = 0; j < h; ++j){
-		for(i = 0; i < w; ++i){
-			int dst_index = i + w*j + w*h*k;
-			int src_index = i/2 + (w/2)*(j/2) + w*h;
-			im.data[dst_index] = (float)yuv_data[src_index]/255.;
-		}
-    }
+    // Linearize OpenH264 frame buffer and revert chroma subsampling
+    linearize_openh264_frame_buffer(bufInfo, yuv_data);
 
-    // Cr channel
-	k = 2;
-	for(j = 0; j < h; ++j){
-		for(i = 0; i < w; ++i){
-			int dst_index = i + w*j + w*h*k;
-			int src_index = i/2 + (w/2)*(j/2) + w*h + (w/2)*(h/2);
-			im.data[dst_index] = (float)yuv_data[src_index]/255.;
-		}
+    // Transform frame to RGB
+    stbi__YCbCr_to_RGB_row(yuv_data, yuv_data, yuv_data + w*h, yuv_data + w*h*2, w, h);
+
+    // Convert to Darknet image (float array)
+    image im = make_image(w, h, CHANNELS);
+    for(i = 0; i < w*h*CHANNELS; ++i)
+        im.data[i] = (float)yuv_data[i]/255.;
+
+    free(yuv_data);
+
+    if((h && w) && (h != im.h || w != im.w)){
+        image resized = resize_image(im, w, h);
+        free_image(im);
+        im = resized;
     }
 
     return im;
 }
-
-// Load image from YUV image (I420) and convert it to RGB
-image load_image_color_from_raw_yuv(unsigned char *yuv_data, int w, int h)
-{
-    image out = load_image_from_raw_yuv(yuv_data, w, h, 3);
-
-    if((h && w) && (h != out.h || w != out.w)){
-        image resized = resize_image(out, w, h);
-        free_image(out);
-        out = resized;
-    }
-
-    // XXX: would be a bit faster to convert each pixel to RGB in `load_image_from_raw_yuv()` directly
-    yuv_jfif_to_rgb(out);
-
-    return out;
-}
-

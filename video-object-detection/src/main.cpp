@@ -99,26 +99,6 @@ void run_darknet_detector(image im, image im_sized, float thresh, float hier_thr
     free_image(im_sized);
 }
 
-// Convert OpenH264 I420 frame into a Darknet image structure, then convert it to RGB
-// Input: OpenH264 I420 frame buffer
-// Output: Darknet-compatible image
-image normalize_frame(SBufferInfo *bufInfo)
-{
-    int width = bufInfo->UsrData.sSystemBuffer.iWidth;
-    int height = bufInfo->UsrData.sSystemBuffer.iHeight;
-    unsigned char *yuv_data_linearized;
-    image im;
-
-    yuv_data_linearized = (unsigned char *) malloc(width*height + 2*width/2*height/2);
-    linearize_openh264_frame_buffer(bufInfo, yuv_data_linearized);
-
-    im = load_image_color_from_raw_yuv(yuv_data_linearized, width, height);
-
-    free(yuv_data_linearized);
-
-    return im;
-}
-
 // Callback called by the H.264 decoder whenever a frame is decoded and ready
 // Input: OpenH264 I420 frame buffer
 // Output: None
@@ -130,7 +110,7 @@ void onFrameReady(SBufferInfo *bufInfo) {
 
     time = what_time_is_it_now();
 
-    im = normalize_frame(bufInfo);
+    im = load_image_from_raw_yuv(bufInfo);
 
     // Resize image to fit the darknet model
     im_sized = letterbox_image(im, net->w, net->h);

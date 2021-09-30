@@ -579,8 +579,6 @@ void set_batch_network(network *net, int b);
 void set_temp_network(network *net, float t);
 image load_image(char *filename, int w, int h, int c);
 image load_image_color(char *filename, int w, int h);
-image load_image_from_raw_yuv(unsigned char *yuv_data, int w, int h, int c);
-image load_image_color_from_raw_yuv(unsigned char *yuv_data, int w, int h);
 image make_image(int w, int h, int c);
 image resize_image(image im, int w, int h);
 void censor_image(image im, int dx, int dy, int w, int h);
