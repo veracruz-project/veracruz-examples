@@ -62,7 +62,9 @@ void init_darknet_detector(char *datacfg, char *cfgfile, char *weightfile)
 //   - output file path
 //   - whether detection boxes should be drawn and saved to a file
 // Output: None
-void run_darknet_detector(image im, image im_sized, float thresh, float hier_thresh, char *outfile, bool draw_detection_boxes)
+void run_darknet_detector(image im, image im_sized, float thresh,
+                          float hier_thresh, char *outfile,
+                          bool draw_detection_boxes)
 {
     float nms = .45;
 
@@ -73,7 +75,8 @@ void run_darknet_detector(image im, image im_sized, float thresh, float hier_thr
     // Get detections
     int nboxes = 0;
     layer l = net->layers[net->n - 1];
-    detection *dets = get_network_boxes(net, im.w, im.h, thresh, hier_thresh, 0, 1, &nboxes);
+    detection *dets = get_network_boxes(net, im.w, im.h, thresh, hier_thresh, 0,
+                                        1, &nboxes);
     if (nms)
         do_nms_sort(dets, nboxes, l.classes, nms);
     printf("Detection probabilities:\n");
@@ -85,13 +88,9 @@ void run_darknet_detector(image im, image im_sized, float thresh, float hier_thr
 
         // output the file
         if (outfile)
-        {
             save_image(im, outfile);
-        }
         else
-        {
             save_image(im, "predictions");
-        }
     }
     free_detections(dets, nboxes);
 
@@ -102,7 +101,8 @@ void run_darknet_detector(image im, image im_sized, float thresh, float hier_thr
 // Callback called by the H.264 decoder whenever a frame is decoded and ready
 // Input: OpenH264 I420 frame buffer
 // Output: None
-void onFrameReady(SBufferInfo *bufInfo) {
+void onFrameReady(SBufferInfo *bufInfo)
+{
     image im, im_sized;
     double time;
 
@@ -120,17 +120,17 @@ void onFrameReady(SBufferInfo *bufInfo) {
     time = what_time_is_it_now();
     run_darknet_detector(im, im_sized, .5, .5, "predictions", true);
     debug_print("Detector run: %lf seconds\n", what_time_is_it_now() - time);
-	frames_processed++;
+    frames_processed++;
 }
 
 int main(int argc, char **argv)
 {
     double time;
-	char *input_file = argv[1];
+    char *input_file = argv[1];
 
     printf("Initizalizing detector...\n");
     time  = what_time_is_it_now();
-    init_darknet_detector("cfg/coco.data", "cfg/yolov3.cfg", "model/yolov3.weights");
+    init_darknet_detector("cfg/coco.data", "cfg/yolov3-tiny.cfg", "model/yolov3-tiny.weights");
     debug_print("Arguments loaded and network parsed: %lf seconds\n", what_time_is_it_now() - time);
 
     printf("Starting decoding...\n");
