@@ -36,7 +36,7 @@ CFLAGS+=$(OPTS)
 LDFLAGS= -lm
 
 ############
-# compare.c is excluded from the source because it fails
+# compare.c is excluded from the source because it fails to compile
 DARKNET_SRC = gemm.c utils.c cuda.c deconvolutional_layer.c convolutional_layer.c list.c image.c activations.c im2col.c col2im.c blas.c crop_layer.c dropout_layer.c maxpool_layer.c softmax_layer.c data.c matrix.c network.c connected_layer.c cost_layer.c parser.c option_list.c detection_layer.c route_layer.c upsample_layer.c box.c normalization_layer.c avgpool_layer.c layer.c local_layer.c shortcut_layer.c logistic_layer.c activation_layer.c rnn_layer.c gru_layer.c crnn_layer.c demo.c batchnorm_layer.c region_layer.c reorg_layer.c tree.c  lstm_layer.c l2norm_layer.c yolo_layer.c iseg_layer.c
 DARKNET_SRCS = $(addprefix $(DARKNET_PATH)/, $(DARKNET_SRC))
 DARKNET_OBJS = $(DARKNET_SRCS:%.c=%.$(OBJ))
@@ -67,11 +67,6 @@ libopenh264dec_native.a:
 
 ##########################################################
 yolo_detection:
-	if [ "$(OS)" = "macos" ]; then \
-		brew install imagemagick ghostscript; \
-	elif [ "$(OS)" = "linux" ]; then \
-		sudo apt install imagemagick; \
-	fi
 	python data/labels/make_labels.py
 	if [ ! -f "model/yolov3-tiny.weights" ]; then \
 		wget -P model/ https://pjreddie.com/media/files/yolov3-tiny.weights; \

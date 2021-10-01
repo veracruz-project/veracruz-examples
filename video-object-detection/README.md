@@ -4,6 +4,7 @@ This example combines and integrates two simpler examples, the video decoder and
 The video decoder leverages [`openh264`](https://github.com/veracruz-project/openh264) to decode an H264 video into individual frames, which are converted to RGB and made palatable to an object detector built on top of the [Darknet neural network framework](https://github.com/mofanv/darknet-src). The output is a list of detected objects, associated with their detection probability, and an optional prediction image showing each detected object in a bounding box.
 
 ## Build
+* Install `imagemagick`
 * Update the submodules:
   ```
   git submodule update --init
