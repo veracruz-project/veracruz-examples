@@ -40,19 +40,17 @@ image **alphabet;
 //   - whether detection boxes should be annotated with the name of the detected
 //     object (requires an alphabet)
 // Output: None
-void init_darknet_detector(char *datacfg, char *cfgfile, char *weightfile,
+void init_darknet_detector(char *name_list_file, char *cfgfile, char *weightfile,
                            bool annotate_boxes)
 {
-    // read cfg file
-    list *options = read_data_cfg(datacfg);
-    char *name_list = option_find_str(options, "names", "data/names.list");
-    names = get_labels(name_list);
+    // Get name list
+    names = get_labels(name_list_file);
 
-    // load network
+    // Load network
     net = load_network(cfgfile, weightfile, 0);
     set_batch_network(net, 1);
 
-    // load alphabet (set of images corresponding to characters)
+    // Load alphabet (set of images corresponding to characters)
     if (annotate_boxes)
         alphabet = load_alphabet();
 }
@@ -135,7 +133,7 @@ int main(int argc, char **argv)
 
     printf("Initizalizing detector...\n");
     time  = what_time_is_it_now();
-    init_darknet_detector("cfg/coco.data", "cfg/yolov3.cfg",
+    init_darknet_detector("data/coco.names", "cfg/yolov3.cfg",
                           "model/yolov3.weights", false);
     debug_print("Arguments loaded and network parsed: %lf seconds\n",
                 what_time_is_it_now() - time);
