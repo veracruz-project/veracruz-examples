@@ -4,12 +4,13 @@ This example combines and integrates two simpler examples, the video decoder and
 The video decoder leverages [`openh264`](https://github.com/veracruz-project/openh264) to decode an H264 video into individual frames, which are converted to RGB and made palatable to an object detector built on top of the [Darknet neural network framework](https://github.com/mofanv/darknet-src). The output is a list of detected objects, associated with their detection probability, and an optional prediction image showing each detected object in a bounding box.
 
 ## Build
+* Install [`wasi sdk`](https://github.com/WebAssembly/wasi-sdk) and set `WASI_SDK_ROOT` to point to its installation directory
 * Install `imagemagick`
-* Update the submodules:
+* Clone the repo and update the submodules:
   ```
   git submodule update --init
   ```
-* Run `make` to download and set up `wasi-sdk`, build [`openh264`](https://github.com/veracruz-project/openh264), [`openh264-dec`](https://github.com/veracruz-project/openh264-dec), [`darknet`](https://github.com/mofanv/darknet-src) and the main program
+* Run `make` to build [`openh264`](https://github.com/veracruz-project/openh264), [`openh264-dec`](https://github.com/veracruz-project/openh264-dec), [`darknet`](https://github.com/mofanv/darknet-src) and the main program
 * To get the YOLO pre-trained model and labels prepared, run:
   ```
   make yolo_detection
