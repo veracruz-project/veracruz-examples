@@ -27,8 +27,11 @@ ifeq ($(shell uname), Linux)
 endif
 
 ############
-CC=../wasi-sdk-12.0/bin/clang --sysroot=../wasi-sdk-12.0/share/wasi-sysroot
-CXX=../wasi-sdk-12.0/bin/clang++ --sysroot=../wasi-sdk-12.0/share/wasi-sysroot
+# wasi sdk toolchain
+WASI_SDK_SYSROOT=$(WASI_SDK_ROOT)/share/wasi-sysroot
+CLANG_FLAGS=--target=wasm32-wasi
+CC=$(WASI_SDK_ROOT)/bin/clang --sysroot=$(WASI_SDK_SYSROOT) $(CLANG_FLAGS)
+CXX=$(WASI_SDK_ROOT)/bin/clang++ --sysroot=$(WASI_SDK_SYSROOT) $(CLANG_FLAGS)
 
 CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -Wno-writable-strings -fPIC
 OPTS=-Ofast
@@ -47,20 +50,10 @@ DARKNET_OBJS = $(DARKNET_SRCS:%.c=%.$(OBJ))
 MAIN_SRCS = $(wildcard src/*.cpp)
 
 ##########################################################
-.PHONY: wasisdk yolo_detection clean
+.PHONY: yolo_detection clean
 .DEFAULT_GOAL := all
 
-all: wasisdk $(EXEC)
-
-
-##########################################################
-wasisdk:
-	if [ ! -d "../wasi-sdk-12.0" ]; then \
-		wget -P ../ https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-12/wasi-sdk-12.0-$(OS).tar.gz; \
-		mkdir ../wasi-sdk-12.0; \
-		tar xvf ../wasi-sdk-12.0-$(OS).tar.gz -C ../; \
-		rm -f ../wasi-sdk-12.0-macos.tar.gz; \
-	fi
+all: $(EXEC)
 
 
 ##########################################################

@@ -50,6 +50,7 @@ MAIN_SRCS = $(wildcard src/*.cpp)
 all: $(EXEC)
 
 
+##########################################################
 $(EXEC): $(DARKNET_OBJS) $(MAIN_SRCS) libopenh264_native.a libopenh264dec_native.a
 	$(CXX) $(CFLAGS) $(DARKNET_OBJS) $(MAIN_SRCS) -o $@ $(LDFLAGS) -Iinclude -I$(DARKNET_PATH) -I $(OPENH264_LIB_PATH)/codec/api/svc -I $(OPENH264DEC_LIB_PATH)/inc -L $(OPENH264DEC_LIB_PATH) -lopenh264dec_native -L $(OPENH264_LIB_PATH) -lopenh264_native
 	#$(CXX) $(CFLAGS) $(DARKNET_OBJS) $(MAIN_SRCS) -o $@ $(LDFLAGS) -Iinclude -I$(DARKNET_PATH) -I $(OPENH264_LIB_PATH)/codec/api/svc -I $(OPENH264DEC_LIB_PATH)/inc -L $(OPENH264DEC_LIB_PATH) -lopenh264dec_native -L $(OPENH264_LIB_PATH) -lopenh264_native -pthread
