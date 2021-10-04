@@ -1,15 +1,16 @@
 /*
-This header file defines Darknet-related types and functions used in the main program.
+This header file defines Darknet-related types and functions used in the main
+program.
 
- AUTHORS
+AUTHORS
 
- The Veracruz Development Team.
+The Veracruz Development Team.
 
- COPYRIGHT AND LICENSING
+COPYRIGHT AND LICENSING
 
- See the `LICENSE_MIT.markdown` file in the example's root directory for
- copyright and licensing information.
- Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/LICENSE
+See the `LICENSE_MIT.markdown` file in the example's root directory for
+copyright and licensing information.
+Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/LICENSE
 */
 
 #ifndef DARKNET_API

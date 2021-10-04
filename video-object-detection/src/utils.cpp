@@ -1,3 +1,17 @@
+/*
+This file provides util functions for the main program.
+
+AUTHORS
+
+The Veracruz Development Team.
+
+COPYRIGHT AND LICENSING
+
+See the `LICENSE_MIT.markdown` file in the example's root directory for
+copyright and licensing information.
+Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/LICENSE
+*/
+
 #include <assert.h>
 
 extern "C" {
