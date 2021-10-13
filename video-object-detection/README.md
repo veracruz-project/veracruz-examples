@@ -27,6 +27,6 @@ The video decoder uses [`openh264`](https://github.com/veracruz-project/openh264
   ```
 * Or in the freestanding execution engine:
   ```
-  RUST_LOG=info RUST_BACKTRACE=1 freestanding-execution-engine -d in.h264 -d cfg/coco.data -d cfg/yolov3.cfg -d model/yolov3.weights -d data/coco.names `for i in data/labels/*_*.png; do echo "-d $i"; done | sort -V | xargs` -p detector.wasm -x jit -o true -e true -c true
+  RUST_LOG=info RUST_BACKTRACE=1 freestanding-execution-engine -d in.h264 -d cfg/yolov3.cfg -d model/yolov3.weights -d data/coco.names `for i in data/labels/*_*.png; do echo "-d $i"; done | sort -V | xargs` -p detector.wasm -x jit -o true -e true -c true
   ```
 * The prediction image can be found in the root directory
