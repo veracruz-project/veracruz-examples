@@ -112,7 +112,7 @@ void on_frame_ready(SBufferInfo *bufInfo)
     image im, im_sized;
     double time;
 
-    printf("Image %d ===========================\n", frames_processed);
+    debug_print("Image %d ===========================\n", frames_processed);
 
     time = what_time_is_it_now();
 
