@@ -44,6 +44,6 @@ void onFrameReady(SBufferInfo *bufInfo)
  */
 int main()
 {
-    int32_t x = h264_decode("in.h264", NULL, false, &onFrameReady);
+    int32_t x = h264_decode("in.h264", "output", true, &onFrameReady);
     return x;
 }
