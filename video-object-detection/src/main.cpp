@@ -26,7 +26,7 @@ extern "C" {
 // Keep track of the number of frames processed
 int frames_processed = 0;
 
-// Network state, to be initialized by `init_detector()`
+// Network state, to be initialized by `init_darknet_detector()`
 char **names;
 network *net;
 image **alphabet;
@@ -40,8 +40,8 @@ image **alphabet;
 //   - whether detection boxes should be annotated with the name of the detected
 //     object (requires an alphabet)
 // Output: None
-void init_darknet_detector(char *name_list_file, char *cfgfile, char *weightfile,
-                           bool annotate_boxes)
+void init_darknet_detector(char *name_list_file, char *cfgfile,
+                           char *weightfile, bool annotate_boxes)
 {
     // Get name list
     names = get_labels(name_list_file);
@@ -103,7 +103,7 @@ void run_darknet_detector(image im, image im_sized, float thresh,
 // Callback called by the H.264 decoder whenever a frame is decoded and ready
 // Input: OpenH264 I420 frame buffer
 // Output: None
-void onFrameReady(SBufferInfo *bufInfo)
+void on_frame_ready(SBufferInfo *bufInfo)
 {
     image im, im_sized;
     double time;
