@@ -16,30 +16,32 @@ copyright and licensing information.
 Based on darknet, YOLO LICENSE https://github.com/pjreddie/darknet/blob/master/LICENSE
 */
 
-extern "C" {
+extern "C"
+{
     #include "darknet.h"
 }
 #include "codec_def.h"
 #include "h264dec.h"
 #include "utils.h"
 
-// Keep track of the number of frames processed
+/* Keep track of the number of frames processed */
 int frames_processed = 0;
 
-// Network state, to be initialized by `init_darknet_detector()`
+/* Network state, to be initialized by `init_darknet_detector()` */
 char **names;
 network *net;
 image **alphabet;
 
-// Initialize the Darknet model (neural network)
-// The prediction is outputted as a `prediction` file
-// Input:
-//   - data cfg (name of all objects)
-//   - network cfg
-//   - weights file
-//   - whether detection boxes should be annotated with the name of the detected
-//     object (requires an alphabet)
-// Output: None
+/* Initialize the Darknet model (neural network)
+ * The prediction is outputted as a `prediction` file
+ * Input:
+ *   - data cfg (name of all objects)
+ *   - network cfg
+ *   - weights file
+ *   - whether detection boxes should be annotated with the name of the detected
+ *     object (requires an alphabet)
+ * Output: None
+ */
 void init_darknet_detector(char *name_list_file, char *cfgfile,
                            char *weightfile, bool annotate_boxes)
 {
@@ -55,15 +57,16 @@ void init_darknet_detector(char *name_list_file, char *cfgfile,
         alphabet = load_alphabet();
 }
 
-// Feed an image to the object detection model.
-// Input:
-//   - initial image to be annotated with the detection boxes
-//   - image to be processed by the model
-//   - detection threshold
-//   - hierarchy threshold
-//   - output file path
-//   - whether detection boxes should be drawn and saved to a file
-// Output: None
+/* Feed an image to the object detection model.
+ * Input:
+ *   - initial image to be annotated with the detection boxes
+ *   - image to be processed by the model
+ *   - detection threshold
+ *   - hierarchy threshold
+ *   - output file path
+ *   - whether detection boxes should be drawn and saved to a file
+ * Output: None
+ */
 void run_darknet_detector(image im, image im_sized, float thresh,
                           float hier_thresh, char *outfile,
                           bool draw_detection_boxes)
@@ -84,11 +87,11 @@ void run_darknet_detector(image im, image im_sized, float thresh,
     printf("Detection probabilities:\n");
     print_detection_probabilities(im, dets, nboxes, thresh, names, l.classes);
 
-    // add boxes for objects
+    // Draw boxes around detected objects
     if (draw_detection_boxes) {
         draw_detections(im, dets, nboxes, thresh, names, alphabet, l.classes);
 
-        // output the file
+        // Output the prediction
         if (outfile)
             save_image(im, outfile);
         else
@@ -100,9 +103,10 @@ void run_darknet_detector(image im, image im_sized, float thresh,
     free_image(im_sized);
 }
 
-// Callback called by the H.264 decoder whenever a frame is decoded and ready
-// Input: OpenH264 I420 frame buffer
-// Output: None
+/* Callback called by the H.264 decoder whenever a frame is decoded and ready
+ * Input: OpenH264 I420 frame buffer
+ * Output: None
+ */
 void on_frame_ready(SBufferInfo *bufInfo)
 {
     image im, im_sized;
@@ -126,6 +130,7 @@ void on_frame_ready(SBufferInfo *bufInfo)
     frames_processed++;
 }
 
+/* Run the object detection model on each decoded frame */
 int main(int argc, char **argv)
 {
     double time;
@@ -140,7 +145,7 @@ int main(int argc, char **argv)
 
     printf("Starting decoding...\n");
     time  = what_time_is_it_now();
-    int x = h264_decode(input_file, "", false, &onFrameReady);
+    int x = h264_decode(input_file, "", false, &on_frame_ready);
     debug_print("Finished decoding: %lf seconds\n",
                 what_time_is_it_now() - time);
 
