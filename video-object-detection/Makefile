@@ -73,6 +73,9 @@ libopenh264dec_wasm.a:
 ##########################################################
 yolo_detection:
 	python data/labels/make_labels.py
+	if [ ! -d "model" ]; then \
+		mkdir model; \
+	fi
 	if [ ! -f "model/yolov3-tiny.weights" ]; then \
 		wget -P model/ https://pjreddie.com/media/files/yolov3-tiny.weights; \
 	fi
