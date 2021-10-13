@@ -1,6 +1,6 @@
-# OpenH264 decoder example
+# H.264 video decoding example
 
-This example decodes an H264 video and saves the decoded frames to a file.
+This example decodes an H.264 video and saves the decoded frames to a file.
 
 ## Build
 * Update the submodules:
@@ -10,7 +10,7 @@ This example decodes an H264 video and saves the decoded frames to a file.
 * Run `make` to build [`openh264`](https://github.com/veracruz-project/openh264), [`openh264-dec`](https://github.com/veracruz-project/openh264-dec) and the example
 
 ## Run
-* Prerequisite: generate the input H264 video from an MP4 video:
+* Prerequisite: generate the input H.264 video from an MP4 video:
   ```
   ffmpeg -i in.mp4 -map 0:0 -vcodec copy -an -f h264 in.h264
   ```

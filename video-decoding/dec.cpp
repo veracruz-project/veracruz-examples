@@ -1,5 +1,5 @@
 /*
-H264 video decoding example
+H.264 video decoding example
 
 AUTHORS
 
