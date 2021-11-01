@@ -23,6 +23,9 @@ import time
 import jsonschema
 
 def get_kubecon():
+    """Connect to Kubernetes (k3s/k8s) using either local configuration
+    or incluster via service account
+    """
     try:
         config.load_incluster_config()
     except config.ConfigException as e:
@@ -46,7 +49,6 @@ app = Flask(__name__)
 @app.route('/veracruz/<name>', methods=['GET'])
 def get_veracruz(name):
     print("Received veracruz get for name="+name,flush=True)
-    error = None
     if request.method != 'GET':
         print("Received something different than GET",flush=True)
         return "<p>Not supported!</p>",400
@@ -77,7 +79,6 @@ def get_veracruz(name):
 @app.route('/veracruz/<name>', methods=['DELETE'])
 def delete_veracruz(name):
     print("Received veracruz delete for name"+name,flush=True)
-    error = None
     if request.method != 'DELETE':
         print("Received something different than DELETE",flush=True)
         return "<p>Not supported!</p>",400
@@ -108,7 +109,6 @@ def delete_veracruz(name):
 @app.route("/veracruz", methods=['POST'])
 def post_veracruz(): # create
     print("Received veracruz create",flush=True)
-    error = None
     if request.method != 'POST':
         print("Received something different than POST",flush=True)
         return "<p>Not supported!</p>",400
@@ -192,12 +192,13 @@ def post_veracruz(): # create
     policy = requestJson;
 
     policy["ciphersuite"] = "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256"
+    #TODO: change expiration date from Dec/12/2022 to Today + some time
     policy["enclave_cert_expiry"] = {
         "day": 23,
         "hour": 23,
         "minute": 44,
         "month": 12,
-        "year": 2021
+        "year": 2022
     }
     policy["proxy_attestation_server_url"]=os.environ['PROXY_ENDPOINT'] 
     policy["proxy_service_cert"]=os.environ['PROXY_CERTIFICATE'] 

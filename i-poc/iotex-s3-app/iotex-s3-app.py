@@ -28,7 +28,9 @@ app = Flask(__name__)
 
 @app.route("/s3_stream_veracruz", methods=['POST'])
 def execute_function():
-    error = None
+    """REST - Read a file from S3 and put it on va Veracruz instance. 
+    Return when file ends.
+    """
     if request.method != 'POST':
         return "<p>Not supported!</p>"
     if not request.is_json:
@@ -160,8 +162,13 @@ def execute_function():
     print("S3 access object created")
 
     print("Starting the cat process")
-    #veracruzSub = subprocess.Popen(["bash","-c","cat "+fifoFilename+" > "+requestJson["veracruz"]["filename"])
-    veracruzSub = subprocess.Popen(["/bin/bash","-c","openssl rsa -in "+keyFilename+" -out "+keyFilename+".RSA.pem;./veracruz-client "+policyFilename+" --data "+requestJson["veracruz"]["filename"]+"="+fifoFilename+" --identity "+certificateFilename+" --key "+keyFilename+".RSA.pem"])
+    veracruzSub = subprocess.Popen(["/bin/bash",
+                                    "-c",
+                                    "openssl rsa -in "+keyFilename+" -out "+
+                                          keyFilename+".RSA.pem;./veracruz-client "+
+                                          policyFilename+" --data "+requestJson["veracruz"]["filename"]+
+                                          "="+fifoFilename+" --identity "+certificateFilename+" --key "+
+                                          keyFilename+".RSA.pem"])
 
     fifo = open(fifoFilename, 'wb')
     try:

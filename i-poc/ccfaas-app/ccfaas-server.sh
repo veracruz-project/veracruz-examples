@@ -9,7 +9,6 @@
 #
 # See the `LICENSE_MIT.markdown` file in the Veracruz I-PoC
 # example repository root directory for copyright and licensing information.
-#!/bin/bash
 
 export PROGRAM_LOAD_CERTIFICATE="$(cat $1)"
 export PROGRAM_LOAD_CERTIFICATE_FILE=$1

@@ -9,7 +9,6 @@
 #
 # See the `LICENSE_MIT.markdown` file in the Veracruz I-PoC
 # example repository root directory for copyright and licensing information.
-#!/bin/bash
 
 # echo "$0 $*" > /tmp/log.txt
 

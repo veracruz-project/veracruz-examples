@@ -23,7 +23,7 @@ YAML_FILES= \
 	   veracruz-vaas-app-deploy.yaml \
 	   veracruz-vaas-app-service.yaml
 
-ALL: $(YAML_FILES)
+all: $(YAML_FILES)
 
 config.vars: config.vars.template
 	@echo "Please change the config.vars.template and save it as config.vars according"

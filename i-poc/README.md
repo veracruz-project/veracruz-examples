@@ -285,12 +285,12 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
    * pi_hash: sha256 hash of the executable or data file
    * data_files: list of optional data files to be loaded into the programs. The order they are loaded are determined by the priority, lower numbers before higher numbers, same numbers are loaded in random order. 
    * data_file: name of the file to be loaded and also the name of input file of the program
-   * priurity: (optional field) lower numbers will have higher priority on loading 
+   * priority: (optional field) lower numbers will have higher priority on loading 
    * program_file_name: name for the program as known by Veracruz
    * file_name: file that permissions apply (this file should exist on the registered function):
    * rights: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table above
 
-* VaaS policy (policy used by VaaS to create a Veracruzinstance)
+* VaaS policy (policy used by VaaS to create a Veracruz instance)
 
      ```json
      {
@@ -524,7 +524,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
 
 VaaS provides a REST (CD) interface that allows multiple instances of Veracruz to be allocated, attested and loaded with a policy in a kubernetes based nitro-enabled cloud. All the instances will be using the same endpoint server with a specific port allocated for each instance. A single DNS enabled address is required.
 
-VaaS require a valid Vaas policy (essentially a Program policy and User policy together) as input and provides a Veracruz instance loaded with a full policy (Infrastructure policy is added by VaaS) returning that policy if the instance is successfully allocated.
+VaaS require a valid VaaS policy (essentially a Program policy and User policy together) as input and provides a Veracruz instance loaded with a full policy (Infrastructure policy is added by VaaS) returning that policy if the instance is successfully allocated.
 
 ## CCFaaS (Confidential Computing Function as a Service)
 
@@ -687,7 +687,7 @@ Even oj EKS a new updated configuration of smarter-device-manager need to be be 
    ```bash
    kubectl get all
    ```
-   The result should be at least those objects, addtional objects can exist if other things are running
+   The result should be at least those objects, additional objects can exist if other things are running
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX
@@ -720,7 +720,7 @@ Even oj EKS a new updated configuration of smarter-device-manager need to be be 
    ```bash
    kubectl get all
    ```
-   The result should be at least those objects, addtional objects can exist if other things are running
+   The result should be at least those objects, additional objects can exist if other things are running
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX
@@ -758,7 +758,7 @@ Even oj EKS a new updated configuration of smarter-device-manager need to be be 
    ```bash
    kubectl get all
    ```
-   The result should be at least those objects, addtional objects can exist if other things are running
+   The result should be at least those objects, additional objects can exist if other things are running
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX

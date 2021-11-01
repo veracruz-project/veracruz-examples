@@ -13,7 +13,7 @@
 #
 VERSION=0.5
 
-ALL: image
+all: image
 
 veracruz-vaas-server.imageOK: Dockerfile vaas-server.py vaas-server.sh veracruz-clean-leftover-k8s-objects.sh
 	docker build -t veracruz-vaas-server:$(VERSION) .

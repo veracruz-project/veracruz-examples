@@ -13,7 +13,7 @@
 
 IMAGE_SUBDIRS=vaas-server ccfaas-app iotex-s3-app
 
-ALL: veracruz-client k8s-config
+all: veracruz-client k8s-config
 
 veracruz-client:
 	CONTAINERID=$(shell docker create alexandref75arm/veracruz-nitro:v0.8); \
