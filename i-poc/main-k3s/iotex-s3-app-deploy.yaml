@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+  labels:
+    name: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iotex-s3-app
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      iotex-s3: app
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        iotex-s3: app
+    spec:
+      containers:
+      - name: iotex-s3-app
+        image: alexandref75arm/iotex-s3-veracruz-app:0.5
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+      priorityClassName: system-cluster-critical
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30

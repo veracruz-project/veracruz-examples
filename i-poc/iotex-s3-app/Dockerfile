@@ -1,0 +1,11 @@
+FROM ubuntu:20.04
+
+RUN apt-get update -y;apt-get upgrade -y;apt-get install -y openssl netcat curl python3-pip;apt-get -y clean
+
+RUN pip3 install flask jsonschema requests pyopenssl boto3
+
+WORKDIR /root
+
+COPY . /root
+
+CMD /root/iotex-s3-app.sh

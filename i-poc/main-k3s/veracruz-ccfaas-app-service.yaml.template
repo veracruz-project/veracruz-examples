@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ccfaas-server-app
+spec:
+  selector:
+    ccfaas-server: app
+  ports:
+    - protocol: TCP
+      port: 5010
+      targetPort: 5000
+      name: ccfaas-server-app
+  externalIPs:
+    - EXTERNAL_IP_USE

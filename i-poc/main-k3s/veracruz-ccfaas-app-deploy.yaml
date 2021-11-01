@@ -1,0 +1,62 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+  labels:
+    name: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ccfaas-server-app
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      ccfaas-server: app
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        ccfaas-server: app
+    spec:
+      containers:
+      - name: ccfaas-server-app
+        image: alexandref75arm/veracruz-ccfaas-server:0.5
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: VAAS_ACCESS_URL
+          value: "http://vaas-server-app:5000"
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        volumeMounts:
+          - name: config
+            mountPath: /root/config
+      priorityClassName: system-cluster-critical
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: config
+          configMap:
+             name: veracruz-ccfaas-app

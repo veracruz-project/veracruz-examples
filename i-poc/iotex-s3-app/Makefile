@@ -1,0 +1,26 @@
+#
+#
+
+VERSION=0.5
+
+all: image
+
+veracruz-client: ../veracruz-client
+	cp ../veracruz-client veracruz-client
+
+iotex-s3-veracruz-app.imageOK: Dockerfile iotex-s3-app.py veracruz-client
+	docker build -t iotex-s3-veracruz-app:$(VERSION) .
+	touch iotex-s3-veracruz-app.imageOK
+
+image: iotex-s3-veracruz-app.imageOK
+	docker image tag iotex-s3-veracruz-app:$(VERSION) alexandref75arm/iotex-s3-veracruz-app:$(VERSION)
+
+iotex-s3-veracruz-app.tar.gz: iotex-s3-veracruz-app.imageOK
+	docker image save -o iotex-s3-veracruz-app.tar iotex-s3-veracruz-app:$(VERSION)
+	gzip iotex-s3-veracruz-app.tar
+
+image-save: iotex-s3-veracruz-app.tar.gz
+
+image-push: image
+	docker push alexandref75arm/iotex-s3-veracruz-app:$(VERSION)
+
