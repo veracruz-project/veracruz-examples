@@ -1,3 +1,19 @@
+#!/usr/bin/env python3
+#
+# Implements a CCFaaS server
+# Objects are functions,instances,programs and data
+# REST API (CRD) is provided for each object
+#
+# AUTHORS
+#
+# The Veracruz Development Team.
+#
+# COPYRIGHT AND LICENSING
+#
+# See the `LICENSING.markdown` file in the Veracruz I-PoC
+# licensing and copyright information.
+
+
 from flask import Flask,request,abort
 import os
 import json
@@ -259,7 +275,6 @@ def post_function_program_REST(name,progname):
     for program in jsonData["programs"]:
         if program["program_file_name"] == progname: 
             print("Found "+program["program_file_name"]+" program",flush=True)
-            # TODO: Verify if the hash match
             try:
                 program_file = open("functionDB/"+function_name_base64+"_programs/"+progname,"xb")
             except OSError as err:
@@ -395,7 +410,7 @@ def post_function_REST(): # create
         print("Received incorrect json data"+str(err),flush=True)
         return "<p>Json object is not correct "+str(err)+"</p>",400
 
-    print("Check semantically if json is correct",flush=True)
+    #TODO: Insert checks to verify if semmanticall the json is correct (check if the certificates/keys are valid for exmple)
 
     print("Json is correct",flush=True)
 

@@ -290,7 +290,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
    * file_name: file that permissions apply (this file should exist on the registered function):
    * rights: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table above
 
-* VaaS policy (policy used by VaaS to create a veracruz instance)
+* VaaS policy (policy used by VaaS to create a Veracruzinstance)
 
      ```json
      {

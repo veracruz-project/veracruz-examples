@@ -1,4 +1,14 @@
 #!/bin/bash
+# Register the linear-regression function at CCFaaS
+#
+# AUTHORS
+#
+# The Veracruz Development Team.
+#
+# COPYRIGHT AND LICENSING
+#
+# See the `LICENSE_MIT.markdown` file in the Veracruz I-PoC
+# example repository root directory for copyright and licensing information.
 
 function check_wget_response() {
 	ERROR_CODE=0

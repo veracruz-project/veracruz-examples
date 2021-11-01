@@ -1,12 +1,14 @@
 #!/bin/bash
-
-#export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-#export RANCHER_FILE="/var/lib/rancher/k3s/server/cred/node-passwd"
-
-#while [ ! -e "${KUBECONFIG}" ]
-#do
-#        sleep 1
-#done
+# Remove k3s/k8s objects when a Veracruz instance (pod) dies or terminates 
+#
+# AUTHORS
+#
+# The Veracruz Development Team.
+#
+# COPYRIGHT AND LICENSING
+#
+# See the `LICENSE_MIT.markdown` file in the Veracruz I-PoC
+# example repository root directory for copyright and licensing information.
 
 echo "Starting removing dnagling objects"
 

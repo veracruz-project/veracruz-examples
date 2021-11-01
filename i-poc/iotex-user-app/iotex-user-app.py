@@ -1,4 +1,21 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+#
+# Implements the user side of the Iotex application
+# Request an instance of the function from CCFaaS
+# Requestg an instance of iotex-s3-app
+# Read results from Veracruz instance
+# Terminate instance when finished
+#
+# AUTHORS
+#
+# The Veracruz Development Team.
+#
+# COPYRIGHT AND LICENSING
+#
+# See the `LICENSING.markdown` file in the Veracruz I-PoC
+# licensing and copyright information.
+
+
 import requests
 import os
 import re

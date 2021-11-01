@@ -1,3 +1,19 @@
+#!/usr/bin/env python3
+#
+# Implements VaaS server
+# Instantiate Veracruz nitro instances and return valid policy with entrypoint
+# Implements REST API (CRD)
+#
+# AUTHORS
+#
+# The Veracruz Development Team.
+#
+# COPYRIGHT AND LICENSING
+#
+# See the `LICENSING.markdown` file in the Veracruz I-PoC
+# licensing and copyright information.
+
+
 from flask import Flask,request,abort
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
@@ -183,9 +199,9 @@ def post_veracruz(): # create
         "month": 12,
         "year": 2021
     }
-    policy["proxy_attestation_server_url"]=os.environ['PROXY_ENDPOINT'] #"veracruz-nitro-proxy:3010"
-    policy["proxy_service_cert"]=os.environ['PROXY_CERTIFICATE'] #"-----BEGIN CERTIFICATE-----\nMIICMzCCAdmgAwIBAgIUD4ChgtYHhO1aP16Oz4cwg+Tjd1owCgYIKoZIzj0EAwIw\nbzELMAkGA1UEBhMCVVMxDjAMBgNVBAgMBVRleGFzMQ8wDQYDVQQHDAZBdXN0aW4x\nETAPBgNVBAoMCFZlcmFjcnV6MQ4wDAYDVQQLDAVQcm94eTEcMBoGA1UEAwwTVmVy\nYWNydXpQcm94eVNlcnZlcjAeFw0yMTA0MjMxNjU4NTdaFw0yMjA0MjMxNjU4NTda\nMG8xCzAJBgNVBAYTAlVTMQ4wDAYDVQQIDAVUZXhhczEPMA0GA1UEBwwGQXVzdGlu\nMREwDwYDVQQKDAhWZXJhY3J1ejEOMAwGA1UECwwFUHJveHkxHDAaBgNVBAMME1Zl\ncmFjcnV6UHJveHlTZXJ2ZXIwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAARTflYX\nv3iRLGicm9GbRaQvOXECgH8ZUDdpA9PmHfbCoS2N090X8LbP8GwGmp/gDfkwXXLN\n7mlkjv1X2hAhnUXFo1MwUTAdBgNVHQ4EFgQUdkf63ZhkILBpe7BERAek4GtQ+TUw\nHwYDVR0jBBgwFoAUdkf63ZhkILBpe7BERAek4GtQ+TUwDwYDVR0TAQH/BAUwAwEB\n/zAKBggqhkjOPQQDAgNIADBFAiEAl30tQ+haf0ucyAGMHpt82HitY1ieSg46ebBA\nWN68AYUCIFc+BX+rOoOanh6LNDl84gIuiY6CNsqVDV/Bwm/RL1JH\n-----END CERTIFICATE-----\n"
-    policy["runtime_manager_hash_nitro"]=os.environ['RUNTIME_MANAGER_HASH_NITRO'] # "89bad60af6e4bd934dc7705b7187b828631092c151b967c0b1638c5567234acd"
+    policy["proxy_attestation_server_url"]=os.environ['PROXY_ENDPOINT'] 
+    policy["proxy_service_cert"]=os.environ['PROXY_CERTIFICATE'] 
+    policy["runtime_manager_hash_nitro"]=os.environ['RUNTIME_MANAGER_HASH_NITRO'] 
     policy["runtime_manager_hash_sgx"]= ""
     policy["runtime_manager_hash_tz"]= ""
     policy["std_streams_table"]= [
@@ -221,7 +237,7 @@ def post_veracruz(): # create
         except ApiException as e:
             if e.status != 404:
                 print("Exception when calling AdmissionregistrationApi->get_api_group: %s\n" % e,flush=True)
-                return "<p>internat error '"+str(e)+"'!</p>"
+                return "<p>internal error '"+str(e)+"'!</p>"
             print("Port "+str(veracruzport)+" is not busy",flush=True)
             configMap = None
         except Exception as e:
@@ -236,7 +252,7 @@ def post_veracruz(): # create
         except ApiException as e:
             if e.status != 404:
                 print("Exception when calling AdmissionregistrationApi->get_api_group: %s\n" % e,flush=True)
-                return "<p>internat error '"+str(e)+"'!</p>"
+                return "<p>internal error '"+str(e)+"'!</p>"
             print("Port "+str(veracruzport)+" is not busy",flush=True)
             veracruzPod = None
         except Exception as e:

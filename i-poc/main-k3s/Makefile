@@ -1,3 +1,13 @@
+# Makefile for the I-PoC k3s/k8s related files (YAML, etc)
+#
+# AUTHORS
+#
+# The Veracruz Development Team.
+#
+# COPYRIGHT AND LICENSING
+#
+# See the `LICENSE_MIT.markdown` file in the Veracruz I-PoC
+# example repository root directory for copyright and licensing information.
 #
 
 YAML_FILES= \

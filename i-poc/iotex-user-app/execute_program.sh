@@ -1,4 +1,15 @@
 #!/bin/bash
+# Execute and read results of a program in a Veracruz instance 
+#
+# AUTHORS
+#
+# The Veracruz Development Team.
+#
+# COPYRIGHT AND LICENSING
+#
+# See the `LICENSE_MIT.markdown` file in the Veracruz I-PoC
+# example repository root directory for copyright and licensing information.
+#!/bin/bash
 
 # echo "$0 $*" > /tmp/log.txt
 

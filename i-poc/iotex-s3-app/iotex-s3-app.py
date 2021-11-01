@@ -1,3 +1,19 @@
+#!/usr/bin/env python3
+#
+# Flask appllication that implements Iotex-S3-app function
+# Reads a file from S3 and adds it to a Veracruz Instance
+# Provides a REST API, should be run under FaaS
+#
+# AUTHORS
+#
+# The Veracruz Development Team.
+#
+# COPYRIGHT AND LICENSING
+#
+# See the `LICENSING.markdown` file in the Veracruz I-PoC
+# licensing and copyright information.
+
+
 from flask import Flask,request
 import os
 import json
