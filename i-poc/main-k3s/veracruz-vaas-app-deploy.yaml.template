@@ -70,7 +70,7 @@ spec:
     spec:
       containers:
       - name: vaas-server-app
-        image: alexandref75arm/veracruz-vaas-server:0.5
+        image: veracruz/veracruz-vaas-server:0.8
         imagePullPolicy: IfNotPresent
         env:
         - name: PROXY_ENDPOINT
@@ -85,7 +85,7 @@ spec:
           value: |
                REPLACE_CACERT_PEM
         - name: RUNTIME_MANAGER_IMAGE
-          value: "alexandref75arm/veracruz-nitro:v0.7"
+          value: "veracruz/veracruz-nitro:v0.8"
         - name: RUNTIME_MANAGER_HASH_NITRO
           value: RUNTIME_MANAGER_HASH_NITRO_USE
         ports:

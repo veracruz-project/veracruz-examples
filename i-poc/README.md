@@ -796,6 +796,90 @@ Even oj EKS a new updated configuration of smarter-device-manager need to be be 
 
 ## Running applications on Veracruz
 
+The iotex-user-app directory on the repository will execute the I-PoC example end-to-end according the timeline described above
+
+1. Registering the function in CCFaaS
+
+  ```bash
+  ./register-function-example.sh
+  ```
+
+  The result should be simmilar to the one presented below
+  ```bash
+  Accessing CCFaaS at XXX.XXX.XXX.XXX:5010
+    Getting function/linear-regression
+    Not found
+    linear-regression function with data below
+    {
+      "function": "linear-regression",
+      "execution_strategy": "Interpretation",
+      "programs": [
+        {
+          "id": 0,
+          "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
+          "program_file_name": "linear-regression.wasm",
+          "file_rights": [
+            {
+              "file_name": "input-0",
+              "rights": 8198
+            },
+            {
+              "file_name": "output",
+              "rights": 533572
+            }
+          ]
+        }
+      ]
+    }
+    Register linear-regression function
+        {
+          "execution_strategy": "Interpretation",
+          "function": "linear-regression",
+          "programs": [
+            {
+              "file_rights": [
+                {
+                  "file_name": "input-0",
+                  "rights": 8198
+                },
+                {
+                  "file_name": "output",
+                  "rights": 533572
+                }
+              ],
+              "id": 0,
+              "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
+              "program_file_name": "linear-regression.wasm"
+            }
+          ]
+        }
+    
+    Create linear-regression  program linear-regression.wasm
+        <p>function loaded!</p>
+    ```
+1. Running the example
+    ```bash
+    ./iotex-user-app.sh
+    ```
+
+    The result should be similar to one presented below
+    ```bash
+    CCFaaS in http://XXX.XXX.XXX.XXX:5010 and Iotex-s3 Faas in http://XXX.XXX.XXX.XXX:5020
+    User certificate loaded from USERcert.pem and key from USERkey.pem
+    S3 certificate created
+    Creating instance URL=http://XXX.XXX.XXX.XXX:5010/instance
+    Response = <Response [200]>
+    Writing policy to policy_test1
+    Creating s3 app URL=http://XXX.XXX.XXX.XXX:5020/s3_stream_veracruz
+    execute: ./execute_program.sh policy_test1 USERcert.pem USERkey.pem  linear-regression.wasm linear-regression.dat.output
+    writing RSA key
+    /home/ubuntu/i-poc/iotex-user-app/veracruz-client policy_test1 --results linear-regression.wasm=linear-regression.dat.output --identity USERcert.pem --key USERkey.pem
+    Loaded policy policy_test1 bf6469a15394ba244166fe1159883ba44ce9ebb714e267d0fe36d25f71116952
+    Connecting to veracruz-nitro-server:3014
+    Reading <enclave>/linear-regression.wasm into linear-regression.dat.output
+    Shutting down enclave
+    Deleting instance URL=http://172.31.4.186:5010/instance/test1
+    ```
 
 # WIP:
 

@@ -388,7 +388,7 @@ def post_veracruz(): # create
                                   client.V1Container(
                                           name = "veracruz-nitro-server",
                                           image_pull_policy = "IfNotPresent",
-                                          #image = "alexandref75arm/veracruz-nitro:v0.7",
+                                          #image = "veracruz/veracruz-nitro:v0.7",
                                           image = os.environ['RUNTIME_MANAGER_IMAGE'],
                                           command = ["/bin/bash",
                                                 "-c",

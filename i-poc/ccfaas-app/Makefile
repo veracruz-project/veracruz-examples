@@ -10,7 +10,7 @@
 # example repository root directory for copyright and licensing information.
 #
 #
-VERSION=0.5
+VERSION=0.8
 
 all: image
 
@@ -22,7 +22,7 @@ veracruz-ccfaas-server.imageOK: Dockerfile ccfaas-server.py ccfaas-server.sh ver
 	touch veracruz-ccfaas-server.imageOK
 
 image: veracruz-ccfaas-server.imageOK
-	docker image tag veracruz-ccfaas-server:$(VERSION) alexandref75arm/veracruz-ccfaas-server:$(VERSION)
+	docker image tag veracruz-ccfaas-server:$(VERSION) veracruz/veracruz-ccfaas-server:$(VERSION)
 
 veracruz-ccfaas-server.tar.gz: veracruz-ccfaas-server.imageOK
 	docker image save -o veracruz-ccfaas-server.tar veracruz-ccfaas-server:$(VERSION)
@@ -31,5 +31,5 @@ veracruz-ccfaas-server.tar.gz: veracruz-ccfaas-server.imageOK
 image-save: veracruz-ccfaas-server.tar.gz
 
 image-push: image
-	docker push alexandref75arm/veracruz-ccfaas-server:$(VERSION)
+	docker push veracruz/veracruz-ccfaas-server:$(VERSION)
 

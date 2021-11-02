@@ -11,7 +11,7 @@
 #
 #
 #
-VERSION=0.5
+VERSION=0.8
 
 all: image
 
@@ -21,7 +21,7 @@ veracruz-vaas-server.imageOK: Dockerfile vaas-server.py vaas-server.sh veracruz-
 
 .PHONY:
 image: veracruz-vaas-server.imageOK
-	docker image tag veracruz-vaas-server:$(VERSION) alexandref75arm/veracruz-vaas-server:$(VERSION)
+	docker image tag veracruz-vaas-server:$(VERSION) veracruz/veracruz-vaas-server:$(VERSION)
 
 .PHONY:
 veracruz-vaas-server.tar.gz: veracruz-vaas-server.imageOK
@@ -33,5 +33,5 @@ image-save: veracruz-vaas-server.tar.gz
 
 .PHONY:
 image-push: veracruz-vaas-server.imageOK 
-	docker push alexandref75arm/veracruz-vaas-server:$(VERSION)
+	docker push veracruz/veracruz-vaas-server:$(VERSION)
 
