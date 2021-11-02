@@ -32,7 +32,7 @@ from pprint import pprint
 from time import gmtime, mktime
 
 def get_function_db(name):
-    # return a json object with that function registered or None if it does not exist
+    """ return a json object with function registered or None if it does not exist """
     function_name_base64 = base64.b64encode(name.encode()).decode()
     try:
         function_file = open("functionDB/"+function_name_base64,"r")
@@ -55,6 +55,7 @@ def get_function_db(name):
     return jsondata
 
 def get_functions_db():
+    """ return a json object with a list of functions registered """
     # return a list of functions registed
     functions = []
     for rootdir,dirs,filenames in os.walk("functionDB/"):
@@ -66,6 +67,7 @@ def get_functions_db():
     return functions
 
 def create_function_db(name,jsondata):
+    """ Register a function (creates the required DB objects) """
     function_name_base64 = base64.b64encode(name.encode()).decode()
     try:
         function_file = open("functionDB/"+function_name_base64,"x")
@@ -90,6 +92,7 @@ def create_function_db(name,jsondata):
     return True 
 
 def remove_function_db(name):
+    """ Remove the named function from the database """
     function_name_base64 = base64.b64encode(name.encode()).decode()
     try:
         shutil.rmtree("functionDB/"+function_name_base64+"_programs")
@@ -102,8 +105,8 @@ def remove_function_db(name):
     return True
 
 def get_instance_db(name):
+    """ return a json object with instance registered or None if it does not exist """
     instance_name_base64 = base64.b64encode(name.encode()).decode()
-    # return a json object with that instance registered or None if it does not exist
     try:
         instance_file = open("instanceDB/"+instance_name_base64,"r")
     except OSError as err:
@@ -125,7 +128,7 @@ def get_instance_db(name):
     return jsondata
 
 def get_instances_db():
-    # return a list of instances
+    """ return a json object with a list of instances registered """
     instances = []
     for rootdir,dirs,filenames in os.walk("instanceDB/"):
         for filename in filenames:
@@ -136,6 +139,7 @@ def get_instances_db():
     return instances
 
 def create_instance_db(name,jsondata):
+    """ Register an instance (creates the required DB objects) """
     instance_name_base64 = base64.b64encode(name.encode()).decode()
     try:
         instance_file = open("instanceDB/"+instance_name_base64,"x")
@@ -159,6 +163,7 @@ def create_instance_db(name,jsondata):
     return True 
 
 def remove_instance_db(name):
+    """ Remove the named instance from the database """
     instance_name_base64 = base64.b64encode(name.encode()).decode()
     try:
         shutil.rmtree("instanceDB/"+instance_name_base64+"_metadata")
@@ -170,7 +175,7 @@ def remove_instance_db(name):
     return True
 
 def get_programs_db(name):
-    # return a json object with programs registered for that function or None if it does not exist
+    """ Remove a json object with a list of programs registered for this function """
     function_name_base64 = base64.b64encode(name.encode()).decode()
     programs = []
     for rootdir,dirs,filenames in os.walk("functionDB/"+function_name_base64+"_programs"):
@@ -180,7 +185,7 @@ def get_programs_db(name):
     return programs
 
 def get_data_db(name):
-    # return a json object with data_files registered for that function or None if it does not exist
+    """ Remove a json object with a list of data files registered for this function """
     function_name_base64 = base64.b64encode(name.encode()).decode()
     data_files = []
     for rootdir,dirs,filenames in os.walk("functionDB/"+function_name_base64+"_data"):
@@ -190,13 +195,15 @@ def get_data_db(name):
     return data_files
 
 def certStrToStringVeracruz(certUse):
+    """ Convert a certificate PEM formate from in a string with newlines to a way that Veracruz accepts """
     certStr = re.sub('([^-])\n([^-])|\n$','\g<1>\g<2>',certUse)
     return certStr
 
-def delete_instance(name,instanceID):
+def delete_instance(name,instanceID,hashId):
+    """ Delete an instance from the database and from VaaS, terminating it """
     remove_instance_db(name)
     # get pod name = first portion of hostname + port#
-    hostURL=os.environ['VAAS_ACCESS_URL']+"/veracruz/"+instanceID
+    hostURL=os.environ['VAAS_ACCESS_URL']+"/veracruz/"+instanceID+"?instance_id=CCFaaS&instance_hash="+hashId
     try:
         vaasAppResponse = requests.delete(hostURL),
     except requests.exceptions.HTTPError as http_err:
@@ -546,7 +553,8 @@ def post_instance_REST(): # create
         "enable_clock": True,
         "execution_strategy": jsonFunction["execution_strategy"],
         "programs": jsonFunction["programs"],
-        "identities": [*program_identities,*requestJson["identities"]]
+        "identities": [*program_identities,*requestJson["identities"]],
+	"instance_id":"CCFaaS"
     }
     # Fix identities ID
 
@@ -585,6 +593,10 @@ def post_instance_REST(): # create
     print("Response = "+str(vaasAppResponse),flush=True)
 
     instance_name_base64 = base64.b64encode(requestJson["instanceid"].encode()).decode()
+    full_policy_file = open("instanceDB/"+instance_name_base64+"_metadata/full_policy","w")
+    full_policy_file.write(json.dumps(policy))
+    full_policy_file.close()
+
     policy_file = open("instanceDB/"+instance_name_base64+"_metadata/policy","w")
     policy_file.write(policy["policy"])
     policy_file.close()
@@ -633,15 +645,15 @@ def get_instance_REST(name):
 
     try:
         instance_name_base64 = base64.b64encode(name.encode()).decode()
-        policy_file = open("instanceDB/"+instance_name_base64+"_metadata/policy","r")
-        policy = policy_file.read()
-        policy_file.close()
+        full_policy_file = open("instanceDB/"+instance_name_base64+"_metadata/full_policy","r")
+        full_policy = json.loads(full_policy_file.read())
+        full_policy_file.close()
     except Exception as err:
         print(f'Other error occurred: {err}',flush=True)  # Python 3.6
         remove_instance_db(name)
         return "<p>Veracruz instance '"+name+"' does not exist!</p>",404
 
-    return {"instance":name,"policy":policy}
+    return {"instance":name,"policy":full_policy["policy"]}
 
 @app.route('/instance/<name>', methods=['DELETE'])
 def delete_instance_REST(name):
@@ -653,17 +665,19 @@ def delete_instance_REST(name):
 
     try:
         instance_name_base64 = base64.b64encode(name.encode()).decode()
-        policy_file = open("instanceDB/"+instance_name_base64+"_metadata/policy","r")
-        policyJson =json.loads(policy_file.read())
-        policy_file.close()
+        full_policy_file = open("instanceDB/"+instance_name_base64+"_metadata/full_policy","r")
+        full_policyJson =json.loads(full_policy_file.read())
+        full_policy_file.close()
     except Exception as err:
         print(f'Other error occurred: {err}',flush=True)  # Python 3.6
         remove_instance_db(name)
         return "<p>Veracruz instance '"+name+"' removed!</p>",404
 
-    print("Trying to remove instance from VaaS "+policyJson["veracruz_server_url"],flush=True)
+    policy=json.loads(full_policyJson["policy"])
 
-    result = delete_instance(name,policyJson["veracruz_server_url"])
+    print("Trying to remove instance from VaaS "+policy["veracruz_server_url"],flush=True)
+
+    result = delete_instance(name,policy["veracruz_server_url"],full_policyJson["instance_hash"])
     if not result is None:
         return result
 

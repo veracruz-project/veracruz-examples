@@ -21,6 +21,9 @@ import os
 import json
 import time
 import jsonschema
+import hashlib
+import re
+import datetime
 
 def get_kubecon():
     """Connect to Kubernetes (k3s/k8s) using either local configuration
@@ -69,12 +72,39 @@ def get_veracruz(name):
         veracruzPodStatus = kubeConnection.read_namespaced_pod_status(veracruzPod,"default")
     except ApiException as e:
         print("Exception when calling read_namespaced_pod_status: %s\n" % e,flush=True)
-        return "<p>Veracruz instance '"+name+"' does not existe!</p>",404
+        return "<p>Veracruz instance '"+name+"' does not exist!</p>",404
     except Exception as e:
         print("Exception when calling read_namespaced_pod_status: %s\n" % e,flush=True)
         return "<p>Error accessing k8s "+str(e)+"</p>",500
 
-    return "<p>Veracruz instance '"+name+"' is running</p>"
+    if veracruzPodStatus.metadata.labels is None:
+        if "instance_id" in request.args:
+            return "<p>Veracruz instance '"+name+"' and instance_id '"+request.args["instance_id"]+"' does not exist!</p>",404
+        if "instance_hash" in request.args:
+            return "<p>Veracruz instance '"+name+"' and instance_hash '"+request.args["instance_hash"]+"' does not exist!</p>",404
+        return { "status": "OK"}
+
+    labels = veracruzPodStatus.metadata.labels
+    if "veracruz-id" in labels:
+        if "instance_id" in request.args:
+            if labels["veracruz-id"] != request.args["instance_id"]:
+                return "<p>Veracruz instance '"+name+"' and instance_id '"+request.args["instance_id"]+"' does not exist!</p>",404
+        if "veracruz-hash" in labels:
+            if "instance_hash" in request.args:
+                if labels["veracruz-hash"] != request.args["instance_hash"][0:59]:
+                    return "<p>Veracruz instance '"+name+"' and instance_hash '"+request.args["instance_id"]+"' does not exist!</p>",404
+            return {"instance_id":labels["veracruz-id"],
+                    "instance_hash":labels["veracruz-hash"],
+                    "status": "OK"}
+        return {"instance_id":labels["veracruz-id"],
+                "status": "OK"}
+    if "veracruz-hash" in labels:
+        if "instance_hash" in request.args:
+            if labels["veracruz-hash"] != request.args["instance_hash"][0:59]:
+                return "<p>Veracruz instance '"+name+"' and instance_hash '"+request.args["instance_id"]+"' does not exist!</p>",404
+        return { "instance_hash":labels["veracruz-hash"],
+                "status": "OK"}
+    return { "status": "OK"}
 
 @app.route('/veracruz/<name>', methods=['DELETE'])
 def delete_veracruz(name):
@@ -96,10 +126,45 @@ def delete_veracruz(name):
         return "<p>Error accessing K8s/kl3s</p>",500
 
     try:
-        veracruzPodDelete = kubeConnection.delete_namespaced_pod(veracruzPod,"default")
+        veracruzPodStatus = kubeConnection.read_namespaced_pod_status(veracruzPod,"default")
+    except ApiException as e:
+        print("Exception when calling read_namespaced_pod_status: %s\n" % e,flush=True)
+        return "<p>Veracruz instance '"+name+"' does not exist!</p>",404
+    except Exception as e:
+        print("Exception when calling read_namespaced_pod_status: %s\n" % e,flush=True)
+        return "<p>Error accessing k8s "+str(e)+"</p>",500
+
+    if veracruzPodStatus.metadata.labels is None:
+        if "instance_id" in request.args:
+            return "<p>Veracruz instance '"+name+"' and instance_id '"+request.args["instance_id"][0:59]+"' does not exist!</p>",404
+        if "instance_hash" in request.args:
+            return "<p>Veracruz instance '"+name+"' and instance_hash '"+request.args["instance_hash"][0:59]+"' does not exist!</p>",404
+    else:
+        labels = veracruzPodStatus.metadata.labels
+        if "veracruz-id" in labels:
+            if "instance_id" in request.args:
+                if labels["veracruz-id"] != request.args["instance_id"]:
+                    return "<p>Veracruz instance '"+name+"' and instance_id '"+request.args["instance_id"][0:59]+"' does not exist!</p>",404
+            else:
+                return "<p>Veracruz instance '"+name+"' and has instance_id '"+labels["instance_id"]+"' does not exist!</p>",404
+        if "veracruz-hash" in labels:
+            if "instance_hash" in request.args:
+                if labels["veracruz-hash"] != request.args["instance_hash"][0:59]:
+                   return "<p>Veracruz instance '"+name+"' and instance_hash '"+request.args["instance_hash"][0:59]+"' does not exist!</p>",404
+            else:
+                return "<p>Veracruz instance '"+name+"' and has instance_hash '"+labels["veracruz-hash"]+"' does not exist!</p>",404
+
+    bodyDelete = client.V1DeleteOptions(
+                           preconditions = client.V1Preconditions(
+                                      resource_version = veracruzPodStatus.metadata.resource_version
+                           )
+                 )
+         
+    try:
+        veracruzPodDelete = kubeConnection.delete_namespaced_pod(veracruzPod,"default",body=bodyDelete)
     except ApiException as e:
         print("Exception when calling delete_namespaced_pod: %s\n" % e,flush=True)
-        return "<p>Veracruz instance '"+name+"' does not existe!</p>",404
+        return "<p>Veracruz instance '"+name+"' does not exist!</p>",404
     except Exception as e:
         print("Exception when calling read_namespaced_pod_status: %s\n" % e,flush=True)
         return "<p>Error accessing k8s "+str(e)+"</p>",500
@@ -166,6 +231,7 @@ def post_veracruz(): # create
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
+            "instance_id": { "type": "string"},
             "ciphersuite": { "type": "string"},
             "debug": { "type": "boolean"},
             "enable_clock": { "type": "boolean"},
@@ -189,16 +255,22 @@ def post_veracruz(): # create
 
     print("Processing create veraqcruz",flush=True)
 
+    instance_id = None
+    if "instance_id" in requestJson:
+        instance_id = requestJson["instance_id"]
+        del requestJson["instance_id"]
+
     policy = requestJson;
 
     policy["ciphersuite"] = "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256"
-    #TODO: change expiration date from Dec/12/2022 to Today + some time
+    # Compute the expiration date to 180 days from now
+    exp_date = datetime.datetime.fromtimestamp(time.time()+180*24*60*60)
     policy["enclave_cert_expiry"] = {
-        "day": 23,
-        "hour": 23,
-        "minute": 44,
-        "month": 12,
-        "year": 2022
+        "day": exp_date.day,
+        "hour": exp_date.hour,
+        "minute": exp_date.second,
+        "month": exp_date.month,
+        "year": exp_date.year
     }
     policy["proxy_attestation_server_url"]=os.environ['PROXY_ENDPOINT'] 
     policy["proxy_service_cert"]=os.environ['PROXY_CERTIFICATE'] 
@@ -270,10 +342,18 @@ def post_veracruz(): # create
    
     policy["veracruz_server_url"] = os.environ['VERACRUZ_ENDPOINT_HOSTNAME']+":"+str(veracruzport)
     policy_str=str(json.dumps(policy, indent = 4))
+
+    instance_hash = hashlib.sha256(policy_str.encode('utf-8')).hexdigest()[0:59]
+    labels = { "veracruz-nitro":"server",
+               "veracruz-hash" : instance_hash }
+    if not instance_id is None:
+        labels["veracruz-id"] = instance_id 
+
     configMap = client.V1ConfigMap(
                      metadata = client.V1ObjectMeta(
                                name = "veracruz-nitro-server-"+str(veracruzport),
-                               namespace = "default"
+                               namespace = "default",
+                               labels = labels
                      ),
                      data = {
                          "policy.json":policy_str
@@ -297,7 +377,7 @@ def post_veracruz(): # create
                 metadata = client.V1ObjectMeta(
                           name = "veracruz-nitro-server-"+str(veracruzport),
                           namespace = "default",
-                          labels = { "veracruz-nitro":"server"}
+                          labels = labels
                 ),
                 spec = client.V1PodSpec(
                           service_account_name = "default",
@@ -420,11 +500,12 @@ def post_veracruz(): # create
 
     print("Found IP address for pod "+veracruzPodIP,flush=True)
 
+    labels["kubernetes.io/service-name"]="veracruz-nitro-server"
     veracruzEndpointSlice = client.V1beta1EndpointSlice(
                 metadata = client.V1ObjectMeta(
                           name = "veracruz-nitro-server-"+str(veracruzport),
                           namespace = "default",
-                          labels = { "kubernetes.io/service-name":"veracruz-nitro-server"}
+                          labels = labels
                 ),
                 address_type = "IPv4",
                 ports = [
@@ -459,4 +540,70 @@ def post_veracruz(): # create
     policy_file.write(str(json.dumps(policy, indent = 4)))
     policy_file.close()
 
-    return {"policy":policy_str}
+    if instance_id is None:
+        return {"instance_hash":instance_hash,
+                "policy":policy_str}
+    return {"instance_id":instance_id,
+            "instance_hash":instance_hash,
+            "policy":policy_str}
+
+@app.route('/veracruz', methods=['GET'])
+def list_veracruz():
+    print("Received veracruz list",flush=True)
+    error = None
+    if request.method != 'GET':
+        print("Received something different than GET",flush=True)
+        return "<p>Not supported!</p>",400
+
+    kubeConnection = get_kubecon()
+    if kubeConnection is None:
+        return "<p>Error accessing K8s/kl3s</p>",500
+
+
+    label_selector_k8s = "veracruz-nitro=server"
+    if "instance_hash" in request.args:
+        label_selector_k8s += ",veracruz-hash="+request.args["instance_hash"][0:59]
+    if "instance_id" in request.args:
+        label_selector_k8s += ",veracruz-id="+request.args["instance_id"]
+
+    print("label selector sent='"+label_selector_k8s+"'",flush=True)
+
+    try:
+        veracruzPodsFound = kubeConnection.list_namespaced_pod("default",label_selector=label_selector_k8s)
+    except ApiException as e:
+        print("Exception when calling read_namespaced_pod_status: %s\n" % e,flush=True)
+        return "<p>Veracruz instance '"+name+"' does not exist!</p>",404
+    except Exception as e:
+        print("Exception when calling read_namespaced_pod_status: %s\n" % e,flush=True)
+        return "<p>Error accessing k8s "+str(e)+"</p>",500
+
+    pod_status=[]
+    for pod in veracruzPodsFound.items:
+        podId = re.sub('-([0-9]*)$',':\g<1>',pod.metadata.name)
+        if pod.metadata.labels is None:
+            pod_status.append({ podId : { "status": "OK"}})
+            continue
+    
+        labels = pod.metadata.labels
+        if "veracruz-id" in labels:
+            if "veracruz-hash" in labels:
+                pod_status.append({ podId : { "instance_id":labels["veracruz-id"],
+                                              "instance_hash":labels["veracruz-hash"],
+                                               "status": "OK"}
+                                  }
+                                 )
+                continue
+            pod_status.append({ podId : {"instance_id":labels["veracruz-id"],
+                                        "status": "OK"}
+                              }
+                             )
+            continue
+        if "veracruz-hash" in labels:
+            pod_status.append({ podId : {"instance_id":labels["veracruz-id"],
+                                        "status": "OK"}
+                              }
+                             )
+            continue
+        pod_status.append({ podId : { "status": "OK"}})
+
+    return { "veracruz" : pod_status }

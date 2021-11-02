@@ -357,6 +357,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
+            "instance_id": { "type": "string"},
             "ciphersuite": { "type": "string"},
             "debug": { "type": "boolean"},
             "enable_clock": { "type": "boolean"},
@@ -411,6 +412,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
         "additionalProperties": False
     }
     ```
+   * id: allows identification of this instance for the purpose of VaaS
    * ciphersuite: identifies what are the algorithms to be used for cryptographic operations (TLS, hashing,  keys signing, etc..)
    * debug: True runs in debug mode, false runs in normal mode
    * enable_clock: True allows wasm program to use the read the OS clock
@@ -599,22 +601,27 @@ On this environment a full orchestrated end-to-end application is deployed using
 ### Installing Veracruz services on k8s/k3s
 
 1. Clone the repository https://gitlab.com/arm-research/security/i-poc.git 
-1. Move to the directory i-poc/main-k3s
-1. Copy the file config.vars.template to config.vars and update the values according to your installation
-1. execute make
-   * this step will create all the keys, certificates and update all the YAML files from the templates
-1. The next section shows has to add the objects (from YAML files) for each service. The Makefile contains entries for each service and an entry that install all of them
+1. Move to directory i-poc
+   ```bash
+   cd i-poc
+   ```
+1. Copy file i-poc/main-k3s/config.vars.template to i-poc/i-poc/main-k3s/config.vars and update the values according to your installation
+1. If desired to create the container images locally, execute
+   ```bash
+   make images
+   ```
+1. The following step create all the keys, certificates and update all the YAML files from the templates and loads them into k8s/k3s
    ```bash
    make k8s-all
    ```
-
-   or individually
+1. If more control is desired change to directory i-poc/main-k3s
    
    ```bash
    make k8s-smarter-device-manager
    make k8s-attestation-service
    make k8s-vaas
    make k8s-ccfaas
+   make k8s-iotex-s3-app
    ```
 
    there is also <entry>-check to verify if the services are running correctly
@@ -793,8 +800,15 @@ Even oj EKS a new updated configuration of smarter-device-manager need to be be 
 # WIP:
 
 * Iotex Video App
+  * Object detection wasm application is WIP
   * Cryptography inside the enclave is still WIP
   * Documentation of how to implement an application that can be compiled to wasm and deployable on Veracruz
-* Iotex user application
-* The current example allows both a development environment to be create, using docker and also a scalable cloud deployable model
+
+
+# Possible future enhancements
+
+* Use a DB to store persistent data from CCFaaS
+* Remove CCFaaS instances if the corresponding Veracruz instance dies
+* Allow installation within a defined namespace
+* Convert YAML files to helm charts
 

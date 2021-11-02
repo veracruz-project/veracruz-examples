@@ -247,9 +247,9 @@ if __name__ == "__main__":
     if os.system(execute_string) != 0:
         print("execute retuned eror so cleaning up",flush=True)
 
-    print("Deleting instance URL="+ccfaasURL+"/"+uniqueID)
+    print("Deleting instance URL="+ccfaasURL+"/instance/"+uniqueID)
     try:
-        iotexAppResponse = requests.delete(ccfaasURL+"/"+uniqueID)
+        iotexAppResponse = requests.delete(ccfaasURL+"/instance/"+uniqueID)
     except requests.exceptions.HTTPError as http_err:
         print(f'HTTP error occurred: {http_err}')  # Python 3.6
         os._exit(1)
