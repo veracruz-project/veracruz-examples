@@ -882,7 +882,8 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
     
     Create linear-regression  program linear-regression.wasm
         <p>function loaded!</p>
-    ```
+  ```
+
 1. Running the example
     ```bash
     ./iotex-user-app.sh
