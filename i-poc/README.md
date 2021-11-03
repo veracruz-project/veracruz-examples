@@ -78,7 +78,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
 
 * User Policy
    
-    ```json
+   ```json
    {
      "function": "objectdetection",
      "instanceid": "idtest",
@@ -141,13 +141,13 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
    }
    ```
 
-   * function: identifies the registered function to instantiate
-   * instanceid: unique name for this instance
-   * identities: list of certificates and permissions allowed for each certificate
-   * certificates: x509 certificate in PEM format (currently veracruz-client only supports RSA certificates)
-   * file_rights: List of filenames and permissions associated with that file for this identity
-   * file_name: file that permissions apply (this file should exist on the registered function):
-   * rights: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table below
+   * <strong>function</strong>: identifies the registered function to instantiate
+   * <strong>instanceid</strong>: unique name for this instance
+   * <strong>identities</strong>: list of certificates and permissions allowed for each identity
+   * <strong>certificates</strong>: x509 certificate in PEM format (currently veracruz-client only supports RSA certificates)
+   * <strong>file_rights</strong>: List of filenames and permissions associated with that file for this identity
+   * <strong>file_name</strong>: file that permissions apply (this file should exist on the registered function):
+   * <strong>rights</strong>: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table below
       ```
       FD_DATASYNC               = 2^0 = 1
       FD_READ                   = 2^1 = 2
@@ -194,331 +194,333 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
 
 * Program Policy
 
-    ```json
-    {
-      "function": "objectdetection",
-      "execution_strategy": "Interpretation",
-      "programs": [
-        {
-          "id": 0,
-          "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-          "program_file_name": "linear-regression.wasm",
-          "file_rights": [
-            {
-              "file_name": "input-0",
-              "rights": 8198
-            },
-            {
-              "file_name": "output",
-              "rights":  33572
-            }
-          ]
-        }
-      ]
-    }
-    ```
-    The following json-schema describes the schema allowed. 
+   ```json
+   {
+     "function": "objectdetection",
+     "execution_strategy": "Interpretation",
+     "programs": [
+       {
+         "id": 0,
+         "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
+         "program_file_name": "linear-regression.wasm",
+         "file_rights": [
+           {
+             "file_name": "input-0",
+             "rights": 8198
+           },
+           {
+             "file_name": "output",
+             "rights":  33572
+           }
+         ]
+       }
+     ]
+   }
+   ```
+   The following json-schema describes the schema allowed. 
 
-    ```json
-    json_policy_input_schema = {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-            "function": { "type": "string"},
-            "execution_strategy": { "type": "string"},
-            "programs":  json_program_schema,
-            "data_files": json_data_file_schema
-            }
-        },
-        "required": ["function","execution_strategy","programs"],
-        "additionalProperties": False
-    }
+   ```json
+   json_policy_input_schema = {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "type": "object",
+       "properties": {
+           "function": { "type": "string"},
+           "execution_strategy": { "type": "string"},
+           "programs":  json_program_schema,
+           "data_files": json_data_file_schema
+           }
+       },
+       "required": ["function","execution_strategy","programs"],
+       "additionalProperties": False
+   }
 
-    json_data_file_schema = {
-        "type": "array",
-        "items" : {
-             "type": "object",
-             "properties": {
-                 "data_file":  { "type":"string" },
-                 "pi_hash":  { "type":"string" },
-                 "priority": { "type":"integer" }
-             },
-             "required": ["pi_hash","data_file"],
-             "additionalProperties": False
-        },
-        "additionalProperties": False
-    }
-
-    json_program_schema = {
-        "type": "array",
-        "items" : {
-             "type": "object",
-             "properties": {
-                 "file_rights": json_file_rights_schema,
-                 "id": { "type":"integer" },
-                 "pi_hash":  { "type":"string" },
-                 "program_file_name":  { "type":"string" },
-             },
-             "required": ["file_rights","id","pi_hash","program_file_name"],
-             "additionalProperties": False
-        },
-        "additionalProperties": False
-    }
- 
-    json_file_rights_schema = {
-        "type": "array",
-        "items" : {
+   json_data_file_schema = {
+       "type": "array",
+       "items" : {
             "type": "object",
             "properties": {
-                 "file_name": { "type": "string"},
-                 "rights": { "type": "integer"},
+                "data_file":  { "type":"string" },
+                "pi_hash":  { "type":"string" },
+                "priority": { "type":"integer" }
             },
+            "required": ["pi_hash","data_file"],
             "additionalProperties": False
-        },
-        "additionalProperties": False
-    }
-    ```
-   * function: identifies the function name to register
-   * execution_strategy: normally "Interpretation" but other modes may be supported in the future
-   * programs: list of programs (executables) that is part of the computation for this function (all of them are instantiated for this function to execute correctly)
-   * file_rights: List of filenames and permissions associated with this program
-   * pi_hash: sha256 hash of the executable or data file
-   * data_files: list of optional data files to be loaded into the programs. The order they are loaded are determined by the priority, lower numbers before higher numbers, same numbers are loaded in random order. 
-   * data_file: name of the file to be loaded and also the name of input file of the program
-   * priority: (optional field) lower numbers will have higher priority on loading 
-   * program_file_name: name for the program as known by Veracruz
-   * file_name: file that permissions apply (this file should exist on the registered function):
-   * rights: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table above
+       },
+       "additionalProperties": False
+   }
+
+   json_program_schema = {
+       "type": "array",
+       "items" : {
+            "type": "object",
+            "properties": {
+                "file_rights": json_file_rights_schema,
+                "id": { "type":"integer" },
+                "pi_hash":  { "type":"string" },
+                "program_file_name":  { "type":"string" },
+            },
+            "required": ["file_rights","id","pi_hash","program_file_name"],
+            "additionalProperties": False
+       },
+       "additionalProperties": False
+   }
+
+   json_file_rights_schema = {
+       "type": "array",
+       "items" : {
+           "type": "object",
+           "properties": {
+                "file_name": { "type": "string"},
+                "rights": { "type": "integer"},
+           },
+           "additionalProperties": False
+       },
+       "additionalProperties": False
+   }
+   ```
+
+   * <strong>function</strong>: identifies the function name to register
+   * <strong>execution_strategy</strong>: normally "Interpretation" but other modes may be supported in the future
+   * <strong>programs</strong>: list of programs (executables) that is part of the computation for this function (all of them are instantiated for this function to execute correctly)
+   * <strong>file_rights</strong>: List of filenames and permissions associated with this program
+   * <strong>pi_hash</strong>: sha256 hash of the executable or data file
+   * <strong>data_files</strong>: list of optional data files to be loaded into the programs. The order they are loaded are determined by the priority, lower numbers before higher numbers, same numbers are loaded in random order. 
+   * <strong>data_file</strong>: name of the file to be loaded and also the name of input file of the program
+   * <strong>priority</strong>: (optional field) lower numbers will have higher priority on loading 
+   * <strong>program_file_name</strong>: name for the program as known by Veracruz
+   * <strong>file_name</strong>: file that permissions apply (this file should exist on the registered function)
+   * <strong>rights</strong>: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table above
 
 * VaaS policy (policy used by VaaS to create a Veracruz instance)
 
-     ```json
-     {
-         "ciphersuite": "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
-         "debug": false,
-         "enable_clock": true,
-         "execution_strategy": "Interpretation",
-         "identities": [
-             {
-                 "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-                 "file_rights": [
-                     {
-                         "file_name": "linear-regression.wasm",
-                         "rights": 533572
-                     }
-                 ],
-                 "id": 0
-             },
-             {
-                 "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-                 "file_rights": [
-                     {
-                         "file_name": "input-0",
-                         "rights": 533572
-                     }
-                 ],
-                 "id": 1
-             },
-             {
-                 "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-                 "file_rights": [
-                     {
-                         "file_name": "output",
-                         "rights": 8198
-                     }
-                 ],
-                 "id": 2
-             }
-         ],
-         "programs": [
-             {
-                 "file_rights": [
-                     {
-                         "file_name": "input-0",
-                         "rights": 8198
-                     },
-                     {
-                         "file_name": "output",
-                         "rights": 533572
-                     }
-                 ],
-                 "id": 0,
-                 "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-                 "program_file_name": "linear-regression.wasm"
-             }
-         ]
-     }
-
-    ```
-    The following json-schema describes the schema allowed. 
-
-    ```json
-    json_policy_input_schema = {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-            "instance_id": { "type": "string"},
-            "ciphersuite": { "type": "string"},
-            "debug": { "type": "boolean"},
-            "enable_clock": { "type": "boolean"},
-            "execution_strategy": { "type": "string"},
-            "identities": json_identity_schema,
-            "programs":  json_program_schema,
-        },
-        "required": ["ciphersuite","debug","enable_clock","execution_strategy","identities","programs"],
-        "additionalProperties": False
-    }
-
-    json_identity_schema = {
-        "type": "array",
-        "items" : {
-            "type": "object",
-            "properties": {
-                 "certificate": { "type": "string"},
-                 "file_rights": json_file_rights_schema,
-                 "id": { "type":"integer" },
-            },
-            "required": ["certificate","file_rights","id"],
-            "additionalProperties": False
-        },
-        "additionalProperties": False
-    }
-
-    json_program_schema = {
-        "type": "array",
-        "items" : {
-             "type": "object",
-             "properties": {
-                 "file_rights": json_file_rights_schema,
-                 "id": { "type":"integer" },
-                 "pi_hash":  { "type":"string" },
-                 "program_file_name":  { "type":"string" },
-             },
-             "required": ["file_rights","id","pi_hash","program_file_name"],
-             "additionalProperties": False
-        },
-        "additionalProperties": False
-    }
-    json_file_rights_schema = {
-        "type": "array",
-        "items" : {
-            "type": "object",
-            "properties": {
-                 "file_name": { "type": "string"},
-                 "rights": { "type": "integer"},
-            },
-            "additionalProperties": False
-        },
-        "additionalProperties": False
-    }
-    ```
-   * id: allows identification of this instance for the purpose of VaaS
-   * ciphersuite: identifies what are the algorithms to be used for cryptographic operations (TLS, hashing,  keys signing, etc..)
-   * debug: True runs in debug mode, false runs in normal mode
-   * enable_clock: True allows wasm program to use the read the OS clock
-   * execution_strategy: normally "Interpretation" but other modes may be supported in the future
-   * programs: list of programs (executables) that is part of the computation for this function (all of them are instantiated for this function to execute correctly)
-   * file_rights: List of filenames and permissions associated with this program
-   * pi_hash: sha256 hash of the executable
-   * program_file_name: name for the program as known by Veracruz
-   * file_name: file that permissions apply (this file should exist on the registered function):
-   * rights: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table above
-
-* Full policy (policy returned by CCFaaS and VaaS and used in Veracruz instance)
-
-     ```json
-     {
+   ```json
+   {
        "ciphersuite": "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
        "debug": false,
        "enable_clock": true,
-       "enclave_cert_expiry": {
-         "day": 23,
-         "hour": 23,
-         "minute": 44,
-         "month": 12,
-         "year": 2021
-       },
        "execution_strategy": "Interpretation",
        "identities": [
-         {
-           "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-           "file_rights": [
-             {
-               "file_name": "linear-regression.wasm",
-               "rights": 533572
-             }
-           ],
-           "id": 0
-         },
-         {
-           "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-           "file_rights": [
-             {
-               "file_name": "input-0",
-               "rights": 533572
-             },
-             {
-               "file_name": "output",
-               "rights": 8198
-             }
-           ],
-           "id": 1
-         }
+           {
+               "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+               "file_rights": [
+                   {
+                       "file_name": "linear-regression.wasm",
+                       "rights": 533572
+                   }
+               ],
+               "id": 0
+           },
+           {
+               "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+               "file_rights": [
+                   {
+                       "file_name": "input-0",
+                       "rights": 533572
+                   }
+               ],
+               "id": 1
+           },
+           {
+               "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+               "file_rights": [
+                   {
+                       "file_name": "output",
+                       "rights": 8198
+                   }
+               ],
+               "id": 2
+           }
        ],
        "programs": [
-         {
-           "file_rights": [
-             {
-               "file_name": "input-0",
-               "rights": 8198
-             },
-             {
-               "file_name": "output",
-               "rights": 533572
-             }
-           ],
-           "id": 0,
-           "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-           "program_file_name": "linear-regression.wasm"
-         }
-       ],
-       "proxy_attestation_server_url": "veracruz-nitro-proxy:3010",
-       "proxy_service_cert": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-       "runtime_manager_hash_nitro": "89bad60af6e4bd934dc7705b7187b828631092c151b967c0b1638c5567234acd",
-       "runtime_manager_hash_sgx": "",
-       "runtime_manager_hash_tz": "",
-       "std_streams_table": [
-         {
-           "Stdin": {
-             "file_name": "stdin",
+           {
+               "file_rights": [
+                   {
+                       "file_name": "input-0",
+                       "rights": 8198
+                   },
+                   {
+                       "file_name": "output",
+                       "rights": 533572
+                   }
+               ],
+               "id": 0,
+               "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
+               "program_file_name": "linear-regression.wasm"
+           }
+       ]
+   }
+   ```
+
+   The following json-schema describes the schema allowed. 
+
+   ```json
+   json_policy_input_schema = {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "type": "object",
+       "properties": {
+           "instance_id": { "type": "string"},
+           "ciphersuite": { "type": "string"},
+           "debug": { "type": "boolean"},
+           "enable_clock": { "type": "boolean"},
+           "execution_strategy": { "type": "string"},
+           "identities": json_identity_schema,
+           "programs":  json_program_schema,
+       },
+       "required": ["ciphersuite","debug","enable_clock","execution_strategy","identities","programs"],
+       "additionalProperties": False
+   }
+
+   json_identity_schema = {
+       "type": "array",
+       "items" : {
+           "type": "object",
+           "properties": {
+                "certificate": { "type": "string"},
+                "file_rights": json_file_rights_schema,
+                "id": { "type":"integer" },
+           },
+           "required": ["certificate","file_rights","id"],
+           "additionalProperties": False
+       },
+       "additionalProperties": False
+   }
+
+   json_program_schema = {
+       "type": "array",
+       "items" : {
+            "type": "object",
+            "properties": {
+                "file_rights": json_file_rights_schema,
+                "id": { "type":"integer" },
+                "pi_hash":  { "type":"string" },
+                "program_file_name":  { "type":"string" },
+            },
+            "required": ["file_rights","id","pi_hash","program_file_name"],
+            "additionalProperties": False
+       },
+       "additionalProperties": False
+   }
+   json_file_rights_schema = {
+       "type": "array",
+       "items" : {
+           "type": "object",
+           "properties": {
+                "file_name": { "type": "string"},
+                "rights": { "type": "integer"},
+           },
+           "additionalProperties": False
+       },
+       "additionalProperties": False
+   }
+   ```
+
+   * <strong>id</strong>: allows identification of this instance for the purpose of VaaS
+   * <strong>ciphersuite</strong>: identifies what are the algorithms to be used for cryptographic operations (TLS, hashing,  keys signing, etc..)
+   * <strong>debug</strong>: True runs in debug mode, false runs in normal mode
+   * <strong>enable_clock</strong>: True allows wasm program to use the read the OS clock
+   * <strong>execution_strategy</strong>: normally "Interpretation" but other modes may be supported in the future
+   * <strong>programs</strong>: list of programs (executables) that is part of the computation for this function (all of them are instantiated for this function to execute correctly)
+   * <strong>file_rights</strong>: List of filenames and permissions associated with this program
+   * <strong>pi_hash</strong>: sha256 hash of the executable
+   * <strong>program_file_name</strong>: name for the program as known by Veracruz
+   * <strong>file_name</strong>: file that permissions apply (this file should exist on the registered function)
+   * <strong>rights</strong>: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table above
+
+* Full policy (policy returned by CCFaaS and VaaS and used in Veracruz instance)
+
+   ```json
+   {
+     "ciphersuite": "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+     "debug": false,
+     "enable_clock": true,
+     "enclave_cert_expiry": {
+       "day": 23,
+       "hour": 23,
+       "minute": 44,
+       "month": 12,
+       "year": 2021
+     },
+     "execution_strategy": "Interpretation",
+     "identities": [
+       {
+         "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+         "file_rights": [
+           {
+             "file_name": "linear-regression.wasm",
+             "rights": 533572
+           }
+         ],
+         "id": 0
+       },
+       {
+         "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+         "file_rights": [
+           {
+             "file_name": "input-0",
+             "rights": 533572
+           },
+           {
+             "file_name": "output",
              "rights": 8198
            }
-         },
-         {
-           "Stdout": {
-             "file_name": "stdout",
+         ],
+         "id": 1
+       }
+     ],
+     "programs": [
+       {
+         "file_rights": [
+           {
+             "file_name": "input-0",
+             "rights": 8198
+           },
+           {
+             "file_name": "output",
              "rights": 533572
            }
-         },
-         {
-           "Stderr": {
-             "file_name": "stderr",
-             "rights": 533572
-           }
+         ],
+         "id": 0,
+         "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
+         "program_file_name": "linear-regression.wasm"
+       }
+     ],
+     "proxy_attestation_server_url": "veracruz-nitro-proxy:3010",
+     "proxy_service_cert": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+     "runtime_manager_hash_nitro": "89bad60af6e4bd934dc7705b7187b828631092c151b967c0b1638c5567234acd",
+     "runtime_manager_hash_sgx": "",
+     "runtime_manager_hash_tz": "",
+     "std_streams_table": [
+       {
+         "Stdin": {
+           "file_name": "stdin",
+           "rights": 8198
          }
-       ],
-       "veracruz_server_url": "veracruz-nitro-server:3014"
-     }
-     ```
-     The additional fields returned with the policy are:
- 
-     * enclave_cert_expiry: enclave certificate expiration date
-     * proxy_attestation_server_url: Proxy attestation server that this enclave got the attestation certificate from
-     * proxy_service_cert: Proxy server certificate for the key that signed the attestation certificate
-     * runtime_manager_hash_nitro: Hash for the Veracruz nitro enclave runtime that is running on this enclave
-     * runtime_manager_hash_sgx:  Hash for the Veracruz sgx enclave runtime that is running on this enclave
-     * runtime_manager_hash_tz" Hash for the Veracruz trustzone enclave runtime that is running on this enclave
-     * std_streams_table: stdin, stdout and stderr permissions for the program running inside the enclave (function)
+       },
+       {
+         "Stdout": {
+           "file_name": "stdout",
+           "rights": 533572
+         }
+       },
+       {
+         "Stderr": {
+           "file_name": "stderr",
+           "rights": 533572
+         }
+       }
+     ],
+     "veracruz_server_url": "veracruz-nitro-server:3014"
+   }
+   ```
+   The additional fields returned with the policy are:
+
+   * <strong>enclave_cert_expiry</strong>: enclave certificate expiration date
+   * <strong>proxy_attestation_server_url</strong>: Proxy attestation server that this enclave got the attestation certificate from
+   * <strong>proxy_service_cert</strong>: Proxy server certificate for the key that signed the attestation certificate
+   * <strong>runtime_manager_hash_nitro</strong>: Hash for the Veracruz nitro enclave runtime that is running on this enclave
+   * <strong>runtime_manager_hash_sgx</strong>:  Hash for the Veracruz sgx enclave runtime that is running on this enclave
+   * <strong>runtime_manager_hash_tz</strong>:" Hash for the Veracruz trustzone enclave runtime that is running on this enclave
+   * <strong>std_streams_table</strong>: stdin, stdout and stderr permissions for the program running inside the enclave (function)
 
 # VaaS and CCFaaS description
 
@@ -559,6 +561,60 @@ Multiple instances can be created from the same registered function.
 | READ | GET	 | /instance | |  | List of instances |
 | READ | GET	 | /instance/\<name\> | |  | Status of instance |
 | DELETE | DELETE | /instance/\<name\> | | |  |
+
+# Iotex-S3 description
+
+Iotex-S3-app provides an interface from S3 to veracruz so the file can be piped through the cloud instead of bewing downloaded to the user computer and uploaded again.
+
+|Action | HTTP method | URL| URL Parametera | Input Object | Output Object |
+| -- | --- | --- | --- | --- | --- |
+|CREATE |POST | /s3_stream_veracruz | | iotex-s3-app object  | |
+
+   ```json
+   json_input_schema = {
+       "$schema": "https://json-schema.org/draft/2020-12/schema",
+       "type": "object",
+       "properties": {
+           "s3" : {
+                   "type": "object",
+                   "properties": {
+                       "region_name" : {"type": "string"},
+                       "bucket" : {"type": "string"},
+                       "filename" : {"type": "string"},
+                       "aws_access_key_id" : {"type": "string"},
+                       "aws_secret_access_key" : {"type": "string"},
+                       "aws_session_token" : {"type": "string"}
+                   },
+                   "required": ["bucket","filename"],
+                   "additionalProperties": False
+           },
+           "veracruz" : {
+                   "type": "object",
+                   "properties": {
+                       "filename" : {"type": "string"},
+                       "policy" : {"type": "string"},
+                       "certificate" : {"type": "string"},
+                       "key" : {"type": "string"}
+                   },
+                   "required": ["filename", "policy","certificate","key"],
+                   "additionalProperties": False
+           }
+       },
+       "additionalProperties": False
+   }
+   ```
+   * <strong>s3</strong>: s3 object and optional credentials to access that object
+   * <strong>region_name</strong>: Optional region that this S3 object resides
+   * <strong>bucket</strong>: Bucket of this S3 object
+   * <strong>filename</strong>: filename of the S3 object
+   * <strong>aws_access_key_id</strong>: Optionsl AWS authemntication for CLI S3 access of this object (only read to this object is required)
+   * <strong>aws_secret_access_key</strong>: Optional AWS authemntication for CLI S3 access of this object (only read to this object is required)
+   * <strong>aws_session_token</strong>: Optional AWS authemntication for CLI S3 access of this object (only read to this object is required)
+   * <strong>veracruz</strong>: Veracruz instance to access and authentication/authorization information
+   * <strong>filename</strong>: Filename in Veracruz instance to copy the S3 file to
+   * <strong>policy</strong>: policy information for the Veracruz instance
+   * <strong>certificatie</strong>: certificate to use by this application to authenticate to the veracruz instance
+   * <strong>key</strong>: key that correspond to the certificate provided
 
 # Running demo application (including Veracruz) as a service under k3s/k8s 
 
@@ -688,7 +744,7 @@ Even oj EKS a new updated configuration of smarter-device-manager need to be be 
                        beta.kubernetes.io/os=linux
                        enclave.example.com/type=nitro
                        kubernetes.io/arch=amd64
-                       kubernetes.io/hostname=ip-172-31-4-186
+                       kubernetes.io/hostname=ip-XXX-XXX-XXX-XXX
                        kubernetes.io/os=linux
                        node.kubernetes.io/instance-type=k3s
                        smarter-device-manager=enabled
@@ -905,7 +961,7 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
     Connecting to veracruz-nitro-server:3014
     Reading <enclave>/linear-regression.wasm into linear-regression.dat.output
     Shutting down enclave
-    Deleting instance URL=http://172.31.4.186:5010/instance/test1
+    Deleting instance URL=http://XXX.XXX.XXX.XXX:5010/instance/test1
     ```
 
 # WIP:
