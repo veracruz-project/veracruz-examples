@@ -528,11 +528,37 @@ VaaS provides a REST (CD) interface that allows multiple instances of Veracruz t
 
 VaaS require a valid VaaS policy (essentially a Program policy and User policy together) as input and provides a Veracruz instance loaded with a full policy (Infrastructure policy is added by VaaS) returning that policy if the instance is successfully allocated.
 
+|Action	| HTTP method | URL| URL Parametera | Input Object | Output Object |
+| -- | --- | --- | --- | --- | --- |
+|CREATE	|POST |	/veracruz | | VasS Policy | |
+|READ |	GET | /veracruz |  instance_Id instance_Hash | | List of Veracruz instances |
+|READ|	GET | /veracruz/\<name\> | | Statis of Veracruz Instance |
+|DELETE	|DELETE | /veracruz/\<name\> |  instance_id instance_hash | | |
+
 ## CCFaaS (Confidential Computing Function as a Service)
 
 CCFaaS provides a REST (CRD) interface that allows confidential computing functions to be instantiated on a Veracruz environment. 
 CCFaaS has three main concepts. Function, Program and Instances. Function represents a computation to be executed in Veracruz and it is mainly the program policy information. Program allows the CCFaaS to pre-load executables into Veracruz, and instance is a instance of a function running in a Veracruz. An instance to be created requires a user policy a reference to a registered function.
 Multiple instances can be created from the same registered function. 
+
+|Action	| HTTP method | URL| URL Parametera | Input Object | Output Object |
+| -- | --- | --- | --- | --- | --- |
+| CREATE | POST	 | /function  | | CCFaaS policy | |
+| READ | GET	 | /function  | | | List of functions registered |
+| READ | GET	   | /function/\<name\> |  | CCFaaS policy  |
+| DELETE  | DELETE | /function/\<name\> | |   | |
+| CREATE | POST	 | /function/\<name\>/program/\<progname\> |  | Program binary |
+| READ | GET	` | /function/\<name\>/program | 	 | 	 | List of programs registered |
+| READ | GET	 | /function/\<name\>/program/\<progname\> | |	 | Status of program |
+| DELETE | DELETE | /function/\<name\>/program/\<progname\> |  |
+| CREATE | POST	 | /function/\<name\>/data_file/\<data_file\> | | Data binary  |
+| READ | GET	 | /function/\<name\>/data_file	| | | List of data files registered |
+| READ | GET	 | /function/\<name\>/data_file/\<data_file\> ||  | Status of data file |
+| DELETE | DELETE | /function/\<name\>/data_file/\<data_file\> |  |
+| CREATE | POST	 | /instance |  | User Policy |
+| READ | GET	 | /instance | |  | List of instances |
+| READ | GET	 | /instance/\<name\> | |  | Status of instance |
+| DELETE | DELETE | /instance/\<name\> | | |  |
 
 # Running demo application (including Veracruz) as a service under k3s/k8s 
 
@@ -895,4 +921,3 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
 * Remove CCFaaS instances if the corresponding Veracruz instance dies
 * Allow installation within a defined namespace
 * Convert YAML files to helm charts
-
