@@ -113,33 +113,33 @@ def execute_function():
     #)
 
     tmpdir = tempfile.mkdtemp()
-    print("Created temporary directory "+tmpdir)
+    print("Created temporary directory "+tmpdir,flush=True)
     fifoFilename = os.path.join(tmpdir, 'video_file')
     try:
         os.mkfifo(fifoFilename)
     except OSError as e:
-        print("Failed to create FIFO: %s" % e)
+        print("Failed to create FIFO: %s" % e,flush=True)
         return "<p>not able to create fifo "+fifoFilename+" to transfer video data!</p>"
 
     certificateFilename = os.path.join(tmpdir, 'cert.pem')
     certFile = open(certificateFilename, 'w')
     certFile.write(requestJson["veracruz"]["certificate"]);
     certFile.close()
-    print("Certificate created at "+certificateFilename)
+    print("Certificate created at "+certificateFilename,flush=True)
 
     policyFilename = os.path.join(tmpdir, 'policy')
     policyFile = open(policyFilename, 'w')
     policyFile.write(requestJson["veracruz"]["policy"]);
     policyFile.close()
-    print("Policy created at "+policyFilename)
+    print("Policy created at "+policyFilename,flush=True)
 
     keyFilename = os.path.join(tmpdir, 'key.pem')
     keyFile = open(keyFilename, 'w')
     keyFile.write(requestJson["veracruz"]["key"]);
     keyFile.close()
-    print("key created at "+keyFilename)
+    print("key created at "+keyFilename,flush=True)
 
-    print("S3 access object creating")
+    print("S3 access object creating",flush=True)
     if "region_name" in requestJson["s3"]: 
         if "aws_access_key_id" in requestJson["s3"]: 
             s3 = boto3.client('s3', region_name=requestJson["s3"]["region_name"],
@@ -159,9 +159,9 @@ def execute_function():
         else:
             s3 = boto3.client('s3')
 
-    print("S3 access object created")
+    print("S3 access object created",flush=True)
 
-    print("Starting the cat process")
+    print("Starting the cat process",flush=True)
     veracruzSub = subprocess.Popen(["/bin/bash",
                                     "-c",
                                     "openssl rsa -in "+keyFilename+" -out "+
@@ -169,25 +169,32 @@ def execute_function():
                                           policyFilename+" --data "+requestJson["veracruz"]["filename"]+
                                           "="+fifoFilename+" --identity "+certificateFilename+" --key "+
                                           keyFilename+".RSA.pem"])
+    error_str = None
 
     fifo = open(fifoFilename, 'wb')
     try:
         s3.download_fileobj(requestJson["s3"]["bucket"],requestJson["s3"]["filename"],fifo)
     except botocore.exceptions.ClientError as error:
-        print("Error in S3 "+str(error))
+        print("Error in S3 "+str(error),flush=True)
+        error_str = "Not able to read bucket "+requestJson["s3"]["bucket"]+" file "+requestJson["s3"]["filename"]+" from S3: ClientError"
+    except botocore.exceptions.ParamValidationError as error:
+        print("Error in S3 "+str(error),flush=True)
+        error_str = "Not able to read bucket "+requestJson["s3"]["bucket"]+" file "+requestJson["s3"]["filename"]+" from S3: ParamValidationError"
 
-    #for i in range(10):
-    #    fifo.write("Entry :"+str(i)+"\n")
     fifo.close()
 
-    print("Waiting for the subprocess to end")
+    print("Waiting for the subprocess to end",flush=True)
     veracruzRet = veracruzSub.wait()
 
-    print("subprocess ended with retcode="+str(veracruzRet))
+    print("subprocess ended with retcode="+str(veracruzRet),flush=True)
+    if error_str is None and veracruzRet != 0:
+        error_str = "Not able to write file to veracruz instance"
     os.remove(fifoFilename)
     os.remove(certificateFilename)
     os.remove(keyFilename)
     os.remove(keyFilename+".RSA.pem")
     os.remove(policyFilename)
     os.rmdir(tmpdir)
-    return "<p>OK video file terminated</p>"
+    if not error_str is None:
+        return "<p>"+error_str+"<p>",500 
+    return "<p>OK video file copie</p>"

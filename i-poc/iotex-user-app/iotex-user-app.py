@@ -196,7 +196,7 @@ if __name__ == "__main__":
         os._exit(1)
     
     if iotexAppResponse.status_code != 200:
-        print("Http request to CCFaaS returned "+str(iotexAppResponse.status_code))  # Python 3.6
+        print("Http request to CCFaaS returned "+str(iotexAppResponse.status_code)+" with text "+iotexAppResponse.text)  # Python 3.6
         os._exit(1)
     
     try:
@@ -227,26 +227,28 @@ if __name__ == "__main__":
 
     print("Creating s3 app URL="+iotexS3URL+"/s3_stream_veracruz")
 
+    error_str = None
     try:
         iotexS3AppResponse = requests.post(iotexS3URL+"/s3_stream_veracruz",
                                 headers = {"Content-Type":"application/json"},
                                 data=json.dumps(iotexS3AppRequestJson, indent = 4))
     except requests.exceptions.HTTPError as http_err:
         print(f'HTTP error occurred: {http_err}')  # Python 3.6
-        os._exit(1)
+        error_str = "S3 app failed"
     except Exception as err:
         print(f'Other error occurred: {err}')  # Python 3.6
-        os._exit(1)
+        error_str = "S3 app failed"
  
     if iotexS3AppResponse.status_code != 200:
-        print("Http request to S3 app returned "+str(iotexS3AppResponse.status_code))  # Python 3.6
-        os._exit(1)
+        print("Http request to S3 app returned "+str(iotexS3AppResponse.text))  # Python 3.6
+        error_str = "S3 app failed"
 
-    execute_string="./execute_program.sh "+policy_filename+" "+USER_CERT_FILE+" "+USER_KEY_FILE+"  linear-regression.wasm "+outputFile
-    print("execute: "+execute_string,flush=True)
-    if os.system(execute_string) != 0:
-        print("execute retuned eror so cleaning up",flush=True)
-
+    if error_str is None:
+        execute_string="./execute_program.sh "+policy_filename+" "+USER_CERT_FILE+" "+USER_KEY_FILE+"  linear-regression.wasm "+outputFile
+        print("execute: "+execute_string,flush=True)
+        if os.system(execute_string) != 0:
+            print("execute retuned eror so cleaning up",flush=True)
+    
     print("Deleting instance URL="+ccfaasURL+"/instance/"+uniqueID)
     try:
         iotexAppResponse = requests.delete(ccfaasURL+"/instance/"+uniqueID)
