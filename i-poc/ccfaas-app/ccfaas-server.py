@@ -522,30 +522,29 @@ def post_instance_REST(): # create
 
     # for every local program in the function DB insert our keys
     programs = get_programs_db(requestJson["function"])
-    program_identities = []
+    program_file_rights = []
     for program in programs:
-        program_identities.append({
-                  "certificate": certStrToStringVeracruz(os.environ['PROGRAM_LOAD_CERTIFICATE']),
-                  "file_rights": [
-                     {
+        program_file_rights.append({
                      "file_name": program,
                      "rights": 533572
-                     }
-                  ]
-            })
+                }
+            )
 
     data_files = get_data_db(requestJson["function"])
-    data_files_identities = []
     for data_file in data_files:
-        program_identities.append({
-                  "certificate": certStrToStringVeracruz(os.environ['PROGRAM_LOAD_CERTIFICATE']),
-                  "file_rights": [
-                     {
+        program_file_rights.append({
                      "file_name": data_file,
                      "rights": 533572
-                     }
-                  ]
-            })
+                }
+            )
+
+    program_identities = requestJson["identities"]
+    if len(program_file_rights) > 0:
+        program_identities.append({
+                     "certificate": certStrToStringVeracruz(os.environ['PROGRAM_LOAD_CERTIFICATE']),
+                     "file_rights": [*program_file_rights]
+                }
+            )
 
     instance_policy = {
         "ciphersuite": "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
@@ -553,7 +552,7 @@ def post_instance_REST(): # create
         "enable_clock": True,
         "execution_strategy": jsonFunction["execution_strategy"],
         "programs": jsonFunction["programs"],
-        "identities": [*program_identities,*requestJson["identities"]],
+        "identities": [*program_identities],
 	"instance_id":"CCFaaS"
     }
     # Fix identities ID
@@ -570,15 +569,16 @@ def post_instance_REST(): # create
                headers = {"Content-Type":"application/json"},          
                data=json.dumps(instance_policy, indent = 4))
     except requests.exceptions.HTTPError as http_err:
-        print(f'HTTP error occurred: {http_err}')  # Python 3.6
+        print(f'HTTP error occurred: {http_err}',flush=True)
         remove_instance_db(requestJson["instanceid"])
         return "<p>Error accessing the vaas_server "+str(http_err)+"</p>",500
     except Exception as err:
-        print(f'Other error occurred: {err}')  # Python 3.6
+        print(f'Other error occurred: {err}',flush=True)
         remove_instance_db(requestJson["instanceid"])
         return "<p>Error accessing the vaas_server "+str(err)+"</p>",500
     
     if vaasAppResponse.status_code != 200:
+        print("instance_policy="+json.dumps(instance_policy, indent = 4),flush=True)
         print("Http request to VAAS returned "+str(vaasAppResponse.status_code))  # Python 3.6
         remove_instance_db(requestJson["instanceid"])
         return "<p>Error accessing the vaas_server response code was "+str(vaasAppResponse.status_code)+"</p>",500
@@ -586,7 +586,7 @@ def post_instance_REST(): # create
     try:
         policy = vaasAppResponse.json()
     except JSONDecodeError as err:
-        print("Http request to VAAS returned "+str(err))  # Python 3.6
+        print("Http request to VAAS returned "+str(err),flush=True)
         remove_instance_db(requestJson["instanceid"])
         return "<p>Error accessing the vaas_server, json response was "+str(err)+"</p>",500
     
