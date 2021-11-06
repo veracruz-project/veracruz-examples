@@ -48,14 +48,11 @@ A timeline of a full operation is described below.
 1. CCFaaS and VaaS waits for the next request (it will not interact with this request anymore)
 1. User Application receives the policy 
 1. User Application connects directly to Veracruz instance (using the connection information provided in the policy) and verify that the policy hash matches and the certificate provided by Veracruz instance is valid (attested by the proxy)
-1. Veracruz user app creates a temporary key and sends the key (Veracruz user app key) to output file
-1. User Application connects to the output file of Veracruz instance and receives key (Veracruz user app key)
-1. User Application encrypts the Iotex video decoding key  with the Veracruz user app key
+1. User application creates a file in Veracruz instance with the video decoding key
 1. User application creates a json object with the following information:
    * AWS S3 bucket, file name of the desired video and credentials to access the file
    * Veracruz instance endpoint (host, IP).
    * temporary certificate and key generated previously to access Veracruz instance
-   * encrypted video key
 1. User application executes a remote procedure call request to the Iotex S3 app with previously created json object
    * Upper pink FaaS arrow
 1. Iotex S3 app starts an instance of itself that connects to AWS S3 and  Veracruz instance and sends the encrypted key and then reads the video file and sends it to the Veracruz instance
@@ -144,7 +141,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
    * <strong>function</strong>: identifies the registered function to instantiate
    * <strong>instanceid</strong>: unique name for this instance
    * <strong>identities</strong>: list of certificates and permissions allowed for each identity
-   * <strong>certificates</strong>: x509 certificate in PEM format (currently veracruz-client only supports RSA certificates)
+   * <strong>certificate</strong>: x509 certificate in PEM format (currently veracruz-client only supports RSA certificates). Each identity should have a different certificate. Multiple identities using the same certificate will cause problems since only one identity file rights will be used to verify if the access is allowed. 
    * <strong>file_rights</strong>: List of filenames and permissions associated with that file for this identity
    * <strong>file_name</strong>: file that permissions apply (this file should exist on the registered function):
    * <strong>rights</strong>: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table below
