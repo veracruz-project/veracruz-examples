@@ -2,4 +2,6 @@ EXTERNAL_IP_USE=<IP to be used for external access, normally one of the IPs of o
 VERACRUZ_MIN_PORT_USE=<Smallest port number to be used for a veracruz instance, default is 3014>
 VERACRUZ_MIN_PORT_USE=<Largest number to be used for a veracruz instance, default is 3016>
 VERACRUZ_ENDPOINT_HOSTNAME_USE=<hostname.domainame that will be used on the policy for users to access the endpoint>
-RUNTIME_HUGHEPAGES_SIZE_USE=1024
+RUNTIME_HUGHEPAGES_SIZE_USE=1024 # In MBytes
+RUNTIME_POD_SIZE_USE=2048 # In MBytes
+RUNTIME_CPU_SIZE_USE=1000 # In milicpus = > 1000=1CPU

@@ -70,7 +70,7 @@ spec:
     spec:
       containers:
       - name: vaas-server-app
-        image: veracruz/veracruz-vaas-server:0.8
+        image: veracruz/veracruz-vaas-server:0.85
         imagePullPolicy: IfNotPresent
         env:
         - name: PROXY_ENDPOINT
@@ -83,6 +83,10 @@ spec:
           value: "VERACRUZ_ENDPOINT_HOSTNAME_USE"
         - name: RUNTIME_HUGHEPAGES_SIZE
           value: "RUNTIME_HUGHEPAGES_SIZE_USE"
+        - name: RUNTIME_POD_SIZE
+          value: "RUNTIME_POD_SIZE_USE"
+        - name: RUNTIME_CPU_SIZE
+          value: "RUNTIME_CPU_SIZE_USE"
         - name: PROXY_CERTIFICATE
           value: |
                REPLACE_CACERT_PEM

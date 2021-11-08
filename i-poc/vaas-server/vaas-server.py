@@ -305,6 +305,7 @@ def post_veracruz(): # create
     for veracruzport in range(int(os.environ['VERACRUZ_PORT_MIN']),int(os.environ['VERACRUZ_PORT_MAX'])+1):
         print("Trying port "+str(veracruzport),flush=True)
        
+        configMap = None
         try:
             configmap  = kubeConnection.read_namespaced_config_map("veracruz-nitro-server-"+str(veracruzport),"default")
         except ApiException as e:
@@ -312,7 +313,6 @@ def post_veracruz(): # create
                 print("Exception when calling AdmissionregistrationApi->get_api_group: %s\n" % e,flush=True)
                 return "<p>internal error '"+str(e)+"'!</p>"
             print("Port "+str(veracruzport)+" is not busy",flush=True)
-            configMap = None
         except Exception as e:
             print("Exception when calling read_namespaced_config_map: %s\n" % e,flush=True)
             return "<p>Error accessing k8s "+str(e)+"</p>",500
@@ -406,8 +406,8 @@ def post_veracruz(): # create
                                                           "smarter-devices/nitro_enclaves": "1",
                                                           "smarter-devices/vsock": "1",
                                                           "hugepages-2Mi": os.environ['RUNTIME_HUGHEPAGES_SIZE']+"Mi",
-                                                          "memory": "2Gi",
-                                                          "cpu": "250m"
+                                                          "memory": os.environ['RUNTIME_POD_SIZE']+"Mi",
+                                                          "cpu": os.environ['RUNTIME_CPU_SIZE']+"m"
                                                   },
                                                   requests = {
                                                           "smarter-devices/nitro_enclaves": "1",
