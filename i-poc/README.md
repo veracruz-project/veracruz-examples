@@ -877,6 +877,18 @@ Even oj EKS a new updated configuration of smarter-device-manager need to be be 
 
 The iotex-user-app directory on the repository will execute the I-PoC example end-to-end according the timeline described above
 
+1. Edit the file iotex-user-app.sh to set the correct information of the S3 file and S3 authentication to use:
+  ```bash
+  export AWS_ACCESS_KEY_ID="<REPLACE WITH AWS_ACCESS_KEY_ID>"
+  export AWS_SECRET_ACCESS_KEY="<REPLACE WITH AWS_SECRET_ACCESS_KEY>"
+  export AWS_SESSION_TOKEN="<REPLACE WITH AWS_SESSION_TOKEN>"
+
+  S3_REGION="<REPLACE WITH S3 REGION>"
+  S3_BUCKET="<REPLACE WITH S3 BUCKET"
+  S3_FILE="<REPLACE WITH S3 FILE?"
+  ```
+  The script assumes that the file requires authentication to be accessed. All the AWS credentiails and S3_REGION are optional and can be removed from the script including the entry on ./iotex-user-app.py line
+
 1. Registering the function in CCFaaS
 
   ```bash
@@ -958,6 +970,21 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
     Connecting to veracruz-nitro-server:3014
     Reading <enclave>/linear-regression.wasm into linear-regression.dat.output
     Shutting down enclave
+    Deleting instance URL=http://XXX.XXX.XXX.XXX:5010/instance/test1
+    ```
+
+1. Troubleshooting:
+
+   * Incorrect S3 credential will result in a similar output to the one presented below.
+    ```bash
+    CCFaaS in http://XXX.XXX.XXX.XXX:5010 and Iotex-s3 Faas in http://XXX.XXX.XXX>XXX:5020
+    User certificate loaded from USERcert.pem and key from USERkey.pem
+    S3 certificate created
+    Creating instance URL=http://XXX.XXX.XXX.XXX:5010/instance
+    Response = <Response [200]>
+    Writing policy to policy_test1
+    Creating s3 app URL=http://XXX.XXX.XXX.XXX:5020/s3_stream_veracruz
+    Http request to S3 app returned <p>Not able to read bucket rsh-veracruz-test file linear-regression.dat from S3: ClientError<p>
     Deleting instance URL=http://XXX.XXX.XXX.XXX:5010/instance/test1
     ```
 
