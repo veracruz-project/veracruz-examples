@@ -405,14 +405,14 @@ def post_veracruz(): # create
                                                   limits = {
                                                           "smarter-devices/nitro_enclaves": "1",
                                                           "smarter-devices/vsock": "1",
-                                                          "hugepages-2Mi": "512Mi",
+                                                          "hugepages-2Mi": os.environ['RUNTIME_HUGHEPAGES_SIZE']+"Mi",
                                                           "memory": "2Gi",
                                                           "cpu": "250m"
                                                   },
                                                   requests = {
                                                           "smarter-devices/nitro_enclaves": "1",
                                                           "smarter-devices/vsock": "1",
-                                                          "hugepages-2Mi": "512Mi",
+                                                          "hugepages-2Mi": os.environ['RUNTIME_HUGHEPAGES_SIZE']+"Mi",
                                                           "cpu": "10m",
                                                           "memory": "100Mi"
                                                   }

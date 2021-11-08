@@ -81,6 +81,8 @@ spec:
           value: "VERACRUZ_MAX_PORT_USE"
         - name: VERACRUZ_ENDPOINT_HOSTNAME
           value: "VERACRUZ_ENDPOINT_HOSTNAME_USE"
+        - name: RUNTIME_HUGHEPAGES_SIZE
+          value: "RUNTIME_HUGHEPAGES_SIZE_USE"
         - name: PROXY_CERTIFICATE
           value: |
                REPLACE_CACERT_PEM
