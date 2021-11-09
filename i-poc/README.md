@@ -1002,3 +1002,5 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
 * Remove CCFaaS instances if the corresponding Veracruz instance dies
 * Allow installation within a defined namespace
 * Convert YAML files to helm charts
+* Remote program repositories so a function can be instantiated by asking a remote repository to  downlowd specified programs at the instance
+  * API to communicate with remote rpositories, key management.TBD
