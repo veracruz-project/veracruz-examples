@@ -71,11 +71,16 @@ void run_darknet_detector(image im, image im_sized, float thresh,
                           float hier_thresh, char *outfile,
                           bool draw_detection_boxes)
 {
+    double time;
     float nms = .45;
 
     // Run network prediction
     float *X = im_sized.data;
+    printf("Starting prediction...\n");
+    time  = what_time_is_it_now();
     network_predict(net, X);
+    printf("Prediction duration: %lf seconds\n",
+                what_time_is_it_now() - time);
 
     // Get detections
     int nboxes = 0;
@@ -92,10 +97,14 @@ void run_darknet_detector(image im, image im_sized, float thresh,
         draw_detections(im, dets, nboxes, thresh, names, alphabet, l.classes);
 
         // Output the prediction
+        printf("Saving prediction to disk...\n");
+        time  = what_time_is_it_now();
         if (outfile)
             save_image(im, outfile);
         else
             save_image(im, "predictions");
+        printf("Write duration: %lf seconds\n",
+                    what_time_is_it_now() - time);
     }
     free_detections(dets, nboxes);
 
@@ -112,7 +121,7 @@ void on_frame_ready(SBufferInfo *bufInfo)
     image im, im_sized;
     double time;
 
-    debug_print("Image %d ===========================\n", frames_processed);
+    printf("Image %d ===========================\n", frames_processed);
 
     time = what_time_is_it_now();
 
@@ -121,12 +130,12 @@ void on_frame_ready(SBufferInfo *bufInfo)
     // Resize image to fit the darknet model
     im_sized = letterbox_image(im, net->w, net->h);
 
-    debug_print("Image normalized and resized: %lf seconds\n",
+    printf("Image normalized and resized: %lf seconds\n",
                 what_time_is_it_now() - time);
 
     time = what_time_is_it_now();
     run_darknet_detector(im, im_sized, .5, .5, "predictions", true);
-    debug_print("Detector run: %lf seconds\n", what_time_is_it_now() - time);
+    printf("Detector run: %lf seconds\n", what_time_is_it_now() - time);
     frames_processed++;
 }
 
@@ -134,19 +143,18 @@ void on_frame_ready(SBufferInfo *bufInfo)
 int main(int argc, char **argv)
 {
     double time;
-    char *input_file = argv[1];
+    char *input_file = "input/in.h264";
 
-    printf("Initizalizing detector...\n");
+    printf("Initializing detector...\n");
     time  = what_time_is_it_now();
-    init_darknet_detector("data/coco.names", "cfg/yolov3.cfg",
-                          "model/yolov3.weights", false);
-    debug_print("Arguments loaded and network parsed: %lf seconds\n",
+    init_darknet_detector("input/coco.names", "input/yolov3.cfg", "input/yolov3.weights", false);
+    printf("Arguments loaded and network parsed: %lf seconds\n",
                 what_time_is_it_now() - time);
 
     printf("Starting decoding...\n");
     time  = what_time_is_it_now();
     int x = h264_decode(input_file, "", false, &on_frame_ready);
-    debug_print("Finished decoding: %lf seconds\n",
+    printf("Finished decoding: %lf seconds\n",
                 what_time_is_it_now() - time);
 
     return x;
