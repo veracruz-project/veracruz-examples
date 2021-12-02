@@ -52,7 +52,8 @@ void init_darknet_detector(char *name_list_file, char *cfgfile,
     net = load_network(cfgfile, weightfile, 0);
     set_batch_network(net, 1);
 
-    // Load alphabet (set of images corresponding to characters)
+    // Load alphabet (set of images corresponding to characters). It is used to
+    // write the labels next to the detection boxes
     if (annotate_boxes)
         alphabet = load_alphabet();
 }
