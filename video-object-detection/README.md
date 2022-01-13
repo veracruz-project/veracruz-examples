@@ -23,7 +23,7 @@ The video decoder uses [`openh264`](https://github.com/veracruz-project/openh264
   ```
 * Run the example in wasmtime:
   ```
-  wasmtime --dir=. detector.wasm in.h264
+  wasmtime --enable-simd --dir=. detector.wasm in.h264
   ```
 * Or in the freestanding execution engine:
   ```
