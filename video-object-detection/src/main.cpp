@@ -135,7 +135,7 @@ void on_frame_ready(SBufferInfo *bufInfo)
                 what_time_is_it_now() - time);
 
     time = what_time_is_it_now();
-    run_darknet_detector(im, im_sized, .5, .5, "predictions", false);
+    run_darknet_detector(im, im_sized, .1, .5, "predictions", false);
     printf("Detector run: %lf seconds\n", what_time_is_it_now() - time);
     frames_processed++;
 }
