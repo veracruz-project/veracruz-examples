@@ -18,7 +18,11 @@ The video decoder uses [`openh264`](https://github.com/veracruz-project/openh264
   ```
 
 ## Run
-* Prerequisite: generate the input H.264 video from an MP4 video:
+* Cut the MP4 video to a specific amount of frames (optional):
+  ```
+  ffmpeg -i in.mp4 -vf trim=start_frame=0:end_frame=<END_FRAME> -an in_cut.mp4
+  ```
+* Generate the input H.264 video from the video:
   ```
   ffmpeg -i in.mp4 -map 0:0 -vcodec copy -an -f h264 in.h264
   ```
