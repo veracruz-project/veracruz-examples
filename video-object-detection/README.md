@@ -6,6 +6,7 @@ The video decoder uses [`openh264`](https://github.com/veracruz-project/openh264
 ## Build
 * Install [`wasi sdk 14`](https://github.com/WebAssembly/wasi-sdk) and set `WASI_SDK_ROOT` to point to its installation directory
 * Install `imagemagick`
+* Install `nasm`
 * Clone the repo and update the submodules:
   ```
   git submodule update --init
