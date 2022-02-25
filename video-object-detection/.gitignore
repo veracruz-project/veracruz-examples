@@ -1,0 +1,11 @@
+/data/labels/*.png
+
+/predictions.jpg
+
+/model/yolov3-tiny.weights
+/model/yolov3.weights
+/obj/
+/.vscode/
+*.wasm
+
+.DS_Store
