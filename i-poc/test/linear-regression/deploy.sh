@@ -25,10 +25,7 @@ function pretty_print_wget() {
 	fi
 }
 
-echo "=============Submitting partial policy"
-pretty_print_wget "$(wget -q --content-on-error -nv  -O- http://${HOSTIP}:${HOSTPORT}/veracruz)"
-
-echo "=============Getting full policy"
+echo "=============Submitting partial policy and getting full policy"
 pretty_print_wget "$(wget -q --content-on-error -nv  -O- --post-data="${JSON_PARTIAL_POLICY}" --header='Content-Type:application/json' http://${HOSTIP}:${HOSTPORT}/veracruz 2>&1)" veracruz-policy.json full.output
 
 echo "=============Extracting useful part"
