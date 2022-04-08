@@ -58,7 +58,7 @@ DOCKERIMAGE=rancher/k3s:v1.21.4-engine0-k3s1
 
 LOCALSERVERDIR=$(pwd)/${SERVERNAME}
 
-CONTAINERID=$(docker run -d --rm -p ${HOSTPORT}:${HOSTPORT} -v ${LOCALSERVERDIR}:/var/lib/rancher/k3s ${DOCKERIMAGE} server --tls-san ${HOSTIP} --advertise-address ${HOSTIP} --https-listen-port ${HOSTPORT} --disable-agent --no-deploy traefik)
+CONTAINERID=$(docker run -d --rm -p ${HOSTPORT}:${HOSTPORT} -v ${LOCALSERVERDIR}:/var/lib/rancher/k3s ${DOCKERIMAGE} server --tls-san ${HOSTIP} --advertise-address ${HOSTIP} --https-listen-port ${HOSTPORT} --disable-agent --no-deploy traefik --flannel-backend=vxlan)
 
 if [ $? -gt 0 ]
 then

@@ -58,7 +58,7 @@ iotex-s3-app-service.yaml: iotex-s3-app-service.yaml.template config.vars
 veracruz-nitro-proxy-configmap.yaml: veracruz-nitro-proxy-configmap.yaml.template CACert.pem CAKey.pem config.vars
 	./fix-templates-config.vars.sh $<
 
-veracruz-vaas-app-deploy.yaml: veracruz-vaas-app-deploy.yaml.template CACert.pem config.vars
+veracruz-vaas-app-deploy.yaml: veracruz-vaas-app-deploy.yaml.template CACert.pem config.vars ../hash
 	./fix-templates-config.vars.sh $<
 
 veracruz-ccfaas-app-configmap.yaml: veracruz-ccfaas-app-configmap.yaml.template PROGCert.pem PROGKey.pem config.vars

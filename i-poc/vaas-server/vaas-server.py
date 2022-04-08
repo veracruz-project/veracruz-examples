@@ -218,10 +218,23 @@ def post_veracruz(): # create
              "properties": {
                  "file_rights": json_file_rights_schema,
                  "id": { "type":"integer" },
-                 "pi_hash":  { "type":"string" },
                  "program_file_name":  { "type":"string" },
              },
-             "required": ["file_rights","id","pi_hash","program_file_name"],
+             "required": ["file_rights","id","program_file_name"],
+             "additionalProperties": False
+        },
+        "additionalProperties": False
+    }
+
+    json_file_hash_schema = {
+        "type": "array",
+        "items" : {
+             "type": "object",
+             "properties": {
+                 "file_path": { "type":"string" },
+                 "hash":  { "type":"string" },
+             },
+             "required": ["file_path","hash"],
              "additionalProperties": False
         },
         "additionalProperties": False
@@ -238,6 +251,7 @@ def post_veracruz(): # create
             "execution_strategy": { "type": "string"},
             "identities": json_identity_schema,
             "programs":  json_program_schema,
+            "file_hashes":  json_file_hash_schema,
         },
         "required": ["ciphersuite","debug","enable_clock","execution_strategy","identities","programs"],
         "additionalProperties": False
@@ -277,26 +291,26 @@ def post_veracruz(): # create
     policy["runtime_manager_hash_nitro"]=os.environ['RUNTIME_MANAGER_HASH_NITRO'] 
     policy["runtime_manager_hash_sgx"]= ""
     policy["runtime_manager_hash_tz"]= ""
-    policy["std_streams_table"]= [
-        {
-            "Stdin": {
-                "file_name": "stdin",
-                "rights": 8198
-            }
-        },
-        {
-            "Stdout": {
-                "file_name": "stdout",
-                "rights": 533572
-            }
-        },
-        {
-            "Stderr": {
-                "file_name": "stderr",
-                "rights": 533572
-            }
-        }
-    ]
+    #policy["std_streams_table"]= [
+    #    {
+    #        "Stdin": {
+    #            "file_name": "stdin",
+    #            "rights": 8198
+    #        }
+    #    },
+    #    {
+    #        "Stdout": {
+    #            "file_name": "stdout",
+    #            "rights": 533572
+    #        }
+    #    },
+    #    {
+    #        "Stderr": {
+    #            "file_name": "stderr",
+    #            "rights": 533572
+    #        }
+    #    }
+    #]
 
     kubeConnection = get_kubecon()
     if kubeConnection is None:
@@ -405,22 +419,28 @@ def post_veracruz(): # create
                                                   limits = {
                                                           "smarter-devices/nitro_enclaves": "1",
                                                           "smarter-devices/vsock": "1",
-                                                          "hugepages-2Mi": os.environ['RUNTIME_HUGHEPAGES_SIZE']+"Mi",
+                                                          "hugepages-2Mi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])%1024)+"Mi",
+                                                          "hugepages-1Gi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])//1024)+"Gi",
                                                           "memory": os.environ['RUNTIME_POD_SIZE']+"Mi",
                                                           "cpu": os.environ['RUNTIME_CPU_SIZE']+"m"
                                                   },
                                                   requests = {
                                                           "smarter-devices/nitro_enclaves": "1",
                                                           "smarter-devices/vsock": "1",
-                                                          "hugepages-2Mi": os.environ['RUNTIME_HUGHEPAGES_SIZE']+"Mi",
+                                                          "hugepages-2Mi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])%1024)+"Mi",
+                                                          "hugepages-1Gi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])//1024)+"Gi",
                                                           "cpu": "10m",
                                                           "memory": "100Mi"
                                                   }
                                           ),
                                           volume_mounts = [
                                                   client.V1VolumeMount(
-                                                        mount_path = "/dev/hugepages",
-                                                        name = "hugepage",
+                                                        mount_path = "/hugepages-2mi",
+                                                        name = "hugepage-2mi",
+                                                        read_only = False),
+                                                  client.V1VolumeMount(
+                                                        mount_path = "/hugepages-1Gi",
+                                                        name = "hugepage-1gi",
                                                         read_only = False),
                                                   client.V1VolumeMount(
                                                         mount_path = "/work/veracruz-server-policy",
@@ -437,9 +457,14 @@ def post_veracruz(): # create
                           ],
                           volumes = [
                                   client.V1Volume(
-                                          name = "hugepage",
+                                          name = "hugepage-2mi",
                                           empty_dir = client.V1EmptyDirVolumeSource(
-                                                  medium = "HugePages")
+                                                  medium = "HugePages-2Mi")
+                                  ),
+                                  client.V1Volume(
+                                          name = "hugepage-1gi",
+                                          empty_dir = client.V1EmptyDirVolumeSource(
+                                                  medium = "HugePages-1Gi")
                                   ),
                                   client.V1Volume(
                                           name = "config",
@@ -599,7 +624,7 @@ def list_veracruz():
                              )
             continue
         if "veracruz-hash" in labels:
-            pod_status.append({ podId : {"instance_id":labels["veracruz-id"],
+            pod_status.append({ podId : {"instance_hash":labels["veracruz-hash"],
                                         "status": "OK"}
                               }
                              )
