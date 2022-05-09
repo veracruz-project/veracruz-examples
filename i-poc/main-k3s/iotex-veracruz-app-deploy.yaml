@@ -1,0 +1,94 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: default
+  labels:
+    name: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: iotex-veracruz-app
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: iotex-veracruz-app
+rules:
+  - apiGroups:
+      - ''
+      - 'core'
+      - 'discovery.k8s.io'
+    resources:
+      - pods
+      - pods/status
+      - configmaps
+      - endpointslices
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: iotex-veracruz-app
+roleRef:
+  kind: ClusterRole
+  name: iotex-veracruz-app
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: iotex-veracruz-app
+    namespace: default
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: iotex-veracruz-app
+  namespace: default
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      iotex-veracruz: app
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        iotex-veracruz: app
+    spec:
+      containers:
+      - name: iotex-veracruz-app
+        image: iotex-veracruz-app:0.5
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+      dnsPolicy: Default
+      priorityClassName: system-cluster-critical
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      serviceAccountName: iotex-veracruz-app

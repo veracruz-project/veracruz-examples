@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: veracruz-nitro-server
+spec:
+  ports:
+    VERACRUZ_PORT_DEFINITION
+  externalIPs:
+    - EXTERNAL_IP_USE
