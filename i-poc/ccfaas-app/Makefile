@@ -10,7 +10,7 @@
 # example repository root directory for copyright and licensing information.
 #
 #
-VERSION=0.85
+VERSION=0.86
 
 all: image
 

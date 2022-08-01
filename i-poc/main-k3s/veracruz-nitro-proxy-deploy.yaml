@@ -29,9 +29,9 @@ spec:
     spec:
       containers:
       - name: veracruz-nitro-proxy
-        image: veracruz/veracruz-nitro:v1.0.1
+        image: veracruz/veracruz-nitro:v1.0.3
         imagePullPolicy: IfNotPresent
-        command: ['/work/proxy-attestation-server/proxy-attestation-server','0.0.0.0:3010','--ca-cert','/work/proxy-config-files/CACert.pem','--ca-key','/work/proxy-config-files/CAKey.pem','--database-url','/work/proxy-attestation-server/proxy-attestation-server.db']
+        command: ['/work/proxy-attestation-server/proxy-attestation-server','0.0.0.0:3010','--ca-cert','/work/proxy-config-files/CACert.pem','--ca-key','/work/proxy-config-files/CAKey.pem']
         ports:
         - containerPort: 3010
           protocol: TCP

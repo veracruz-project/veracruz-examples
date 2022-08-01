@@ -249,11 +249,12 @@ def post_veracruz(): # create
             "debug": { "type": "boolean"},
             "enable_clock": { "type": "boolean"},
             "execution_strategy": { "type": "string"},
+            "max_memory_mib": { "type": "integer"},
             "identities": json_identity_schema,
             "programs":  json_program_schema,
             "file_hashes":  json_file_hash_schema,
         },
-        "required": ["ciphersuite","debug","enable_clock","execution_strategy","identities","programs"],
+        "required": ["ciphersuite","debug","enable_clock","execution_strategy", "max_memory_mib", "identities","programs"],
         "additionalProperties": False
     }
 
@@ -419,16 +420,20 @@ def post_veracruz(): # create
                                                   limits = {
                                                           "smarter-devices/nitro_enclaves": "1",
                                                           "smarter-devices/vsock": "1",
-                                                          "hugepages-2Mi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])%1024)+"Mi",
-                                                          "hugepages-1Gi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])//1024)+"Gi",
+                                                          "hugepages-2Mi": str(int(policy["max_memory_mib"])%1024)+"Mi",
+                                                          #"hugepages-2Mi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])%1024)+"Mi",
+                                                          "hugepages-1Gi": str(int(policy["max_memory_mib"])//1024)+"Gi",
+                                                          #"hugepages-1Gi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])//1024)+"Gi",
                                                           "memory": os.environ['RUNTIME_POD_SIZE']+"Mi",
                                                           "cpu": os.environ['RUNTIME_CPU_SIZE']+"m"
                                                   },
                                                   requests = {
                                                           "smarter-devices/nitro_enclaves": "1",
                                                           "smarter-devices/vsock": "1",
-                                                          "hugepages-2Mi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])%1024)+"Mi",
-                                                          "hugepages-1Gi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])//1024)+"Gi",
+                                                          "hugepages-2Mi": str(int(policy["max_memory_mib"])%1024)+"Mi",
+                                                          #"hugepages-2Mi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])%1024)+"Mi",
+                                                          "hugepages-1Gi": str(int(policy["max_memory_mib"])//1024)+"Gi",
+                                                          #"hugepages-1Gi": str(int(os.environ['RUNTIME_HUGHEPAGES_SIZE'])//1024)+"Gi",
                                                           "cpu": "10m",
                                                           "memory": "100Mi"
                                                   }

@@ -403,10 +403,11 @@ def post_function_REST(): # create
         "properties": {
             "function": { "type": "string"},
             "execution_strategy": { "type": "string"},
+            "max_memory_mib": { "type": "integer"},
             "programs":  json_program_schema,
             "data_files": json_data_file_schema
         },
-        "required": ["function","execution_strategy","programs"],
+        "required": ["function","execution_strategy","max_memory_mib", "programs"],
         "additionalProperties": False
     }
 
@@ -551,6 +552,7 @@ def post_instance_REST(): # create
         "debug": False,
         "enable_clock": True,
         "execution_strategy": jsonFunction["execution_strategy"],
+        "max_memory_mib": jsonFunction["max_memory_mib"],
         "programs": jsonFunction["programs"],
         "identities": [*program_identities],
 	"instance_id":"CCFaaS"
