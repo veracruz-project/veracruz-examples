@@ -253,19 +253,6 @@ def post_veracruz(): # create
         "additionalProperties": False
     }
 
-    json_enclave_cert_expiry_schema = {
-        "type": "object",
-        "properties": {
-            "day": { "type": "integer"},
-            "hour": { "type": "integer"},
-            "minute": { "type": "integer"},
-            "month": { "type": "integer"},
-            "year": { "type": "integer"},
-        },
-        "required": ["day","hour","minute","month","year"],
-        "additionalProperties": False
-    }
-
     json_policy_input_schema = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
