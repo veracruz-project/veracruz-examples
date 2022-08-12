@@ -240,6 +240,32 @@ def post_veracruz(): # create
         "additionalProperties": False
     }
 
+    json_enclave_cert_expiry_schema = {
+        "type": "object",
+        "properties": {
+            "day": { "type": "integer"},
+            "hour": { "type": "integer"},
+            "minute": { "type": "integer"},
+            "month": { "type": "integer"},
+            "year": { "type": "integer"},
+        },
+        "required": ["day","hour","minute","month","year"],
+        "additionalProperties": False
+    }
+
+    json_enclave_cert_expiry_schema = {
+        "type": "object",
+        "properties": {
+            "day": { "type": "integer"},
+            "hour": { "type": "integer"},
+            "minute": { "type": "integer"},
+            "month": { "type": "integer"},
+            "year": { "type": "integer"},
+        },
+        "required": ["day","hour","minute","month","year"],
+        "additionalProperties": False
+    }
+
     json_policy_input_schema = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
@@ -253,6 +279,7 @@ def post_veracruz(): # create
             "identities": json_identity_schema,
             "programs":  json_program_schema,
             "file_hashes":  json_file_hash_schema,
+            "enclave_cert_expiry": json_enclave_cert_expiry_schema,
         },
         "required": ["ciphersuite","debug","enable_clock","execution_strategy", "max_memory_mib", "identities","programs"],
         "additionalProperties": False
@@ -277,16 +304,16 @@ def post_veracruz(): # create
 
     policy = requestJson;
 
-    policy["ciphersuite"] = "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256"
     # Compute the expiration date to 180 days from now
-    exp_date = datetime.datetime.fromtimestamp(time.time()+180*24*60*60)
-    policy["enclave_cert_expiry"] = {
-        "day": exp_date.day,
-        "hour": exp_date.hour,
-        "minute": exp_date.second,
-        "month": exp_date.month,
-        "year": exp_date.year
-    }
+    if "enclave_cert_expiry" not in requestJson:
+        exp_date = datetime.datetime.fromtimestamp(time.time()+180*24*60*60)
+        policy["enclave_cert_expiry"] = {
+            "day": exp_date.day,
+            "hour": exp_date.hour,
+            "minute": exp_date.second,
+            "month": exp_date.month,
+            "year": exp_date.year
+        }
     policy["proxy_attestation_server_url"]=os.environ['PROXY_ENDPOINT'] 
     policy["proxy_service_cert"]=os.environ['PROXY_CERTIFICATE'] 
     policy["runtime_manager_hash_nitro"]=os.environ['RUNTIME_MANAGER_HASH_NITRO'] 
