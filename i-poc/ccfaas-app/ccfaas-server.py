@@ -310,35 +310,35 @@ def post_function_program_REST(name,progname):
 
     return "<p>programn "+progname+" does not exist on function "+name+"</p>",404
 
-@app.route('/function/<name>/program/<progname>', methods=['GET'])
-def get_function_program_REST(name,progname):
+@app.route('/function/<name>/program/<progname_base64>', methods=['GET'])
+def get_function_program_REST(name,progname_base64):
     function_name_base64 = base64.b64encode(name.encode()).decode()
-    print("Get program "+progname+" for function name="+name,flush=True)
+    print("Get program "+progname_base64+" for function name="+name,flush=True)
     error = None
     if request.method != 'GET':
         print("Received something different than GET",flush=True)
         return "<p>Not supported!</p>",400
 
-    if not os.path.exists("functionDB/"+function_name_base64+"_programs/"+progname):
-        return "<p>programn "+progname+" for function "+name+" is not loaded</p>",404
+    if not os.path.exists("functionDB/"+function_name_base64+"_programs/"+progname_base64):
+        return "<p>programn "+base64.b64decode(progname_base64.encode()).decode()+" for function "+name+" is not loaded</p>",404
 
-    return "<p>programn "+progname+" is loaded in function "+name+"</p>"
+    return "<p>programn "+base64.b64decode(progname_base64.encode()).decode()+" is loaded in function "+name+"</p>"
 
-@app.route('/function/<name>/program/<progname>', methods=['DELETE'])
-def delete_function_program_REST(name,progname):
+@app.route('/function/<name>/program/<progname_base64>', methods=['DELETE'])
+def delete_function_program_REST(name,progname_base64):
     function_name_base64 = base64.b64encode(name.encode()).decode()
-    print("Delete program "+progname+" for function name="+name,flush=True)
+    print("Delete program "+progname_base64+" for function name="+name,flush=True)
     error = None
     if request.method != 'DELETE':
         print("Received something different than DELETE",flush=True)
         return "<p>Not supported!</p>",400
 
-    if not os.path.exists("functionDB/"+function_name_base64+"_programs/"+progname):
-        return "<p>programn "+progname+" for function "+name+" is not loaded</p>",404
+    if not os.path.exists("functionDB/"+function_name_base64+"_programs/"+progname_base64):
+        return "<p>programn "+base64.b64decode(progname_base64.encode()).decode()+" for function "+name+" is not loaded</p>",404
 
-    os.remove("functionDB/"+name+"_programs/"+progname)
+    os.remove("functionDB/"+name+"_programs/"+progname_base64)
 
-    return "<p>programn "+progname+" is deleted from function "+name+"</p>"
+    return "<p>programn "+base64.b64decode(progname_base64.encode()).decode()+" is deleted from function "+name+"</p>"
 
 @app.route("/function", methods=['POST'])
 def post_function_REST(): # create
@@ -405,9 +405,11 @@ def post_function_REST(): # create
             "execution_strategy": { "type": "string"},
             "max_memory_mib": { "type": "integer"},
             "programs":  json_program_schema,
-            "data_files": json_data_file_schema
+            "data_files": json_data_file_schema,
+            "debug": { "type": "boolean"},
+            "enable_clock": { "type": "boolean"}
         },
-        "required": ["function","execution_strategy","max_memory_mib", "programs"],
+        "required": ["function","execution_strategy","max_memory_mib", "programs", "debug","enable_clock"],
         "additionalProperties": False
     }
 
@@ -548,14 +550,14 @@ def post_instance_REST(): # create
             )
 
     instance_policy = {
-        "ciphersuite": "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
-        "debug": False,
-        "enable_clock": True,
+        "ciphersuite": "TLS1_3_CHACHA20_POLY1305_SHA256",
+        "debug": jsonFunction["debug"],
+        "enable_clock": jsonFunction["enable_clock"],
         "execution_strategy": jsonFunction["execution_strategy"],
         "max_memory_mib": jsonFunction["max_memory_mib"],
         "programs": jsonFunction["programs"],
         "identities": [*program_identities],
-	"instance_id":"CCFaaS"
+        "instance_id":"CCFaaS"
     }
     # Fix identities ID
 
@@ -690,10 +692,10 @@ def get_functiondata_REST(name):
     # return a list of data_files registed)
     return {"data_files":get_data_db(name)}
 
-@app.route('/function/<name>/data_file/<data_file>', methods=['POST'])
-def post_function_data_file_REST(name,data_file):
+@app.route('/function/<name>/data_file/<data_file_base64>', methods=['POST'])
+def post_function_data_file_REST(name,data_file_base64):
     function_name_base64 = base64.b64encode(name.encode()).decode()
-    print("Received data_file "+data_file+" for function name="+name,flush=True)
+    print("Received data_file "+data_file_base64+" for function name="+name,flush=True)
     error = None
     if request.method != 'POST':
         print("Received something different than POST",flush=True)
@@ -706,26 +708,27 @@ def post_function_data_file_REST(name,data_file):
 
     # check if a data_file with name data_file exists on the function description
 
-    print("Checking if data_file "+data_file+" is on function name="+name,flush=True)
+    data_file_name = base64.b64encode(data_file_base64.encode()).decode()
+    print("Checking if data_file "+data_file_name+" is on function name="+name,flush=True)
     for data_file in jsonData["data_files"]:
-        if data_file["data_file"] == data_file: 
+        if data_file["data_file"] == data_file_name:
             print("Found "+data_file["data_file"]+" data_file",flush=True)
             # TODO: Verify if the hash match
             try:
-                data_file_file = open("functionDB/"+function_name_base64+"data/"+data_file,"xb")
+                data_file_file = open("functionDB/"+function_name_base64+"data/"+data_file_base64,"xb")
             except OSError as err:
                 print("OS error: {0}".format(err),flush=True)
-                return "<p>data_file "+data_file+" for function "+name+" already exists</p>",400
+                return "<p>data_file "+data_file_name+" for function "+name+" already exists</p>",400
 
             if request.content_length >= 300000000:
-                return "<p>data_file "+data_file+" for function "+name+" hash "+m.hexdigest()+" is too large ("+str(request.content_length)+"i) > 300M</p>",400
+                return "<p>data_file "+data_file_name+" for function "+name+" hash "+m.hexdigest()+" is too large ("+str(request.content_length)+"i) > 300M</p>",400
 
             bufferData = request.get_data()
 
             m = hashlib.sha256()
             m.update(bufferData)
             if m.hexdigest() != data_file["pi_hash"]:
-                return "<p>data_file "+data_file+" for function "+name+" hash "+m.hexdigest()+" does not match function description "+data_file["pi_hash"]+" already exists</p>",400
+                return "<p>data_file "+data_file_name+" for function "+name+" hash "+m.hexdigest()+" does not match function description "+data_file["pi_hash"]+" already exists</p>",400
 
             try:
                 data_file_file.write(bufferData)
@@ -735,12 +738,13 @@ def post_function_data_file_REST(name,data_file):
                 return False
             data_file_file.close()
 
-            return "<p>data_file "+data_file+" loaded!</p>"
+            return "<p>data_file "+data_file_name+" loaded!</p>"
 
-    return "<p>data_file "+data_file+" does not exist on function "+name+"</p>",404
+    return "<p>data_file "+data_file_name+" does not exist on function "+name+"</p>",404
 
-@app.route('/function/<name>/data_file/<data_file>', methods=['GET'])
-def get_function_data_file_REST(name,data_file):
+@app.route('/function/<name>/data_file/<data_file_base64>', methods=['GET'])
+def get_function_data_file_REST(name,data_file_base64):
+    data_file = base64.b64encode(data_file_base64.encode()).decode()
     function_name_base64 = base64.b64encode(name.encode()).decode()
     print("Get data_file "+data_file+" for function name="+name,flush=True)
     error = None
@@ -748,13 +752,14 @@ def get_function_data_file_REST(name,data_file):
         print("Received something different than GET",flush=True)
         return "<p>Not supported!</p>",400
 
-    if not os.path.exists("functionDB/"+function_name_base64+"data/"+data_file):
+    if not os.path.exists("functionDB/"+function_name_base64+"data/"+data_file_base64):
         return "<p>data_file "+data_file+" for function "+name+" is not loaded</p>",404
 
     return "<p>data_file "+data_file+" is loaded in function "+name+"</p>"
 
-@app.route('/function/<name>/data_file/<data_file>', methods=['DELETE'])
-def delete_function_data_file_REST(name,data_file):
+@app.route('/function/<name>/data_file/<data_file_base64>', methods=['DELETE'])
+def delete_function_data_file_REST(name,data_file_base64):
+    data_file = base64.b64encode(data_file_base64.encode()).decode()
     function_name_base64 = base64.b64encode(name.encode()).decode()
     print("Delete data_file "+data_file+" for function name="+name,flush=True)
     error = None
@@ -762,10 +767,10 @@ def delete_function_data_file_REST(name,data_file):
         print("Received something different than DELETE",flush=True)
         return "<p>Not supported!</p>",400
 
-    if not os.path.exists("functionDB/"+function_name_base64+"_data/"+data_file):
+    if not os.path.exists("functionDB/"+function_name_base64+"_data/"+data_file_base64):
         return "<p>data_file "+data_file+" for function "+name+" is not loaded</p>",404
 
-    os.remove("functionDB/"+name+"_data/"+data_file)
+    os.remove("functionDB/"+name+"_data/"+data_file_base64)
 
     return "<p>data_file "+data_file+" is deleted from function "+name+"</p>"
 

@@ -57,7 +57,9 @@ do
 	
         pushd ${PROGRAM_DIR} > /dev/null
 # 	echo "Executing: ${VERACRUZ_CLIENT} ${POLICY} -p ${PROGRAM_FILE} --identity ${CERTIFICATE} --key ${KEY}" >> /tmp/log.txt
-	OUTPUT=$(${VERACRUZ_CLIENT} ${POLICY} -p "${PROGRAM_FILE}" --identity "${CERTIFICATE}" --key "${KEY}" 2>&1)
+
+    PROGRAM_FILE_BASE64=$(base64 "${PROGRAM_FILE}")
+	OUTPUT=$(${VERACRUZ_CLIENT} ${POLICY} --program "${PROGRAM_FILE}=${PROGRAM_FILE_BASE64}" --identity "${CERTIFICATE}" --key "${KEY}" 2>&1)
 	RESULT_CODE=$?
 	popd > /dev/null
 	echo "${OUTPUT}"
