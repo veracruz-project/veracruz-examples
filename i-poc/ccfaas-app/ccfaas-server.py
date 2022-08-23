@@ -262,10 +262,10 @@ def get_function_programs_REST(name):
     # return a list of programs registed)
     return {"programs":get_programs_db(name)}
 
-@app.route('/function/<name>/program/<progname>', methods=['POST'])
-def post_function_program_REST(name,progname):
+@app.route('/function/<name>/program/<progname_base64>', methods=['POST'])
+def post_function_program_REST(name,progname_base64):
     function_name_base64 = base64.b64encode(name.encode()).decode()
-    print("Received program "+progname+" for function name="+name,flush=True)
+    print("Received program "+progname_base64+" for function name="+name,flush=True)
     error = None
     if request.method != 'POST':
         print("Received something different than POST",flush=True)
@@ -278,12 +278,13 @@ def post_function_program_REST(name,progname):
 
     # check if a program with name progname exist on the function description
 
+    progname = base64.b64decode(progname_base64.encode()).decode()
     print("Checking if program "+progname+" is on function name="+name,flush=True)
     for program in jsonData["programs"]:
         if program["program_file_name"] == progname: 
             print("Found "+program["program_file_name"]+" program",flush=True)
             try:
-                program_file = open("functionDB/"+function_name_base64+"_programs/"+progname,"xb")
+                program_file = open("functionDB/"+function_name_base64+"_programs/"+progname_base64,"xb")
             except OSError as err:
                 print("OS error: {0}".format(err),flush=True)
                 return "<p>programn "+progname+" for function "+name+" already exists</p>",400
@@ -523,23 +524,37 @@ def post_instance_REST(): # create
     # Build the policy to be sent to VaaS to get a running instance
 
 
+    file_hashes = []
+
     # for every local program in the function DB insert our keys
     programs = get_programs_db(requestJson["function"])
     program_file_rights = []
     for program in programs:
         program_file_rights.append({
-                     "file_name": program,
+                     "file_name": base64.b64decode(program.encode()).decode(),
                      "rights": 533572
                 }
             )
+    for program in jsonFunction["programs"]:
+        file_hashes.append({
+                     "file_path": program["program_file_name"],
+                     "hash": program["pi_hash"]
+                     }
+                     )
+    for data_file in jsonFunction["data_files"]:
+        file_hashes.append({
+                     "file_path": data_file["data_file"],
+                     "hash": data_file["pi_hash"]
+                     }
+                     )
 
     data_files = get_data_db(requestJson["function"])
     for data_file in data_files:
         program_file_rights.append({
-                     "file_name": data_file,
+                     "file_name": base64.b64decode(data_file.encode()).decode(),
                      "rights": 533572
-                }
-            )
+                     }
+                     )
 
     program_identities = requestJson["identities"]
     if len(program_file_rights) > 0:
@@ -557,8 +572,14 @@ def post_instance_REST(): # create
         "max_memory_mib": jsonFunction["max_memory_mib"],
         "programs": jsonFunction["programs"],
         "identities": [*program_identities],
-        "instance_id":"CCFaaS"
+        "instance_id":"CCFaaS",
+        "file_hashes": [*file_hashes]
     }
+
+    # Remove pi_hash
+    for program_idx,_ in enumerate(instance_policy["programs"]):
+        del instance_policy["programs"][program_idx]["pi_hash"]
+
     # Fix identities ID
 
     for identity_id in range(len(instance_policy["identities"])):
@@ -583,7 +604,8 @@ def post_instance_REST(): # create
     
     if vaasAppResponse.status_code != 200:
         print("instance_policy="+json.dumps(instance_policy, indent = 4),flush=True)
-        print("Http request to VAAS returned "+str(vaasAppResponse.status_code))  # Python 3.6
+        print("Http request to VAAS returned "+str(vaasAppResponse.status_code),flush=True)  # Python 3.6
+        print("Http request to VAAS returned text "+str(vaasAppResponse.text),flush=True)  # Python 3.6
         remove_instance_db(requestJson["instanceid"])
         return "<p>Error accessing the vaas_server response code was "+str(vaasAppResponse.status_code)+"</p>",500
     
@@ -708,17 +730,17 @@ def post_function_data_file_REST(name,data_file_base64):
 
     # check if a data_file with name data_file exists on the function description
 
-    data_file_name = base64.b64encode(data_file_base64.encode()).decode()
+    data_file_name = base64.b64decode(data_file_base64.encode()).decode()
     print("Checking if data_file "+data_file_name+" is on function name="+name,flush=True)
     for data_file in jsonData["data_files"]:
         if data_file["data_file"] == data_file_name:
             print("Found "+data_file["data_file"]+" data_file",flush=True)
             # TODO: Verify if the hash match
             try:
-                data_file_file = open("functionDB/"+function_name_base64+"data/"+data_file_base64,"xb")
+                data_file_file = open("functionDB/"+function_name_base64+"_data/"+data_file_base64,"xb")
             except OSError as err:
                 print("OS error: {0}".format(err),flush=True)
-                return "<p>data_file "+data_file_name+" for function "+name+" already exists</p>",400
+                return "<p>data_file "+data_file_name+" for function "+name+" could not be created: " + format(err) + "</p>",400
 
             if request.content_length >= 300000000:
                 return "<p>data_file "+data_file_name+" for function "+name+" hash "+m.hexdigest()+" is too large ("+str(request.content_length)+"i) > 300M</p>",400

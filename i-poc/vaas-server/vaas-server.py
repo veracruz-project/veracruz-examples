@@ -276,7 +276,7 @@ def post_veracruz(): # create
     try:
         jsonschema.validate(instance=requestJson, schema=json_policy_input_schema)
     except jsonschema.exceptions.ValidationError as err:
-        print("Received incorrect json data",flush=True)
+        print("Received incorrect json data"+str(err),flush=True)
         return "<p>Json object is not correct "+str(err)+"</p>",400
 
 
