@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: ccfaas-server-app
-        image: veracruz/veracruz-ccfaas-server:0.87.15
+        image: veracruz/veracruz-ccfaas-server:0.87.23
         imagePullPolicy: IfNotPresent
         env:
         - name: VAAS_ACCESS_URL

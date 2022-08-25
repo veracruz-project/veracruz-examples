@@ -51,17 +51,22 @@ then
 	exit 1
 fi
 
+# Check server availability
+VERACRUZ_SERVER_URL=$(cat ${POLICY} | grep veracruz_server_url | sed -e 's/^.*": //' -e 's/:/ /' -e 's/"//g')
+for i in $(seq 1 30); do
+	echo "\n" | nc $(echo "${VERACRUZ_SERVER_URL}" | cut -d " " -f 1) $(echo "${VERACRUZ_SERVER_URL}" | cut -d " " -f 2) -w 1 | grep "Bad Request" && break
+	sleep 1
+done
+
 while [ $# -gt 0 ]
 do
-	DATA_FILE=$1
+	DATA_FILE_BASE64=$1
 	
-        pushd ${PROGRAM_DIR} > /dev/null
 # 	echo "Executing: ${VERACRUZ_CLIENT} ${POLICY} -p ${DATA_FILE} --identity ${CERTIFICATE} --key ${KEY}" >> /tmp/log.txt
 
-    DATA_FILE_BASE64=$(base64 "${DATA_FILE}")
-	OUTPUT=$(${VERACRUZ_CLIENT} ${POLICY} --data "${DATA_FILE}=${DATA_FILE_BASE64}" --identity "${CERTIFICATE}" --key "${KEY}" 2>&1)
+    DATA_FILE=$(echo -n "${DATA_FILE_BASE64}" | base64 -d)
+	OUTPUT=$(${VERACRUZ_CLIENT} ${POLICY} --data "${DATA_FILE}=${PROGRAM_DIR}/${DATA_FILE_BASE64}" --identity "${CERTIFICATE}" --key "${KEY}" 2>&1)
 	RESULT_CODE=$?
-	popd > /dev/null
 	echo "${OUTPUT}"
 
 	NOK=$(echo "${OUTPUT}" | grep "Error")

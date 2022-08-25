@@ -34,23 +34,13 @@ CAKey.pem:
 	openssl ecparam -name prime256v1 -genkey -noout -out CAKey.pem
 
 CACert.pem: CAKey.pem
-	openssl req -new -x509 -sha256 -nodes -days 1825 \
-	 -subj "/C=US/ST=Texas/L=Austin/O=Zibble Zabble/emailAddress=zibble@zabble.zibble/CN=zibblezabble" \
-	  -key CAKey.pem \
-	  -out CACert.pem \
-	  -config ca-cert.conf
+	openssl req -x509 -key CAKey.pem -out CACert.pem -config ca-cert.conf
 
 PROGKey.pem:
-	openssl genrsa -out PROGKey.pem 2048
-	#openssl ecparam -name prime256v1 -genkey -noout -out PROGKey.pem
+	openssl ecparam -name prime256v1 -genkey -noout -out PROGKey.pem
 
 PROGCert.pem: PROGKey.pem
-	openssl req -new -x509 -sha256 -nodes -days 1825 \
-	 -subj "/C=US/ST=Texas/L=Austin/O=Zibble Zabble/emailAddress=zibble@zabble.zibble/CN=zibblezabble" \
-	  -key PROGKey.pem \
-	  -out PROGCert.pem \
-	  -config cert.conf
-
+	openssl req -x509 -key PROGKey.pem -out PROGCert.pem -config cert.conf
 
 iotex-s3-app-service.yaml: iotex-s3-app-service.yaml.template config.vars
 	./fix-templates-config.vars.sh $<

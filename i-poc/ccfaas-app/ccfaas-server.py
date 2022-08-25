@@ -407,10 +407,11 @@ def post_function_REST(): # create
             "max_memory_mib": { "type": "integer"},
             "programs":  json_program_schema,
             "data_files": json_data_file_schema,
+            "file_rights": json_file_rights_schema,
             "debug": { "type": "boolean"},
             "enable_clock": { "type": "boolean"}
         },
-        "required": ["function","execution_strategy","max_memory_mib", "programs", "debug","enable_clock"],
+        "required": ["function","execution_strategy","max_memory_mib", "programs", "debug","enable_clock", "file_rights"],
         "additionalProperties": False
     }
 
@@ -560,7 +561,7 @@ def post_instance_REST(): # create
     if len(program_file_rights) > 0:
         program_identities.append({
                      "certificate": certStrToStringVeracruz(os.environ['PROGRAM_LOAD_CERTIFICATE']),
-                     "file_rights": [*program_file_rights]
+                     "file_rights": jsonFunction["file_rights"]
                 }
             )
 
@@ -644,12 +645,16 @@ def post_instance_REST(): # create
     
     print("Data files to load "+str(data_files),flush=True)
     if len(data_files) > 0:
+        for i,_ in enumerate(jsonFunction["data_files"]):
+            if not "priority" in jsonFunction["data_files"][i]:
+                jsonFunction["data_files"][i]["priority"] = 99
+
         data_files_load = sorted(jsonFunction["data_files"],key=operator.itemgetter('priority')) 
         function_name_base64 = base64.b64encode(requestJson["function"].encode()).decode()
-        execute_string="/root/load_data.sh "+"instanceDB/"+instance_name_base64+"_metadata/policy \""+os.environ['PROGRAM_LOAD_CERTIFICATE_FILE']+"\" \""+os.environ['PROGRAM_LOAD_KEY_FILE']+"\" \"functionDB/"+function_name_base64+"_data\""
-        for data_files_entry in data_files_load:
-            if data_files_entry["data_file"] in data_files:
-                execute_string=execute_string+" \""+data_files_entry["data_file"]+"\""
+        execute_string = "/root/load_data.sh "+"instanceDB/"+instance_name_base64+"_metadata/policy \""+os.environ['PROGRAM_LOAD_CERTIFICATE_FILE']+"\" \""+os.environ['PROGRAM_LOAD_KEY_FILE']+"\" \"functionDB/"+function_name_base64+"_data\""
+        for data_file in data_files_load:
+            data_file_base64 = base64.b64encode(data_file["data_file"].encode()).decode()
+            execute_string = execute_string+" "+data_file_base64
 
         print("execute: "+execute_string,flush=True)
         if os.system(execute_string) != 0:
