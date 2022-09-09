@@ -52,11 +52,13 @@ then
 fi
 
 # Check server availability
+echo "Waiting for server..."
 VERACRUZ_SERVER_URL=$(cat ${POLICY} | grep veracruz_server_url | sed -e 's/^.*": //' -e 's/:/ /' -e 's/"//g')
 for i in $(seq 1 30); do
-	echo "\n" | nc $(echo "${VERACRUZ_SERVER_URL}" | cut -d " " -f 1) $(echo "${VERACRUZ_SERVER_URL}" | cut -d " " -f 2) -w 1 | grep "Bad Request" && break
+	echo "\n" | nc $(echo "${VERACRUZ_SERVER_URL}" | cut -d " " -f 1) $(echo "${VERACRUZ_SERVER_URL}" | cut -d " " -f 2) -w 1 | grep "Bad Request" &>/dev/null && break
 	sleep 1
 done
+echo "Server is available"
 
 while [ $# -gt 0 ]
 do
