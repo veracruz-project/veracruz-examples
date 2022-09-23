@@ -413,6 +413,7 @@ def post_veracruz(): # create
                           automount_service_account_token = False,
                           dns_policy = "ClusterFirstWithHostNet",
                           hostname = "veracruz-nitro-server",
+                          restart_policy = "Never",
                           containers = [
                                   client.V1Container(
                                           name = "veracruz-nitro-server",
