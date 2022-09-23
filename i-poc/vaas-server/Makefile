@@ -11,7 +11,7 @@
 #
 #
 #
-VERSION=0.86.6
+VERSION=0.86.9
 
 all: image
 
