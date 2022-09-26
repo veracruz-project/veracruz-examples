@@ -33,7 +33,6 @@ network *net;
 image **alphabet;
 
 /* Initialize the Darknet model (neural network)
- * The prediction is outputted as a `prediction` file
  * Input:
  *   - data cfg (name of all objects)
  *   - network cfg
@@ -59,12 +58,14 @@ void init_darknet_detector(char *name_list_file, char *cfgfile,
 }
 
 /* Feed an image to the object detection model.
+ * Output a prediction, i.e. the same image with boxes highlighting the detected
+ * objects
  * Input:
- *   - initial image to be annotated with the detection boxes
+ *   - initial image to be annotated with detection boxes
  *   - image to be processed by the model
  *   - detection threshold
  *   - hierarchy threshold
- *   - output file path
+ *   - prediction file path
  *   - whether detection boxes should be drawn and saved to a file
  * Output: None
  */
@@ -114,7 +115,7 @@ void run_darknet_detector(image im, image im_sized, float thresh,
 }
 
 /* Callback called by the H.264 decoder whenever a frame is decoded and ready
- * Input: OpenH264 I420 frame buffer
+ * Input: OpenH264's I420 frame buffer
  * Output: None
  */
 void on_frame_ready(SBufferInfo *bufInfo)
@@ -148,7 +149,8 @@ int main(int argc, char **argv)
 
     printf("Initializing detector...\n");
     time  = what_time_is_it_now();
-    init_darknet_detector("input/coco.names", "input/yolov3.cfg", "input/yolov3.weights", false);
+    init_darknet_detector("input/coco.names", "input/yolov3.cfg",
+                          "input/yolov3.weights", false);
     printf("Arguments loaded and network parsed: %lf seconds\n",
                 what_time_is_it_now() - time);
 
