@@ -91,7 +91,6 @@ void run_darknet_detector(image im, image im_sized, float thresh,
     if (nms)
         do_nms_sort(dets, nboxes, l.classes, nms);
     printf("Detection probabilities:\n");
-    print_detection_probabilities(im, dets, nboxes, thresh, names, l.classes);
 
     // Draw boxes around detected objects
     if (draw_detection_boxes) {
@@ -102,10 +101,11 @@ void run_darknet_detector(image im, image im_sized, float thresh,
         time  = what_time_is_it_now();
         if (outfile)
             save_image(im, outfile);
-        else
-            save_image(im, "predictions");
         printf("Write duration: %lf seconds\n",
                     what_time_is_it_now() - time);
+    } else {
+        print_detection_probabilities(im, dets, nboxes, thresh, names,
+                                      l.classes);
     }
     free_detections(dets, nboxes);
 
@@ -135,7 +135,7 @@ void on_frame_ready(SBufferInfo *bufInfo)
                 what_time_is_it_now() - time);
 
     time = what_time_is_it_now();
-    run_darknet_detector(im, im_sized, .1, .5, "predictions", false);
+    run_darknet_detector(im, im_sized, .1, .5, "output/prediction.jpg", true);
     printf("Detector run: %lf seconds\n", what_time_is_it_now() - time);
     frames_processed++;
 }
