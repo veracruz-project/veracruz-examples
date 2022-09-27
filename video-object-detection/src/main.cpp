@@ -98,7 +98,7 @@ void run_darknet_detector(image im, image im_sized, float thresh,
         draw_detections(im, dets, nboxes, thresh, names, alphabet, l.classes);
 
         // Output the prediction
-        printf("Saving prediction to disk...\n");
+        printf("Saving prediction to %s...\n", outfile);
         time  = what_time_is_it_now();
         if (outfile)
             save_image(im, outfile);
