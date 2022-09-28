@@ -37,9 +37,9 @@ image **alphabet;
 
 /* Initialize the Darknet model (neural network)
  * Input:
- *   - data cfg (name of all objects)
- *   - network cfg
- *   - weights file
+ *   - name list file: contains the labels of all objects
+ *   - network configuration file
+ *   - weight file
  *   - whether detection boxes should be annotated with the name of the detected
  *     object (requires an alphabet)
  * Output: None
@@ -54,8 +54,9 @@ void init_darknet_detector(char *name_list_file, char *cfgfile,
     net = load_network(cfgfile, weightfile, 0);
     set_batch_network(net, 1);
 
-    // Load alphabet (set of images corresponding to characters). It is used to
-    // write the labels next to the detection boxes
+    // Load alphabet (set of images corresponding to symbols). It is used to
+    // write the labels next to the detection boxes. Try to load symbols from
+    // `data/labels/<symbol_index>_<symbol_size>.png`
     if (annotate_boxes)
         alphabet = load_alphabet();
 }
@@ -68,7 +69,7 @@ void init_darknet_detector(char *name_list_file, char *cfgfile,
  *   - image to be processed by the model
  *   - detection threshold
  *   - hierarchy threshold
- *   - prediction file path
+ *   - output (prediction) file path: doesn't include the file extension
  *   - whether detection boxes should be drawn and saved to a file
  * Output: None
  */
