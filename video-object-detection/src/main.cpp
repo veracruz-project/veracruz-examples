@@ -24,6 +24,9 @@ extern "C"
 #include "h264dec.h"
 #include "utils.h"
 
+#include <string.h>
+
+
 /* Keep track of the number of frames processed */
 int frames_processed = 0;
 
@@ -98,12 +101,13 @@ void run_darknet_detector(image im, image im_sized, float thresh,
         draw_detections(im, dets, nboxes, thresh, names, alphabet, l.classes);
 
         // Output the prediction
-        printf("Saving prediction to %s...\n", outfile);
-        time  = what_time_is_it_now();
-        if (outfile)
-            save_image(im, outfile);
-        printf("Write duration: %lf seconds\n",
-                    what_time_is_it_now() - time);
+        if (outfile) {
+            printf("Saving prediction to %s.jpg...\n", outfile);
+            time  = what_time_is_it_now();
+                save_image(im, outfile);
+            printf("Write duration: %lf seconds\n",
+                        what_time_is_it_now() - time);
+        }
     } else {
         print_detection_probabilities(im, dets, nboxes, thresh, names,
                                       l.classes);
@@ -122,6 +126,9 @@ void on_frame_ready(SBufferInfo *bufInfo)
 {
     image im, im_sized;
     double time;
+    const char *outfile_prefix = "output/prediction";
+    char outfile[strlen(outfile_prefix) + 12];
+    char frame_number_suffix[12];
 
     printf("Image %d ===========================\n", frames_processed);
 
@@ -136,7 +143,12 @@ void on_frame_ready(SBufferInfo *bufInfo)
                 what_time_is_it_now() - time);
 
     time = what_time_is_it_now();
-    run_darknet_detector(im, im_sized, .1, .5, "output/prediction.jpg", true);
+
+    strcat(outfile, outfile_prefix);
+    sprintf(frame_number_suffix, ".%d", frames_processed);
+    strcat(outfile, frame_number_suffix);
+
+    run_darknet_detector(im, im_sized, .1, .5, outfile, true);
     printf("Detector run: %lf seconds\n", what_time_is_it_now() - time);
     frames_processed++;
 }
