@@ -1,6 +1,6 @@
 EXTERNAL_IP_USE=<IP to be used for external access, normally one of the internal IPs of one of the nodes of k8s in AWS (172.31.xxxx)>
 VERACRUZ_MIN_PORT_USE=<Smallest port number to be used for a veracruz instance, default is 3014>
-VERACRUZ_MAX_PORT_USE=<Largest number to be used for a veracruz instance, default is 3016>
+VERACRUZ_MIN_PORT_USE=<Largest number to be used for a veracruz instance, default is 3016>
 VERACRUZ_ENDPOINT_HOSTNAME_USE=<hostname.domainame that will be used on the policy for users to access the endpoint, external name AWS is recommended>
 RUNTIME_HUGHEPAGES_SIZE_USE=2048 # In MBytes
 RUNTIME_POD_SIZE_USE=500 # In MBytes

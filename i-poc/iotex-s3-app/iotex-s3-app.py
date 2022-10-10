@@ -54,7 +54,6 @@ def execute_function():
                         "filename" : {"type": "string"},
                         "aws_access_key_id" : {"type": "string"},
                         "aws_secret_access_key" : {"type": "string"},
-                        "aws_session_token" : {"type": "string"}
                     },
                     "required": ["bucket","filename"],
                     "additionalProperties": False
@@ -80,7 +79,6 @@ def execute_function():
     #        "filename" : "<filename>",
     #        "aws_access_key_id" : "<aws_access_key>",
     #        "aws_secret_access_key" : "<aws_secret_access_key>",
-    #        "aws_session_token" : "<aws_session_token>"
     #        },
     #  "veracruz" : {
     #        "filename" : "<filename on the policy>",
@@ -96,11 +94,9 @@ def execute_function():
         return "<p>Json object is not correct "+str(err)+"</p>",400
 
     if ( not ("aws_access_key_id" in requestJson["s3"] and 
-              "aws_secret_access_key" in requestJson["s3"] and 
-              "aws_session_token" in requestJson["s3"] ) and
+              "aws_secret_access_key" in requestJson["s3"] ) and
 	     ("aws_access_key_id" in requestJson["s3"] or 
-              "aws_secret_access_key" in requestJson["s3"] or 
-              "aws_session_token" in requestJson["s3"] ) ):
+              "aws_secret_access_key" in requestJson["s3"] ) ):
         return "<p>aws credentials have to be all provided or none </p>",400
 
     #my_config = Config(
@@ -144,8 +140,7 @@ def execute_function():
         if "aws_access_key_id" in requestJson["s3"]: 
             s3 = boto3.client('s3', region_name=requestJson["s3"]["region_name"],
                 aws_access_key_id=requestJson["s3"]["aws_access_key_id"],
-                aws_secret_access_key=requestJson["s3"]["aws_secret_access_key"],
-                aws_session_token=requestJson["s3"]["aws_session_token"]
+                aws_secret_access_key=requestJson["s3"]["aws_secret_access_key"]
             )
         else:
             s3 = boto3.client('s3', region_name=requestJson["s3"]["region_name"])
@@ -153,8 +148,7 @@ def execute_function():
         if "aws_access_key_id" in requestJson["s3"]: 
             s3 = boto3.client('s3',
                 aws_access_key_id=requestJson["s3"]["aws_access_key_id"],
-                aws_secret_access_key=requestJson["s3"]["aws_secret_access_key"],
-                aws_session_token=requestJson["s3"]["aws_session_token"]
+                aws_secret_access_key=requestJson["s3"]["aws_secret_access_key"]
             )
         else:
             s3 = boto3.client('s3')
@@ -162,13 +156,15 @@ def execute_function():
     print("S3 access object created",flush=True)
 
     print("Starting the cat process",flush=True)
-    veracruzSub = subprocess.Popen(["/bin/bash",
-                                    "-c",
-                                    "openssl rsa -in "+keyFilename+" -out "+
-                                          keyFilename+".RSA.pem;./veracruz-client "+
-                                          policyFilename+" --data "+requestJson["veracruz"]["filename"]+
-                                          "="+fifoFilename+" --identity "+certificateFilename+" --key "+
-                                          keyFilename+".RSA.pem"])
+    veracruzSub = subprocess.Popen(["./veracruz-client",
+                                    policyFilename,
+                                    "--data",
+                                    requestJson["veracruz"]["filename"]+"="+fifoFilename,
+                                    "--identity",
+                                    certificateFilename,
+                                    "--key",
+                                    keyFilename
+                                    ])
     error_str = None
 
     fifo = open(fifoFilename, 'wb')
@@ -192,9 +188,8 @@ def execute_function():
     os.remove(fifoFilename)
     os.remove(certificateFilename)
     os.remove(keyFilename)
-    os.remove(keyFilename+".RSA.pem")
     os.remove(policyFilename)
     os.rmdir(tmpdir)
     if not error_str is None:
         return "<p>"+error_str+"<p>",500 
-    return "<p>OK video file copie</p>"
+    return "<p>OK video file copied</p>"

@@ -119,7 +119,7 @@ def delete_veracruz(name):
     if len(veracruzPodHost) != 2:
         return "<pname should be on the form <host>:<port></p>"
  
-    veracruzPod = veracruzPodHost[0].split(".")[0]+"-"+veracruzPodHost[1]
+    veracruzPod = "veracruz-nitro-server-"+veracruzPodHost[1]
 
     kubeConnection = get_kubecon()
     if kubeConnection is None:

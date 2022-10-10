@@ -76,66 +76,85 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
 * User Policy
    
    ```json
-   {
-     "function": "objectdetection",
-     "instanceid": "idtest",
-     "identities": [
-       {
-         "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-         "file_rights": [
+    {
+       "function":"vod",
+       "instanceid": "uniqueID",
+       "identities": [
            {
-             "file_name": "input-0",
-             "rights": 533572
+               "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+               "file_rights": [
+                   {
+                       "file_name": "/input/",
+                       "rights": 534084
+                   }
+               ]
            },
            {
-             "file_name": "output",
-             "rights": 8198
+               "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+               "file_rights": [
+                   {
+                        "file_name": "/output/",
+                        "rights": 24582
+                   },
+                   {
+                        "file_name": "stdout",
+                        "rights": 24582
+                   },
+                   {
+                        "file_name": "stderr",
+                        "rights": 24582
+                   },
+                   {
+                        "file_name": "/program/",
+                        "rights": 536879104
+                   }
+               ]
            }
-         ]
-       }
-     ]
-   }
+       ]
+    }
    ```
  
    The following json-schema describes the schema allowed. 
 
    ```json
-   json_policy_input_schema = {
-       "$schema": "https://json-schema.org/draft/2020-12/schema",
-       "type": "object",
-       "properties": {
-           "instanceid": { "type": "string"},
-           "function": { "type": "string"},
-           "identities":  json_identity_schema,
-       },
-       "required": ["function","instanceid","identities"],
-       "additionalProperties": False
-   }
-   json_identity_schema = {
-       "type": "array",
-       "items" : {
+    json_file_rights_schema = {
+        "type": "array",
+        "items" : {
             "type": "object",
             "properties": {
-                "file_rights": json_file_rights_schema,
-                "certificate":  { "type":"string" },
+                 "file_name": { "type": "string"},
+                 "rights": { "type": "integer"},
             },
-            "required": ["file_rights","certificate"],
             "additionalProperties": False
-       },
-       "additionalProperties": False
-   }
-   json_file_rights_schema = {
-       "type": "array",
-       "items" : {
-           "type": "object",
-           "properties": {
-                "file_name": { "type": "string"},
-                "rights": { "type": "integer"},
-           },
-           "additionalProperties": False
-       },
-       "additionalProperties": False
-   }
+        },
+        "additionalProperties": False
+    }
+
+    json_identity_schema = {
+        "type": "array",
+        "items" : {
+             "type": "object",
+             "properties": {
+                 "file_rights": json_file_rights_schema,
+                 "certificate":  { "type":"string" },
+             },
+             "required": ["file_rights","certificate"],
+             "additionalProperties": False
+        },
+        "additionalProperties": False
+    }
+
+    json_policy_input_schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+            "instanceid": { "type": "string"},
+            "function": { "type": "string"},
+            "identities":  json_identity_schema,
+        },
+        "required": ["function","instanceid","identities"],
+        "additionalProperties": False
+    }
    ```
 
    * <strong>function</strong>: identifies the registered function to instantiate
@@ -175,6 +194,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
       PATH_UNLINK_FILE          = 2^26 = 67108864
       POLL_FD_READWRITE         = 2^27 = 134217728
       SOCK_SHUTDOWN             = 2^28 = 268435456
+      FILE_EXECUTE              = 2^29 = 536870912
       ```
       In the example above:
 
@@ -192,92 +212,137 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
 * Program Policy
 
    ```json
-   {
-     "function": "objectdetection",
-     "execution_strategy": "Interpretation",
-     "programs": [
-       {
-         "id": 0,
-         "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-         "program_file_name": "linear-regression.wasm",
-         "file_rights": [
-           {
-             "file_name": "input-0",
-             "rights": 8198
-           },
-           {
-             "file_name": "output",
-             "rights":  33572
-           }
-         ]
-       }
-     ]
-   }
+    {
+        "function": "vod",
+        "debug": true,
+        "enable_clock": true,
+        "execution_strategy": "JIT",
+        "max_memory_mib": 2000,
+        "data_files": [
+            {
+                "data_file": "/input/coco.names",
+                "pi_hash": "634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"
+            },
+            {
+                "data_file": "/input/yolov3.cfg",
+                "pi_hash": "15bd05a05354738b051e5f5b1ad6d2eb800b866c63be3d1766bf168960e8d950"
+            },
+            {
+                "data_file": "/input/yolov3.weights",
+                "pi_hash": "dccea06f59b781ec1234ddf8d1e94b9519a97f4245748a7d4db75d5b7080a42c"
+            }
+        ],
+        "programs": [
+            {
+                "file_rights": [
+                    {
+                        "file_name": "/input/",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "/output/",
+                        "rights": 550470
+                    },
+                    {
+                        "file_name": "stdout",
+                        "rights": 534084
+                    },
+                    {
+                        "file_name": "stderr",
+                        "rights": 534084
+                    }
+                ],
+                "id": 0,
+                "pi_hash": "eb33d0a529aded54c140fbdccc7a2d1cc059c60b9874c83b2ff01899fef0ddd8",
+                "program_file_name": "/program/detector.wasm"
+            }
+        ],
+        "file_rights": [
+            {
+                "file_name": "/program/",
+                "rights": 537404996
+            },
+            {
+                "file_name": "/input/",
+                "rights": 537404996
+            },
+            {
+                "file_name": "/output/",
+                "rights": 537404996
+            }
+        ]
+    }
    ```
    The following json-schema describes the schema allowed. 
 
    ```json
-   json_policy_input_schema = {
-       "$schema": "https://json-schema.org/draft/2020-12/schema",
-       "type": "object",
-       "properties": {
-           "function": { "type": "string"},
-           "execution_strategy": { "type": "string"},
-           "programs":  json_program_schema,
-           "data_files": json_data_file_schema
-           }
-       },
-       "required": ["function","execution_strategy","programs"],
-       "additionalProperties": False
-   }
-
-   json_data_file_schema = {
-       "type": "array",
-       "items" : {
+    json_file_rights_schema = {
+        "type": "array",
+        "items" : {
             "type": "object",
             "properties": {
-                "data_file":  { "type":"string" },
-                "pi_hash":  { "type":"string" },
-                "priority": { "type":"integer" }
+                 "file_name": { "type": "string"},
+                 "rights": { "type": "integer"},
             },
-            "required": ["pi_hash","data_file"],
             "additionalProperties": False
-       },
-       "additionalProperties": False
-   }
+        },
+        "additionalProperties": False
+    }
 
-   json_program_schema = {
-       "type": "array",
-       "items" : {
-            "type": "object",
-            "properties": {
-                "file_rights": json_file_rights_schema,
-                "id": { "type":"integer" },
-                "pi_hash":  { "type":"string" },
-                "program_file_name":  { "type":"string" },
-            },
-            "required": ["file_rights","id","pi_hash","program_file_name"],
-            "additionalProperties": False
-       },
-       "additionalProperties": False
-   }
+    json_program_schema = {
+        "type": "array",
+        "items" : {
+             "type": "object",
+             "properties": {
+                 "file_rights": json_file_rights_schema,
+                 "id": { "type":"integer" },
+                 "pi_hash":  { "type":"string" },
+                 "program_file_name":  { "type":"string" },
+             },
+             "required": ["file_rights","id","pi_hash","program_file_name"],
+             "additionalProperties": False
+        },
+        "additionalProperties": False
+    }
 
-   json_file_rights_schema = {
-       "type": "array",
-       "items" : {
-           "type": "object",
-           "properties": {
-                "file_name": { "type": "string"},
-                "rights": { "type": "integer"},
-           },
-           "additionalProperties": False
-       },
-       "additionalProperties": False
-   }
+    json_data_file_schema = {
+        "type": "array",
+        "items" : {
+             "type": "object",
+             "properties": {
+                 "data_file":  { "type":"string" },
+                 "pi_hash":  { "type":"string" },
+                 "priority": { "type":"integer" }
+             },
+             "required": ["pi_hash","data_file"],
+             "additionalProperties": False
+        },
+        "additionalProperties": False
+    }
+
+    json_policy_input_schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+            "function": { "type": "string"},
+            "execution_strategy": { "type": "string"},
+            "max_memory_mib": { "type": "integer"},
+            "programs":  json_program_schema,
+            "data_files": json_data_file_schema,
+            "file_rights": json_file_rights_schema,
+            "debug": { "type": "boolean"},
+            "enable_clock": { "type": "boolean"}
+        },
+        "required": ["function","execution_strategy","max_memory_mib", "programs", "debug","enable_clock", "file_rights"],
+        "additionalProperties": False
+    }
    ```
 
    * <strong>function</strong>: identifies the function name to register
    * <strong>execution_strategy</strong>: normally "Interpretation" but other modes may be supported in the future
+   * <strong>max_memory_mib</strong>: iminimum amount of memory on the enclave to run this application
+   * <strong>debug</strong>: running on debug mode if true
+   * <strong>enable_clock</strong>: clock in encleve has current time and date if true
    * <strong>programs</strong>: list of programs (executables) that is part of the computation for this function (all of them are instantiated for this function to execute correctly)
    * <strong>file_rights</strong>: List of filenames and permissions associated with this program
    * <strong>pi_hash</strong>: sha256 hash of the executable or data file
@@ -285,229 +350,330 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
    * <strong>data_file</strong>: name of the file to be loaded and also the name of input file of the program
    * <strong>priority</strong>: (optional field) lower numbers will have higher priority on loading 
    * <strong>program_file_name</strong>: name for the program as known by Veracruz
-   * <strong>file_name</strong>: file that permissions apply (this file should exist on the registered function)
-   * <strong>rights</strong>: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table above
+   * <strong>file_name</strong>: file that permissions apply (in current veracruz implementation, this should be a directory, file_rights cannot be applied to individual files)
 
 * VaaS policy (policy used by VaaS to create a Veracruz instance)
 
    ```json
-   {
-       "ciphersuite": "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
-       "debug": false,
-       "enable_clock": true,
-       "execution_strategy": "Interpretation",
-       "identities": [
-           {
-               "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-               "file_rights": [
-                   {
-                       "file_name": "linear-regression.wasm",
-                       "rights": 533572
-                   }
-               ],
-               "id": 0
-           },
-           {
-               "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-               "file_rights": [
-                   {
-                       "file_name": "input-0",
-                       "rights": 533572
-                   }
-               ],
-               "id": 1
-           },
-           {
-               "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-               "file_rights": [
-                   {
-                       "file_name": "output",
-                       "rights": 8198
-                   }
-               ],
-               "id": 2
-           }
-       ],
-       "programs": [
-           {
-               "file_rights": [
-                   {
-                       "file_name": "input-0",
-                       "rights": 8198
-                   },
-                   {
-                       "file_name": "output",
-                       "rights": 533572
-                   }
-               ],
-               "id": 0,
-               "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-               "program_file_name": "linear-regression.wasm"
-           }
-       ]
-   }
+    {
+        "ciphersuite": "TLS1_3_CHACHA20_POLY1305_SHA256",
+        "debug": true,
+        "enable_clock": true,
+        "enclave_cert_expiry": {
+            "day": 28,
+            "hour": 20,
+            "minute": 34,
+            "month": 2,
+            "year": 2032
+        },
+        "execution_strategy": "JIT",
+        "max_memory_mib": 2000,
+        "identities": [
+            {
+                "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+                "file_rights": [
+                    {
+                        "file_name": "/program/",
+                        "rights": 537404996
+                    }
+                ],
+                "id": 0
+            },
+            {
+                "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+                "file_rights": [
+                    {
+                        "file_name": "/input/",
+                        "rights": 534084
+                    },
+                    {
+                        "file_name": "/output/",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "/program/",
+                        "rights": 536879104
+                    }
+                ],
+                "id": 1
+            },
+            {
+                "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+                "file_rights": [
+                    {
+                        "file_name": "/input/",
+                        "rights": 534084
+                    },
+                    {
+                        "file_name": "/output/",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "stdout",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "stderr",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "/program/",
+                        "rights": 536879104
+                    }
+                ],
+                "id": 2
+            }
+        ],
+        "programs": [
+            {
+                "file_rights": [
+                    {
+                        "file_name": "/input/",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "/output/",
+                        "rights": 550470
+                    },
+                    {
+                        "file_name": "stdout",
+                        "rights": 534084
+                    },
+                    {
+                        "file_name": "stderr",
+                        "rights": 534084
+                    }
+                ],
+                "id": 0,
+                "program_file_name": "/program/detector.wasm"
+            }
+        ],
+        "file_hashes": [
+            {
+                "file_path": "/program/detector.wasm",
+                "hash": "2543b57f83ec4103d542d029809ff1da25da7c9c11474654021903f362ae661d"
+            }
+        ]
+    }
    ```
 
    The following json-schema describes the schema allowed. 
 
    ```json
-   json_policy_input_schema = {
-       "$schema": "https://json-schema.org/draft/2020-12/schema",
-       "type": "object",
-       "properties": {
-           "instance_id": { "type": "string"},
-           "ciphersuite": { "type": "string"},
-           "debug": { "type": "boolean"},
-           "enable_clock": { "type": "boolean"},
-           "execution_strategy": { "type": "string"},
-           "identities": json_identity_schema,
-           "programs":  json_program_schema,
-       },
-       "required": ["ciphersuite","debug","enable_clock","execution_strategy","identities","programs"],
-       "additionalProperties": False
-   }
-
-   json_identity_schema = {
-       "type": "array",
-       "items" : {
-           "type": "object",
-           "properties": {
-                "certificate": { "type": "string"},
-                "file_rights": json_file_rights_schema,
-                "id": { "type":"integer" },
-           },
-           "required": ["certificate","file_rights","id"],
-           "additionalProperties": False
-       },
-       "additionalProperties": False
-   }
-
-   json_program_schema = {
-       "type": "array",
-       "items" : {
+    json_file_rights_schema = {
+        "type": "array",
+        "items" : {
             "type": "object",
             "properties": {
-                "file_rights": json_file_rights_schema,
-                "id": { "type":"integer" },
-                "pi_hash":  { "type":"string" },
-                "program_file_name":  { "type":"string" },
+                 "file_name": { "type": "string"},
+                 "rights": { "type": "integer"},
             },
-            "required": ["file_rights","id","pi_hash","program_file_name"],
             "additionalProperties": False
-       },
-       "additionalProperties": False
-   }
-   json_file_rights_schema = {
-       "type": "array",
-       "items" : {
-           "type": "object",
-           "properties": {
-                "file_name": { "type": "string"},
-                "rights": { "type": "integer"},
-           },
-           "additionalProperties": False
-       },
-       "additionalProperties": False
-   }
+        },
+        "additionalProperties": False
+    }
+
+    json_identity_schema = {
+        "type": "array",
+        "items" : {
+            "type": "object",
+            "properties": {
+                 "certificate": { "type": "string"},
+                 "file_rights": json_file_rights_schema,
+                 "id": { "type":"integer" },
+            },
+            "required": ["certificate","file_rights","id"],
+            "additionalProperties": False
+        },
+        "additionalProperties": False
+    }
+
+    json_program_schema = {
+        "type": "array",
+        "items" : {
+             "type": "object",
+             "properties": {
+                 "file_rights": json_file_rights_schema,
+                 "id": { "type":"integer" },
+                 "program_file_name":  { "type":"string" },
+             },
+             "required": ["file_rights","id","program_file_name"],
+             "additionalProperties": False
+        },
+        "additionalProperties": False
+    }
+
+    json_file_hash_schema = {
+        "type": "array",
+        "items" : {
+             "type": "object",
+             "properties": {
+                 "file_path": { "type":"string" },
+                 "hash":  { "type":"string" },
+             },
+             "required": ["file_path","hash"],
+             "additionalProperties": False
+        },
+        "additionalProperties": False
+    }
+
+    json_enclave_cert_expiry_schema = {
+        "type": "object",
+        "properties": {
+            "day": { "type": "integer"},
+            "hour": { "type": "integer"},
+            "minute": { "type": "integer"},
+            "month": { "type": "integer"},
+            "year": { "type": "integer"},
+        },
+        "required": ["day","hour","minute","month","year"],
+        "additionalProperties": False
+    }
+
+    json_policy_input_schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+            "instance_id": { "type": "string"},
+            "ciphersuite": { "type": "string"},
+            "debug": { "type": "boolean"},
+            "enable_clock": { "type": "boolean"},
+            "execution_strategy": { "type": "string"},
+            "max_memory_mib": { "type": "integer"},
+            "identities": json_identity_schema,
+            "programs":  json_program_schema,
+            "file_hashes":  json_file_hash_schema,
+            "enclave_cert_expiry": json_enclave_cert_expiry_schema,
+        },
+        "required": ["ciphersuite","debug","enable_clock","execution_strategy", "max_memory_mib", "identities","programs"],
+        "additionalProperties": False
+    }
    ```
 
-   * <strong>id</strong>: allows identification of this instance for the purpose of VaaS
+   * <strong>instance_id</strong>: allows identification of this instance for the purpose of VaaS
    * <strong>ciphersuite</strong>: identifies what are the algorithms to be used for cryptographic operations (TLS, hashing,  keys signing, etc..)
-   * <strong>debug</strong>: True runs in debug mode, false runs in normal mode
-   * <strong>enable_clock</strong>: True allows wasm program to use the read the OS clock
-   * <strong>execution_strategy</strong>: normally "Interpretation" but other modes may be supported in the future
-   * <strong>programs</strong>: list of programs (executables) that is part of the computation for this function (all of them are instantiated for this function to execute correctly)
-   * <strong>file_rights</strong>: List of filenames and permissions associated with this program
-   * <strong>pi_hash</strong>: sha256 hash of the executable
-   * <strong>program_file_name</strong>: name for the program as known by Veracruz
-   * <strong>file_name</strong>: file that permissions apply (this file should exist on the registered function)
-   * <strong>rights</strong>: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table above
 
 * Full policy (policy returned by CCFaaS and VaaS and used in Veracruz instance)
 
    ```json
-   {
-     "ciphersuite": "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
-     "debug": false,
-     "enable_clock": true,
-     "enclave_cert_expiry": {
-       "day": 23,
-       "hour": 23,
-       "minute": 44,
-       "month": 12,
-       "year": 2021
-     },
-     "execution_strategy": "Interpretation",
-     "identities": [
-       {
-         "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-         "file_rights": [
-           {
-             "file_name": "linear-regression.wasm",
-             "rights": 533572
-           }
-         ],
-         "id": 0
-       },
-       {
-         "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-         "file_rights": [
-           {
-             "file_name": "input-0",
-             "rights": 533572
-           },
-           {
-             "file_name": "output",
-             "rights": 8198
-           }
-         ],
-         "id": 1
-       }
-     ],
-     "programs": [
-       {
-         "file_rights": [
-           {
-             "file_name": "input-0",
-             "rights": 8198
-           },
-           {
-             "file_name": "output",
-             "rights": 533572
-           }
-         ],
-         "id": 0,
-         "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-         "program_file_name": "linear-regression.wasm"
-       }
-     ],
-     "proxy_attestation_server_url": "veracruz-nitro-proxy:3010",
-     "proxy_service_cert": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-     "runtime_manager_hash_nitro": "89bad60af6e4bd934dc7705b7187b828631092c151b967c0b1638c5567234acd",
-     "runtime_manager_hash_sgx": "",
-     "runtime_manager_hash_tz": "",
-     "std_streams_table": [
-       {
-         "Stdin": {
-           "file_name": "stdin",
-           "rights": 8198
-         }
-       },
-       {
-         "Stdout": {
-           "file_name": "stdout",
-           "rights": 533572
-         }
-       },
-       {
-         "Stderr": {
-           "file_name": "stderr",
-           "rights": 533572
-         }
-       }
-     ],
-     "veracruz_server_url": "veracruz-nitro-server:3014"
-   }
+    {
+      "ciphersuite": "TLS1_3_CHACHA20_POLY1305_SHA256",
+      "debug": true,
+      "enable_clock": true,
+      "execution_strategy": "JIT",
+      "max_memory_mib": 2000,
+      "programs": [
+        {
+          "file_rights": [
+            {
+              "file_name": "/input/",
+              "rights": 24582
+            },
+            {
+              "file_name": "/output/",
+              "rights": 550470
+            },
+            {
+              "file_name": "/internal/",
+              "rights": 550470
+            },
+            {
+              "file_name": "stdout",
+              "rights": 534084
+            },
+            {
+              "file_name": "stderr",
+              "rights": 534084
+            }
+          ],
+          "id": 0,
+          "program_file_name": "/program/detector.wasm"
+        }
+      ],
+      "identities": [
+        {
+          "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+          "file_rights": [
+            {
+              "file_name": "/input/",
+              "rights": 534084
+            }
+          ],
+          "id": 0
+        },
+        {
+          "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+          "file_rights": [
+            {
+              "file_name": "/output/",
+              "rights": 24582
+            },
+            {
+              "file_name": "stdout",
+              "rights": 24582
+            },
+            {
+              "file_name": "stderr",
+              "rights": 24582
+            },
+            {
+              "file_name": "/program/",
+              "rights": 536879104
+            }
+          ],
+          "id": 1
+        },
+        {
+          "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+          "file_rights": [
+            {
+              "file_name": "/program/",
+              "rights": 537404996
+            },
+            {
+              "file_name": "/input/",
+              "rights": 537404996
+            },
+            {
+              "file_name": "/output/",
+              "rights": 537404996
+            }
+          ],
+          "id": 2
+        }
+      ],
+      "file_hashes": [
+        {
+          "file_path": "/program/detector.wasm",
+          "hash": "d3197fa17ab97de7ca6d1d85e4e844717fea7cf104e88cea1a87cfdfb1eb87be"
+        },
+        {
+          "file_path": "/input/coco.names",
+          "hash": "634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"
+        },
+        {
+          "file_path": "/input/yolov3.cfg",
+          "hash": "15bd05a05354738b051e5f5b1ad6d2eb800b866c63be3d1766bf168960e8d950"
+        },
+        {
+          "file_path": "/input/yolov3.weights",
+          "hash": "dccea06f59b781ec1234ddf8d1e94b9519a97f4245748a7d4db75d5b7080a42c"
+        }
+      ],
+      "enclave_cert_expiry": {
+        "day": 8,
+        "hour": 18,
+        "minute": 7,
+        "month": 4,
+        "year": 2023
+      },
+      "proxy_attestation_server_url": "veracruz-nitro-proxy:3010",
+      "proxy_service_cert": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+      "runtime_manager_hash_nitro": "f2ae0de7bec92bcdbd4a96e2ae08d85a575f1aa64acb797bc4afa6b1d3cc8798",
+      "runtime_manager_hash_sgx": "",
+      "runtime_manager_hash_tz": "",
+      "veracruz_server_url": "ec2-54-216-123-218.eu-west-1.compute.amazonaws.com:3014"
+    }
    ```
    The additional fields returned with the policy are:
 
@@ -580,7 +746,6 @@ Iotex-S3-app provides an interface from S3 to veracruz so the file can be piped 
                        "filename" : {"type": "string"},
                        "aws_access_key_id" : {"type": "string"},
                        "aws_secret_access_key" : {"type": "string"},
-                       "aws_session_token" : {"type": "string"}
                    },
                    "required": ["bucket","filename"],
                    "additionalProperties": False

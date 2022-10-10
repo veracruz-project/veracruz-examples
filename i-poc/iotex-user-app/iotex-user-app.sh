@@ -42,4 +42,4 @@ IOTEX_S3_URL="http://${IOTEX_S3_HOSTIP}:${IOTEX_S3_HOSTPORT}"
 echo "CCFaaS in ${CCFAAS_URL} and Iotex-s3 Faas in ${IOTEX_S3_URL}"
 
 
-./iotex-user-app.py "test1" "${CCFAAS_URL}" "${IOTEX_S3_URL}" "${S3_BUCKET}" "${S3_FILE}" "region_name=${S3_REGION}" "aws_access_key_id=${AWS_ACCESS_KEY_ID}" "aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}" "aws_session_token=${AWS_SESSION_TOKEN}"
+./iotex-user-app.py "test1" "${CCFAAS_URL}" "${IOTEX_S3_URL}" "${S3_BUCKET}" "${S3_FILE}" "region_name=${S3_REGION}" "aws_access_key_id=${AWS_ACCESS_KEY_ID}" "aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}"

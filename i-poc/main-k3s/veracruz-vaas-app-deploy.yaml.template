@@ -70,7 +70,7 @@ spec:
     spec:
       containers:
       - name: vaas-server-app
-        image: veracruz/veracruz-vaas-server:0.86.9
+        image: veracruz/veracruz-vaas-server:0.86.10
         imagePullPolicy: IfNotPresent
         env:
         - name: PROXY_ENDPOINT
