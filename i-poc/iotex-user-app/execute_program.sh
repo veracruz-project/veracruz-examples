@@ -68,9 +68,16 @@ then
 	exit 1
 fi
 
+# Request computation
+echo ${VERACRUZ_CLIENT} ${POLICY} --compute ${PROGRAM} --identity ${CERTIFICATE_OUT} --key ${KEY_OUT}
+OUTPUT=$(${VERACRUZ_CLIENT} "${POLICY}" --compute ${PROGRAM} --identity "${CERTIFICATE_OUT}" --key "${KEY_OUT}" 2>&1)
+
+# Request results
 echo ${VERACRUZ_CLIENT} ${POLICY} --result stdout=- --result stderr=- --result "${OUTPUT_VERACRUZ}=${OUTPUT_FILE_NAME}" --identity ${CERTIFICATE_OUT} --key ${KEY_OUT}
-OUTPUT=$(${VERACRUZ_CLIENT} "${POLICY}" --result stdout=- --result stderr=- "${OUTPUT_VERACRUZ}=${OUTPUT_FILE_NAME}" --identity "${CERTIFICATE_OUT}" --key "${KEY_OUT}" 2>&1)
+OUTPUT=$(${VERACRUZ_CLIENT} "${POLICY}" --result stdout=- --result stderr=- --result "${OUTPUT_VERACRUZ}=${OUTPUT_FILE_NAME}" --identity "${CERTIFICATE_OUT}" --key "${KEY_OUT}" 2>&1)
+
 echo "${OUTPUT}"
+
 NOK=$(echo "${OUTPUT}" | grep "Error")
 if [ ! -z "${NOK}" ]
 then
