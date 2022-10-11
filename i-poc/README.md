@@ -56,9 +56,10 @@ A timeline of a full operation is described below.
 1. User application executes a remote procedure call request to the Iotex S3 app with previously created json object
    * Upper pink FaaS arrow
 1. Iotex S3 app starts an instance of itself that connects to AWS S3 and  Veracruz instance and sends the encrypted key and then reads the video file and sends it to the Veracruz instance
-1. Veracruz instance process the video and send the results to the output file
 1. Iotex S3 app instance closes the connection to Veracruz at the end of the file and terminates itself.
-1. User application receives the last results and terminates the Veracruz instance
+1. User application exectutes the program inside the enclave using rhe provided video
+1. Veracruz instance process the video and send the results to the output file
+1. User application receives the last results and terminates the Veracruz instance using CCFaaS
 1. EC2 nitro instance is returned to the pool of free instances to be allocated.
 
 # Veracruz Policy
@@ -1156,10 +1157,7 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
 # WIP:
 
 * Iotex Video App
-  * Object detection wasm application is WIP
-  * Cryptography inside the enclave is still WIP
   * Documentation of how to implement an application that can be compiled to wasm and deployable on Veracruz
-
 
 # Possible future enhancements
 
