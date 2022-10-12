@@ -26,7 +26,7 @@ VERACRUZ_CLIENT=$(pwd)/veracruz-client
 
 if [ $# -lt 6 ]
 then
-	echo "$0: <policy> <certificate file out> <key file out> <output file veracruz> <output file name> <program>"
+	echo "$0: <policy> <certificate file out> <key file out> <output file veracruz> <output file name> <program> <decryption key path> <decryption IV path>"
 	exit 1
 fi
 
@@ -36,6 +36,8 @@ KEY_OUT=$3
 OUTPUT_VERACRUZ=$4
 OUTPUT_FILE_NAME=$5
 PROGRAM=$6
+DECRYPTION_KEY_PATH=$7
+DECRYPTION_IV_PATH=$8
 
 check_if_file_exists "${POLICY}" "Policy"
 check_if_file_exists "${CERTIFICATE_OUT}" "Certificate_out"
@@ -67,6 +69,10 @@ then
 # 	echo "${VERACRUZ_HOST} ${VERACRUZ_PORT} is not responding after 120 seconds" >> /tmp/log.txt
 	exit 1
 fi
+
+# Provision decryption keying material
+echo ${VERACRUZ_CLIENT} ${POLICY} --data /user_input/key=${DECRYPTION_KEY_PATH} --data /user_input/iv=${DECRYPTION_IV_PATH} --identity ${CERTIFICATE_OUT} --key ${KEY_OUT}
+OUTPUT=$(${VERACRUZ_CLIENT} "${POLICY}" --data /user_input/key=${DECRYPTION_KEY_PATH} --data /user_input/iv=${DECRYPTION_IV_PATH} --identity "${CERTIFICATE_OUT}" --key "${KEY_OUT}" 2>&1)
 
 # Request computation
 echo ${VERACRUZ_CLIENT} ${POLICY} --compute ${PROGRAM} --identity ${CERTIFICATE_OUT} --key ${KEY_OUT}
