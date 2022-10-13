@@ -1098,81 +1098,95 @@ Even oj EKS a new updated configuration of smarter-device-manager need to be be 
 
 The iotex-user-app directory on the repository will execute the I-PoC example end-to-end according the timeline described above
 
-1. Edit the file iotex-user-app.sh to set the correct information of the S3 file and S3 authentication to use:
-  ```bash
-  export AWS_ACCESS_KEY_ID="<REPLACE WITH AWS_ACCESS_KEY_ID>"
-  export AWS_SECRET_ACCESS_KEY="<REPLACE WITH AWS_SECRET_ACCESS_KEY>"
-  export AWS_SESSION_TOKEN="<REPLACE WITH AWS_SESSION_TOKEN>"
+1. iotex-user-app.py accepts the following command line
+   ```bash
+	python iotex-user-app.py <function name> <uniqueID> <URL of CCFaaS> <URL of iotex-S3> <bucket of S3> <File in S3> <decryption key path> <decryption IV path> <S3 authentication>")
+   ```
+  
+   Where:
 
-  S3_REGION="<REPLACE WITH S3 REGION>"
-  S3_BUCKET="<REPLACE WITH S3 BUCKET"
-  S3_FILE="<REPLACE WITH S3 FILE?"
-  ```
-  The script assumes that the file requires authentication to be accessed. All the AWS credentiails and S3_REGION are optional and can be removed from the script including the entry on ./iotex-user-app.py line
+    * function name: determines the specific CCFaaS function to instantiate
+    * uniqueID: defines a unique name for this instance
+    * URL of CCFaaS: where to find CCFaaS, normally should be like http:://<IP>:5010
+    * URL of iotex-S3: where to find iotex-s3-app, normally should be like http:://<IP>:5020
+    * decryption key path: path of the key to decrypt the vide
+    * decryption IV path: path of where to put the decryption key on the enclave
+    * S3 authentication>: set of "key=value" that contains the authentication to access the video in S3
+
+1. Edit the file iotex-user-app.sh to set the correct information of the S3 file and S3 authentication to use:
+   ```bash
+   export AWS_ACCESS_KEY_ID="<REPLACE WITH AWS_ACCESS_KEY_ID>"
+   export AWS_SECRET_ACCESS_KEY="<REPLACE WITH AWS_SECRET_ACCESS_KEY>"
+ 
+   S3_REGION="<REPLACE WITH S3 REGION>"
+   S3_BUCKET="<REPLACE WITH S3 BUCKET"
+   S3_FILE="<REPLACE WITH S3 FILE?"
+   ```
+   The script assumes that the file requires authentication to be accessed. All the AWS credentiails and S3_REGION are optional and can be removed from the script including the entry on ./iotex-user-app.py line
 
 1. Registering the function in CCFaaS
-
-  ```bash
-  ./register-function-example.sh
-  ```
-
-  The result should be simmilar to the one presented below
-  ```bash
-  Accessing CCFaaS at XXX.XXX.XXX.XXX:5010
-    Getting function/linear-regression
-    Not found
-    linear-regression function with data below
-    {
-      "function": "linear-regression",
-      "execution_strategy": "Interpretation",
-      "programs": [
-        {
-          "id": 0,
-          "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-          "program_file_name": "linear-regression.wasm",
-          "file_rights": [
-            {
-              "file_name": "input-0",
-              "rights": 8198
-            },
-            {
-              "file_name": "output",
-              "rights": 533572
-            }
-          ]
-        }
-      ]
-    }
-    Register linear-regression function
-        {
-          "execution_strategy": "Interpretation",
-          "function": "linear-regression",
-          "programs": [
-            {
-              "file_rights": [
-                {
+ 
+   ```bash
+    ./register-function-example.sh
+   ```
+ 
+   The result should be simmilar to the one presented below
+   ```bash
+   Accessing CCFaaS at XXX.XXX.XXX.XXX:5010
+     Getting function/linear-regression
+     Not found
+     linear-regression function with data below
+     {
+       "function": "linear-regression",
+       "execution_strategy": "Interpretation",
+       "programs": [
+         {
+           "id": 0,
+           "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
+           "program_file_name": "linear-regression.wasm",
+           "file_rights": [
+             {
+               "file_name": "input-0",
+               "rights": 8198
+             },
+             {
+               "file_name": "output",
+               "rights": 533572
+             }
+           ]
+         }
+       ]
+     }
+     Register linear-regression function
+         {
+           "execution_strategy": "Interpretation",
+           "function": "linear-regression",
+           "programs": [
+             {
+                "file_rights": [
+                 {
                   "file_name": "input-0",
-                  "rights": 8198
-                },
-                {
-                  "file_name": "output",
-                  "rights": 533572
-                }
-              ],
-              "id": 0,
-              "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-              "program_file_name": "linear-regression.wasm"
-            }
-          ]
-        }
-    
-    Create linear-regression  program linear-regression.wasm
-        <p>function loaded!</p>
-  ```
-
+                   "rights": 8198
+                 },
+                 {
+                   "file_name": "output",
+                   "rights": 533572
+                 }
+               ],
+               "id": 0,
+               "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
+               "program_file_name": "linear-regression.wasm"
+              }
+           ]
+          }
+     
+     Create linear-regression  program linear-regression.wasm
+         <p>function loaded!</p>
+   ```
+ 
 1. Running the example
-    ```bash
-    ./iotex-user-app.sh
+   ```bash
+   ./iotex-user-app.sh
     ```
 
     The result should be similar to one presented below
