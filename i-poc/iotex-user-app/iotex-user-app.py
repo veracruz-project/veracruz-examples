@@ -39,24 +39,25 @@ def keyToStringVeracruz(keyUse):
     return keyStr
 
 if __name__ == "__main__":
-    if len(sys.argv) < 5:
-       print(sys.argv[0]+": <uniqueID> <URL of CCFaaS> <URL of iotex-S3> <bucket of S3> <File in S3> <decryption key path> <decryption IV path> <S3 authentication>")
+    if len(sys.argv) < 8:
+       print(sys.argv[0]+": <function name> <uniqueID> <URL of CCFaaS> <URL of iotex-S3> <bucket of S3> <File in S3> <decryption key path> <decryption IV path> <S3 authentication>")
        print("      S3 authentication is format <entry>=<value> where entries are: region_name, aws_access_key_id, aws_secret_access_key")
        os._exit(1)
 
-    uniqueID = sys.argv[1]
-    ccfaasURL = sys.argv[2]
-    iotexS3URL = sys.argv[3]
-    s3_auth={ "bucket" : sys.argv[4],
-         "filename" : sys.argv[5] }
-    outputFile=sys.argv[5]+".output"
+    functionName = sys.argv[1]
+    uniqueID = sys.argv[2]
+    ccfaasURL = sys.argv[3]
+    iotexS3URL = sys.argv[4]
+    s3_auth={ "bucket" : sys.argv[5],
+         "filename" : sys.argv[6] }
+    outputFile=sys.argv[6]+".output"
 
-    decryption_key_path=sys.argv[6]
-    decryption_iv_path=sys.argv[7]
+    decryption_key_path=sys.argv[7]
+    decryption_iv_path=sys.argv[8]
 
     entries = ["region_name", "aws_access_key_id", "aws_secret_access_key"]
 
-    for i in range(8,len(sys.argv)):
+    for i in range(9,len(sys.argv)):
         entry,value = sys.argv[i].split('=',1)
         if not entry in entries:
             print("entry=\""+entry+"\" not reecognied")
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     print("S3 certificate created")
 
     iotexAppRequestJson = {
-       "function":"vod",
+       "function": functionName,
        "instanceid": uniqueID,
        "identities": [
            {
