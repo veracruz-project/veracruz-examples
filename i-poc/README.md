@@ -1,5 +1,7 @@
 # i-poc
 
+The i_poc is an end-to-end example of using veracruz to run confidentail computing functions in the cloud. The example runs on AWS and utlizes AWS Nitro.
+
 This is the high level Iotex PoC description.  The key here is that the processing of the video is triggered by the user from their laptop (in the example), and the object detection happens in Nitro Enclaves on top of Veracruz.  
 
 ```mermaid
@@ -12,6 +14,15 @@ graph LR;
     User-laptop --- Veracruz-app
 
 ```
+
+The primary components of the example are:
+* Veracruz runtime
+* Cloud infrastructure that runs on kubernetes
+   * VaaS (Veracruz as a Service)
+   * CCFaaS (Confidential Computing Function as a Service)
+   * iotex-s3-app: copies files fom S3 to a veracruz instance
+* iotex-user-app: represents the end user application
+* VOD: veracruz application that process the decrypt and process the video 
 
 The following figure describe the application in more detail. The figure shows the components, communications path and information exchanged.
 In the figure if a symbol is close to an entity, it means that this entity is sending that data (symbol).
@@ -64,11 +75,14 @@ A timeline of a full operation is described below.
 
 # Veracruz Policy
 
-Veracruz Policy is divided intro three parts: Infrastructure policy, Program policy and User policy. 
+Veracruz Policyifor the purpose of the example is divided intro three parts: Infrastructure policy, Program policy and User policy. 
 
 * Infrastructure policy describes the Veracruz instance: endpoint that has this policy, runtime properties (hash and others) and which proxy attestation server is used by this Veracruz instance.
+    * This portion is set by VaaS
 * Program policy describe the executables used on the computation. For each executable the policy has the identity (certificate) of the entity allowed to load this executable, name, hash, inputs and outputs of the program and file rights that the program has on each input/output file.
+    * This portion is provided when a function is registered on CCFaaS
 * User policy describe identities (certificates) of the entities that can communicate with that Veracruz instance, which files and in which action (read/write/etc) it is allowed to interact with.
+    * This portion is provided when a function is instantiated on CCFaaS
 
 ## Policy examples and syntax
 
@@ -85,14 +99,18 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
                "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
                "file_rights": [
                    {
-                       "file_name": "/input/",
+                       "file_name": "/s3_app_input/",
                        "rights": 534084
                    }
                ]
            },
            {
-               "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+               "certificate": "-----BEGIN CERTIFICATE-----\nYYYYYYYYY\n-----END CERTIFICATE-----",
                "file_rights": [
+                   {
+                       "file_name": "/user_input/",
+                       "rights": 534084
+                   },
                    {
                         "file_name": "/output/",
                         "rights": 24582
@@ -114,8 +132,10 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
        ]
     }
    ```
+
+   This policy defines two identities. The first one only has write access to the directory /s3_app_input/. The other Has access to execute programs on the diretory "/program" and read/write access to /user_input/,/output/,stdout and stderr.
  
-   The following json-schema describes the schema allowed. 
+   The following json-schema describes the schema allowed when an user policy is provided. CCFaaS only accepts user policies that pass this schema.
 
    ```json
     json_file_rights_schema = {
@@ -226,11 +246,11 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
             },
             {
                 "data_file": "/input/yolov3.cfg",
-                "pi_hash": "15bd05a05354738b051e5f5b1ad6d2eb800b866c63be3d1766bf168960e8d950"
+                "pi_hash": "2ca0ab366618b5c005931e057e9cef2e40a1988e2481b3cbd960047c8ec11995"
             },
             {
                 "data_file": "/input/yolov3.weights",
-                "pi_hash": "dccea06f59b781ec1234ddf8d1e94b9519a97f4245748a7d4db75d5b7080a42c"
+                "pi_hash": "523e4e69e1d015393a1b0a441cef1d9c7659e3eb2d7e15f793f060a21b32f297"
             }
         ],
         "programs": [
@@ -254,7 +274,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
                     }
                 ],
                 "id": 0,
-                "pi_hash": "eb33d0a529aded54c140fbdccc7a2d1cc059c60b9874c83b2ff01899fef0ddd8",
+                "pi_hash": "7612e3490f14a9ee523f357e86f97098a94678f4e06c8202cf307d163db9f7aa"
                 "program_file_name": "/program/detector.wasm"
             }
         ],
@@ -274,7 +294,10 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
         ]
     }
    ```
-   The following json-schema describes the schema allowed. 
+
+   This policy defines a function that has a single program executable "/program/detector.wasm" and three data files. It also allows the program to access the /input, /output, stdout and stderr. Take not that no identities are defined here.
+
+   The following json-schema describes the schema allowed when an function policy is provided. CCFaaS only accepts function policies that pass this schema.
 
    ```json
     json_file_rights_schema = {
@@ -357,83 +380,33 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
 
    ```json
     {
+        "instance_id" : "instance1",
         "ciphersuite": "TLS1_3_CHACHA20_POLY1305_SHA256",
         "debug": true,
         "enable_clock": true,
-        "enclave_cert_expiry": {
-            "day": 28,
-            "hour": 20,
-            "minute": 34,
-            "month": 2,
-            "year": 2032
-        },
         "execution_strategy": "JIT",
         "max_memory_mib": 2000,
-        "identities": [
-            {
-                "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-                "file_rights": [
-                    {
-                        "file_name": "/program/",
-                        "rights": 537404996
-                    }
-                ],
-                "id": 0
-            },
-            {
-                "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-                "file_rights": [
-                    {
-                        "file_name": "/input/",
-                        "rights": 534084
-                    },
-                    {
-                        "file_name": "/output/",
-                        "rights": 24582
-                    },
-                    {
-                        "file_name": "/program/",
-                        "rights": 536879104
-                    }
-                ],
-                "id": 1
-            },
-            {
-                "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-                "file_rights": [
-                    {
-                        "file_name": "/input/",
-                        "rights": 534084
-                    },
-                    {
-                        "file_name": "/output/",
-                        "rights": 24582
-                    },
-                    {
-                        "file_name": "stdout",
-                        "rights": 24582
-                    },
-                    {
-                        "file_name": "stderr",
-                        "rights": 24582
-                    },
-                    {
-                        "file_name": "/program/",
-                        "rights": 536879104
-                    }
-                ],
-                "id": 2
-            }
-        ],
         "programs": [
             {
                 "file_rights": [
                     {
-                        "file_name": "/input/",
+                        "file_name": "/program_data/",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "/s3_app_input/",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "/user_input/",
                         "rights": 24582
                     },
                     {
                         "file_name": "/output/",
+                        "rights": 550470
+                    },
+                    {
+                        "file_name": "/program_internal/",
                         "rights": 550470
                     },
                     {
@@ -449,14 +422,88 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
                 "program_file_name": "/program/detector.wasm"
             }
         ],
+        "identities": [
+            {
+                "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+                "file_rights": [
+                    {
+                        "file_name": "/s3_app_input/",
+                        "rights": 534084
+                    }
+                ],
+                "id": 0
+            },
+            {
+                "certificate": "-----BEGIN CERTIFICATE-----\nYYYYYYYYY\n-----END CERTIFICATE-----",
+                "file_rights": [
+                    {
+                        "file_name": "/user_input/",
+                        "rights": 534084
+                    },
+                    {
+                        "file_name": "/output/",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "stdout",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "stderr",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "/program/",
+                        "rights": 536879104
+                    }
+                ],
+                "id": 1
+            },
+            {
+                "certificate": "-----BEGIN CERTIFICATE-----\nPPPPPPPPP\n-----END CERTIFICATE-----",
+                "file_rights": [
+                    {
+                        "file_name": "/program/",
+                        "rights": 534084
+                    },
+                    {
+                        "file_name": "/program_data/",
+                        "rights": 534084
+                    }
+                ],
+                "id": 2
+            }
+        ],
         "file_hashes": [
             {
                 "file_path": "/program/detector.wasm",
-                "hash": "2543b57f83ec4103d542d029809ff1da25da7c9c11474654021903f362ae661d"
+                "hash": "7612e3490f14a9ee523f357e86f97098a94678f4e06c8202cf307d163db9f7aa"
+            },
+            {
+                "file_path": "/program_data/coco.names",
+                "hash": "634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"
+            },
+            {
+                "file_path": "/program_data/yolov3.cfg",
+                "hash": "2ca0ab366618b5c005931e057e9cef2e40a1988e2481b3cbd960047c8ec11995"
+            },
+            {
+                "file_path": "/program_data/yolov3.weights",
+                "hash": "523e4e69e1d015393a1b0a441cef1d9c7659e3eb2d7e15f793f060a21b32f297"
             }
-        ]
+        ],
+        "enclave_cert_expiry": {
+            "day": 11,
+            "hour": 16,
+            "minute": 46,
+            "month": 4,
+            "year": 2023
+        },
     }
    ```
+
+   This policy is the corresponding policy that CCFaaS sends to VaaS whan the function "vod" is instantiated as "instance1". It also represents a policy that VaaS requires when a veracruz instance is requested.
+   In this policy a third identity is provided "-----BEGIN CERTIFICATE-----\nPPPPPPPPP\n-----END CERTIFICATE-----" that allows the programs to be provided. It only allows writing to the programs and program_data directory so it can provision the program.
 
    The following json-schema describes the schema allowed. 
 
@@ -558,122 +605,130 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
 
    ```json
     {
-      "ciphersuite": "TLS1_3_CHACHA20_POLY1305_SHA256",
-      "debug": true,
-      "enable_clock": true,
-      "execution_strategy": "JIT",
-      "max_memory_mib": 2000,
-      "programs": [
-        {
-          "file_rights": [
+        "ciphersuite": "TLS1_3_CHACHA20_POLY1305_SHA256",
+        "debug": true,
+        "enable_clock": true,
+        "execution_strategy": "JIT",
+        "max_memory_mib": 2000,
+        "programs": [
             {
-              "file_name": "/input/",
-              "rights": 24582
-            },
-            {
-              "file_name": "/output/",
-              "rights": 550470
-            },
-            {
-              "file_name": "/internal/",
-              "rights": 550470
-            },
-            {
-              "file_name": "stdout",
-              "rights": 534084
-            },
-            {
-              "file_name": "stderr",
-              "rights": 534084
+                "file_rights": [
+                    {
+                        "file_name": "/program_data/",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "/s3_app_input/",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "/user_input/",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "/output/",
+                        "rights": 550470
+                    },
+                    {
+                        "file_name": "/program_internal/",
+                        "rights": 550470
+                    },
+                    {
+                        "file_name": "stdout",
+                        "rights": 534084
+                    },
+                    {
+                        "file_name": "stderr",
+                        "rights": 534084
+                    }
+                ],
+                "id": 0,
+                "program_file_name": "/program/detector.wasm"
             }
-          ],
-          "id": 0,
-          "program_file_name": "/program/detector.wasm"
-        }
-      ],
-      "identities": [
-        {
-          "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-          "file_rights": [
+        ],
+        "identities": [
             {
-              "file_name": "/input/",
-              "rights": 534084
+                "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
+                "file_rights": [
+                    {
+                        "file_name": "/s3_app_input/",
+                        "rights": 534084
+                    }
+                ],
+                "id": 0
+            },
+            {
+                "certificate": "-----BEGIN CERTIFICATE-----\nYYYYYYYYY\n-----END CERTIFICATE-----",
+                "file_rights": [
+                    {
+                        "file_name": "/user_input/",
+                        "rights": 534084
+                    },
+                    {
+                        "file_name": "/output/",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "stdout",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "stderr",
+                        "rights": 24582
+                    },
+                    {
+                        "file_name": "/program/",
+                        "rights": 536879104
+                    }
+                ],
+                "id": 1
+            },
+            {
+                "certificate": "-----BEGIN CERTIFICATE-----\nPPPPPPPPP\n-----END CERTIFICATE-----",
+                "file_rights": [
+                    {
+                        "file_name": "/program/",
+                        "rights": 534084
+                    },
+                    {
+                        "file_name": "/program_data/",
+                        "rights": 534084
+                    }
+                ],
+                "id": 2
             }
-          ],
-          "id": 0
-        },
-        {
-          "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-          "file_rights": [
+        ],
+        "file_hashes": [
             {
-              "file_name": "/output/",
-              "rights": 24582
+                "file_path": "/program/detector.wasm",
+                "hash": "7612e3490f14a9ee523f357e86f97098a94678f4e06c8202cf307d163db9f7aa"
             },
             {
-              "file_name": "stdout",
-              "rights": 24582
+                "file_path": "/program_data/coco.names",
+                "hash": "634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"
             },
             {
-              "file_name": "stderr",
-              "rights": 24582
+                "file_path": "/program_data/yolov3.cfg",
+                "hash": "2ca0ab366618b5c005931e057e9cef2e40a1988e2481b3cbd960047c8ec11995"
             },
             {
-              "file_name": "/program/",
-              "rights": 536879104
+                "file_path": "/program_data/yolov3.weights",
+                "hash": "523e4e69e1d015393a1b0a441cef1d9c7659e3eb2d7e15f793f060a21b32f297"
             }
-          ],
-          "id": 1
+        ],
+        "enclave_cert_expiry": {
+            "day": 11,
+            "hour": 16,
+            "minute": 46,
+            "month": 4,
+            "year": 2023
         },
-        {
-          "certificate": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-          "file_rights": [
-            {
-              "file_name": "/program/",
-              "rights": 537404996
-            },
-            {
-              "file_name": "/input/",
-              "rights": 537404996
-            },
-            {
-              "file_name": "/output/",
-              "rights": 537404996
-            }
-          ],
-          "id": 2
-        }
-      ],
-      "file_hashes": [
-        {
-          "file_path": "/program/detector.wasm",
-          "hash": "d3197fa17ab97de7ca6d1d85e4e844717fea7cf104e88cea1a87cfdfb1eb87be"
-        },
-        {
-          "file_path": "/input/coco.names",
-          "hash": "634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"
-        },
-        {
-          "file_path": "/input/yolov3.cfg",
-          "hash": "15bd05a05354738b051e5f5b1ad6d2eb800b866c63be3d1766bf168960e8d950"
-        },
-        {
-          "file_path": "/input/yolov3.weights",
-          "hash": "dccea06f59b781ec1234ddf8d1e94b9519a97f4245748a7d4db75d5b7080a42c"
-        }
-      ],
-      "enclave_cert_expiry": {
-        "day": 8,
-        "hour": 18,
-        "minute": 7,
-        "month": 4,
-        "year": 2023
-      },
-      "proxy_attestation_server_url": "veracruz-nitro-proxy:3010",
-      "proxy_service_cert": "-----BEGIN CERTIFICATE-----\nXXXXXXXXX\n-----END CERTIFICATE-----",
-      "runtime_manager_hash_nitro": "f2ae0de7bec92bcdbd4a96e2ae08d85a575f1aa64acb797bc4afa6b1d3cc8798",
-      "runtime_manager_hash_sgx": "",
-      "runtime_manager_hash_tz": "",
-      "veracruz_server_url": "ec2-54-216-123-218.eu-west-1.compute.amazonaws.com:3014"
+        "proxy_attestation_server_url": "veracruz-nitro-proxy:3010",
+        "proxy_service_cert": "-----BEGIN CERTIFICATE-----\nZZZZZZZZZ\n-----END CERTIFICATE-----",
+        "runtime_manager_hash_nitro": "f2ae0de7bec92bcdbd4a96e2ae08d85a575f1aa64acb797bc4afa6b1d3cc8798",
+        "runtime_manager_hash_sgx": "",
+        "runtime_manager_hash_tz": "",
+        "veracruz_server_url": "ec2-54-216-123-218.eu-west-1.compute.amazonaws.com:3014"
     }
    ```
    The additional fields returned with the policy are:
