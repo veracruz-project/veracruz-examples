@@ -6,7 +6,8 @@
 	url = https://github.com/mofanv/cONNXr
 [submodule "video-object-detection/darknet"]
 	path = video-object-detection/darknet
-	url = https://github.com/mofanv/darknet-src
+	url = https://github.com/veracruz-project/darknet
+	branch = veracruz
 [submodule "video-object-detection/openh264"]
 	path = video-object-detection/openh264
 	url = https://github.com/veracruz-project/openh264
