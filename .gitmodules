@@ -4,3 +4,7 @@
 [submodule "deep-learning-server/connxr"]
 	path = deep-learning-server/connxr
 	url = https://github.com/mofanv/cONNXr
+[submodule "video-object-detection"]
+	path = video-object-detection
+	url = https://github.com/veracruz-project/video-object-detection
+	branch = main
