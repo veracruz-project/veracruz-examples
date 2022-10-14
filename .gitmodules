@@ -1,6 +1,7 @@
 [submodule "deep-learning-server/src"]
 	path = deep-learning-server/src
-	url = https://github.com/mofanv/darknet-src
+	url = https://github.com/veracruz-project/darknet
+	branch = veracruz
 [submodule "deep-learning-server/connxr"]
 	path = deep-learning-server/connxr
-	url = https://github.com/mofanv/cONNXr
+	url = https://github.com/veracruz-project/cONNXr
