@@ -866,6 +866,19 @@ On this environment a full orchestrated end-to-end application is deployed using
 * A simple installation of k3s on AWS EC2 is described at [Zero to k3s Kubeconfig in seconds with k3sup](https://rancher.com/blog/2019/k3s-kubeconfig-in-seconds/)
 * Use kubernetes documentation on [Getting started](https://kubernetes.io/docs/setup/) or [Production environment](https://kubernetes.io/docs/setup/production-environment/) to install a working kubernetes on AWS EC2 instances.
 
+### Hugepages on nitro nodes
+
+* Nitro nodes require higepages enabled in the kernel.
+  * Creata a file /etc/sysctl.d/99-hugepages.conf with the contents below. The example uses up to 2.2GB (2@MB pages * 1100 pages)
+   ```
+   vm.nr_hugepages=1100
+   ```
+  * to enable a current running kernl the following command can be used
+   ```bash
+   sysctl -w vm.nr_hugepages=1100
+   ```
+  * Udate the /etc/nitro_enclaves/allocator.yaml with the size t is smaller or equal to the size allocated for hughpages
+
 ## Veracruz services
 
   * Attestation service 
@@ -929,7 +942,7 @@ On this environment a full orchestrated end-to-end application is deployed using
 
 #### Smarter-device-manager
 
-Even oj EKS a new updated configuration of smarter-device-manager need to be be installed
+Even at EKS a new updated configuration of smarter-device-manager need to be be installed
 1. Load the yaml files for smarter-device-manager
    ```bash
    kubectl apply -f smarter-device-manager-configmap-ec2-nitro.yaml
