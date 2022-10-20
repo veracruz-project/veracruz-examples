@@ -854,7 +854,7 @@ On this environment a full orchestrated end-to-end application is deployed using
 
 ### Veracruz runtime
 
-The tag iotex-demo-v1.3.0 from [veracruz repositoru](https://github.com/veracruz-project/veracruz) was used to run this example. Use this tag if it is desired to recreate the image used by VaaS
+The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz-project/veracruz) was used to run this example. Use this tag compiled for nitro if it is desired to recreate the image used by VaaS.
 
 ### Deploying on AWS EKS
 
