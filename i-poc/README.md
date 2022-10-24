@@ -72,9 +72,13 @@ A timeline of a full operation is described below.
 1. User application receives the last results and terminates the Veracruz instance using CCFaaS
 1. EC2 nitro instance is returned to the pool of free instances to be allocated.
 
+# VOD
+
+VOD is the application that runs inside veracruz, It provides privacy preserving image processing using ML. Please check the [README](https://github.com/veracruz-project/video-object-detection/tree/iotex-demo#readme) of the VoD example.
+ 
 # Veracruz Policy
 
-Veracruz Policyifor the purpose of the example is divided intro three parts: Infrastructure policy, Program policy and User policy. 
+Veracruz Policy for the purpose of the example is divided intro three parts: Infrastructure policy, Program policy and User policy. 
 
 * Infrastructure policy describes the Veracruz instance: endpoint that has this policy, runtime properties (hash and others) and which proxy attestation server is used by this Veracruz instance.
     * This portion is set by VaaS
