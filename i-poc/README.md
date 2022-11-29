@@ -74,7 +74,8 @@ A timeline of a full operation is described below.
 
 # VOD
 
-VOD is the application that runs inside veracruz, It provides privacy preserving image processing using ML. Please check the [README](https://github.com/veracruz-project/video-object-detection/tree/iotex-demo#readme) of the VoD example.
+VOD is the application that runs inside veracruz, It provides privacy preserving image processing using ML. Please check the [README](https://github.com/veracruz-project/video-object-detection/tree/iotex-demo#readme) of the VoD example.  
+It must be built separately from https://github.com/veracruz-project/video-object-detection/tree/504d0ffeb7842ddc399b9ebe858d574c9f90a627
  
 # Veracruz Policy
 
