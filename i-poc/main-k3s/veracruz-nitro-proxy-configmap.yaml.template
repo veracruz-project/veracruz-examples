@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: veracruz-nitro-proxy
+  namespace: default
+data:
+  CACert.pem: |
+              REPLACE_CACERT_PEM
+  CAKey.pem: |
+             REPLACE_CAKEY_PEM

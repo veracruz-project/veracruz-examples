@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: veracruz-ccfaas-app
+  namespace: default
+data:
+  PROGCert.pem: |
+              REPLACE_PROGCERT_PEM
+  PROGKey.pem: |
+             REPLACE_PROGKEY_PEM
