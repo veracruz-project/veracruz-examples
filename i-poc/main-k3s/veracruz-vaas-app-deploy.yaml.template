@@ -91,7 +91,7 @@ spec:
           value: |
                REPLACE_CACERT_PEM
         - name: RUNTIME_MANAGER_IMAGE
-          value: "veracruz/veracruz-nitro:v1.2.0"
+          value: "veracruz/veracruz-nitro:v1.3.3"
         - name: RUNTIME_MANAGER_HASH_NITRO
           value: RUNTIME_MANAGER_HASH_NITRO_USE
         ports:

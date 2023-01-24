@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: iotex-s3-app
-        image: veracruz/iotex-s3-veracruz-app:0.8.4
+        image: veracruz/iotex-s3-veracruz-app:0.8.6
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000
