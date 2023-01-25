@@ -23,9 +23,9 @@ function load_file_veracruz() {
 	PROGRAM_NAME=$3
 	LOCAL_FILE_NAME=$4
 
-	if [ ! -e "${FILE_NAME}" ]
+	if [ ! -e "${LOCAL_FILE_NAME}" ]
 	then
-		echo "ERROR: file \"${FILE_NAME}\" does not exist, bailing out"
+		echo "ERROR: file \"${LOCAL_FILE_NAME}\" does not exist, bailing out"
 		exit 1
 	fi
 

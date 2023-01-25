@@ -1145,92 +1145,208 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
    The script assumes that the file requires authentication to be accessed. All the AWS credentiails and S3_REGION are optional and can be removed from the script including the entry on ./iotex-user-app.py line
 
 1. Registering the function in CCFaaS
+
+  Two examples are available on [VOD](https://github.com/veracruz-project/video-object-detection.git). The difference is the size of the model utilized with the big being around 300MB in size.
+
+  1. Small model
  
-   ```bash
-    ./register-function-example.sh
-   ```
+     ```bash
+      ./register-function-small.sh
+     ```
+   
+     The result should be similar to the one presented below
+
+     ```bash
+     Accessing CCFaaS at XXX.XXX.XXX.XXX:5010
+       Getting function/linear-regression
+       Not found
+       linear-regression function with data below
+       {
+         "function": "linear-regression",
+         "execution_strategy": "Interpretation",
+         "programs": [
+           {
+             "id": 0,
+             "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
+             "program_file_name": "linear-regression.wasm",
+             "file_rights": [
+               {
+                 "file_name": "input-0",
+                 "rights": 8198
+               },
+               {
+                 "file_name": "output",
+                 "rights": 533572
+               }
+             ]
+           }
+         ]
+       }
+       Register linear-regression function
+           {
+             "execution_strategy": "Interpretation",
+             "function": "linear-regression",
+             "programs": [
+               {
+                  "file_rights": [
+                   {
+                    "file_name": "input-0",
+                     "rights": 8198
+                   },
+                   {
+                     "file_name": "output",
+                     "rights": 533572
+                   }
+                 ],
+                 "id": 0,
+                 "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
+                 "program_file_name": "linear-regression.wasm"
+                }
+             ]
+            }
+       
+       Create linear-regression  program linear-regression.wasm
+           <p>function loaded!</p>
+     ```
  
-   The result should be simmilar to the one presented below
-   ```bash
-   Accessing CCFaaS at XXX.XXX.XXX.XXX:5010
-     Getting function/linear-regression
-     Not found
-     linear-regression function with data below
-     {
-       "function": "linear-regression",
-       "execution_strategy": "Interpretation",
-       "programs": [
-         {
-           "id": 0,
-           "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-           "program_file_name": "linear-regression.wasm",
-           "file_rights": [
-             {
-               "file_name": "input-0",
-               "rights": 8198
-             },
-             {
-               "file_name": "output",
-               "rights": 533572
-             }
-           ]
-         }
-       ]
-     }
-     Register linear-regression function
-         {
-           "execution_strategy": "Interpretation",
-           "function": "linear-regression",
-           "programs": [
-             {
-                "file_rights": [
-                 {
-                  "file_name": "input-0",
-                   "rights": 8198
-                 },
-                 {
-                   "file_name": "output",
-                   "rights": 533572
-                 }
-               ],
-               "id": 0,
-               "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-               "program_file_name": "linear-regression.wasm"
-              }
-           ]
-          }
-     
-     Create linear-regression  program linear-regression.wasm
-         <p>function loaded!</p>
-   ```
+  2. Big model
  
+     ```bash
+      ./register-function-big.sh
+     ```
+   
+     The result should be similar to the one presented below
+  
+     ```bash
+     Accessing CCFaaS at XXX.XXX.XXX.XXX:5010
+       Getting function/linear-regression
+       Not found
+       linear-regression function with data below
+       {
+         "function": "linear-regression",
+         "execution_strategy": "Interpretation",
+         "programs": [
+           {
+             "id": 0,
+             "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
+             "program_file_name": "linear-regression.wasm",
+             "file_rights": [
+               {
+                 "file_name": "input-0",
+                 "rights": 8198
+               },
+               {
+                 "file_name": "output",
+                 "rights": 533572
+               }
+             ]
+           }
+         ]
+       }
+       Register linear-regression function
+           {
+             "execution_strategy": "Interpretation",
+             "function": "linear-regression",
+             "programs": [
+               {
+                  "file_rights": [
+                   {
+                    "file_name": "input-0",
+                     "rights": 8198
+                   },
+                   {
+                     "file_name": "output",
+                     "rights": 533572
+                   }
+                 ],
+                 "id": 0,
+                 "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
+                 "program_file_name": "linear-regression.wasm"
+                }
+             ]
+            }
+       
+       Create linear-regression  program linear-regression.wasm
+           <p>function loaded!</p>
+     ```
 1. Running the example
-   ```bash
-   ./iotex-user-app.sh
-    ```
 
-    The result should be similar to one presented below
-    ```bash
-    CCFaaS in http://XXX.XXX.XXX.XXX:5010 and Iotex-s3 Faas in http://XXX.XXX.XXX.XXX:5020
-    User certificate loaded from USERcert.pem and key from USERkey.pem
-    S3 certificate created
-    Creating instance URL=http://XXX.XXX.XXX.XXX:5010/instance
-    Response = <Response [200]>
-    Writing policy to policy_test1
-    Creating s3 app URL=http://XXX.XXX.XXX.XXX:5020/s3_stream_veracruz
-    execute: ./execute_program.sh policy_test1 USERcert.pem USERkey.pem  linear-regression.wasm linear-regression.dat.output
-    writing RSA key
-    /home/ubuntu/i-poc/iotex-user-app/veracruz-client policy_test1 --results linear-regression.wasm=linear-regression.dat.output --identity USERcert.pem --key USERkey.pem
-    Loaded policy policy_test1 bf6469a15394ba244166fe1159883ba44ce9ebb714e267d0fe36d25f71116952
-    Connecting to veracruz-nitro-server:3014
-    Reading <enclave>/linear-regression.wasm into linear-regression.dat.output
-    Shutting down enclave
-    Deleting instance URL=http://XXX.XXX.XXX.XXX:5010/instance/test1
-    ```
+   1. Small model example
 
+      ```bash
+      python3 iotex-user-app.py vod_small \
+                                0 \
+                                http://<CCFaaS Host IP>:5010 \
+                                http://<Iotex S3 APP Host IP>:5020 \
+                                rsh-veracruz-iotex-use-case \
+                                small/in_enc.h264 \
+                                small/key \
+                                small/iv \
+                                region_name="<AWS Region Name>" \
+                                aws_access_key_id="<AWS Access Key" \
+                                aws_secret_access_key="<AWS Secret Access Key>"
+      ```
+  
+      The result should be similar to one presented below
+
+      ```bash
+      CCFaaS in http://XXX.XXX.XXX.XXX:5010 and Iotex-s3 Faas in http://XXX.XXX.XXX.XXX:5020
+      User certificate loaded from USERcert.pem and key from USERkey.pem
+      S3 certificate created
+      Creating instance URL=http://XXX.XXX.XXX.XXX:5010/instance
+      Response = <Response [200]>
+      Writing policy to policy_test1
+      Creating s3 app URL=http://XXX.XXX.XXX.XXX:5020/s3_stream_veracruz
+      execute: ./execute_program.sh policy_test1 USERcert.pem USERkey.pem  linear-regression.wasm linear-regression.dat.output
+      writing RSA key
+      /home/ubuntu/i-poc/iotex-user-app/veracruz-client policy_test1 --results linear-regression.wasm=linear-regression.dat.output --identity USERcert.pem --key USERkey.pem
+      Loaded policy policy_test1 bf6469a15394ba244166fe1159883ba44ce9ebb714e267d0fe36d25f71116952
+      Connecting to veracruz-nitro-server:3014
+      Reading <enclave>/linear-regression.wasm into linear-regression.dat.output
+      Shutting down enclave
+      Deleting instance URL=http://XXX.XXX.XXX.XXX:5010/instance/test1
+      ```
+  
+   1. Big model example
+
+      ```bash
+      python3 iotex-user-app.py vod_big \
+                                0 \
+                                http://<CCFaaS Host IP>:5010 \
+                                http://<Iotex S3 APP Host IP>:5020 \
+                                rsh-veracruz-iotex-use-case \
+                                big/in_enc.h264 \
+                                big/key \
+                                big/iv \
+                                region_name="<AWS Region Name>" \
+                                aws_access_key_id="<AWS Access Key" \
+                                aws_secret_access_key="<AWS Secret Access Key>"
+      ```
+  
+      The result should be similar to one presented below
+
+      ```bash
+      CCFaaS in http://XXX.XXX.XXX.XXX:5010 and Iotex-s3 Faas in http://XXX.XXX.XXX.XXX:5020
+      User certificate loaded from USERcert.pem and key from USERkey.pem
+      S3 certificate created
+      Creating instance URL=http://XXX.XXX.XXX.XXX:5010/instance
+      Response = <Response [200]>
+      Writing policy to policy_test1
+      Creating s3 app URL=http://XXX.XXX.XXX.XXX:5020/s3_stream_veracruz
+      execute: ./execute_program.sh policy_test1 USERcert.pem USERkey.pem  linear-regression.wasm linear-regression.dat.output
+      writing RSA key
+      /home/ubuntu/i-poc/iotex-user-app/veracruz-client policy_test1 --results linear-regression.wasm=linear-regression.dat.output --identity USERcert.pem --key USERkey.pem
+      Loaded policy policy_test1 bf6469a15394ba244166fe1159883ba44ce9ebb714e267d0fe36d25f71116952
+      Connecting to veracruz-nitro-server:3014
+      Reading <enclave>/linear-regression.wasm into linear-regression.dat.output
+      Shutting down enclave
+      Deleting instance URL=http://XXX.XXX.XXX.XXX:5010/instance/test1
+      ```
+  
 1. Troubleshooting:
 
    * Incorrect S3 credential will result in a similar output to the one presented below.
+
     ```bash
     CCFaaS in http://XXX.XXX.XXX.XXX:5010 and Iotex-s3 Faas in http://XXX.XXX.XXX>XXX:5020
     User certificate loaded from USERcert.pem and key from USERkey.pem

@@ -5,14 +5,26 @@ CCFAAS_PORT=${2:-"5010"}
 
 echo "Acessing CCFaaS at ${CCFAAS_HOST}:${CCFAAS_PORT}"
 
-JSON_FUNCTION_POLICY=$(cat function_policy_big.json)
 FUNCTION_NAME="vod_big"
 
-BUNDLE_PATH="."
+BUNDLE_PATH="big"
 client_path="../../veracruz-client"
-PROGRAM_PATH="."
+
+TAG="iotex-demo-v1.3.0"
 
 . register-function-aux.sh
+
+echo "=============Downloading tarball containing the program, program data (model and configuration) and inputs (encrypted video, key, IV)"
+if [ ! -e "${BUNDLE_PATH}/detector.wasm" ]; then
+		wget -q --content-on-error -nv https://github.com/veracruz-project/video-object-detection/releases/download/${TAG}/bundle_big.tar.gz
+		mkdir ${BUNDLE_PATH}
+		tar -xf bundle_small.tar.gz -C ${BUNDLE_PATH}
+fi
+PROGRAM_HASH=$(sha256sum "${BUNDLE_PATH}/detector.wasm" | cut -d " "  -f 1)
+COCO_HASH=$(sha256sum "${BUNDLE_PATH}/coco.names" | cut -d " "  -f 1)
+YOLOV3_CFG_HASH=$(sha256sum "${BUNDLE_PATH}/yolov3.cfg" | cut -d " "  -f 1)
+YOLOV3_WEIGHTS_HASH=$(sha256sum "${BUNDLE_PATH}/yolov3.weights" | cut -d " "  -f 1)
+JSON_FUNCTION_POLICY=$(cat function_policy_big.json | sed -e "s/PROGRAM_HASH/${PROGRAM_HASH}/g" -e "s/COCO_HASH/${COCO_HASH}/g" -e "s/YOLOV3_CFG_HASH/${YOLOV3_CFG_HASH}/g" -e "s/YOLOV3_WEIGHTS_HASH/${YOLOV3_WEIGHTS_HASH}/g")
 
 echo "=============Deleting function"
 pretty_print_wget "$(curl -X DELETE http://${CCFAAS_HOST}:${CCFAAS_PORT}/function/${FUNCTION_NAME} 2>&1)"
@@ -21,10 +33,9 @@ echo "=============Registering function"
 pretty_print_wget "$(wget -q --content-on-error -nv  -O- --post-data="${JSON_FUNCTION_POLICY}" --header='Content-Type:application/json' http://${CCFAAS_HOST}:${CCFAAS_PORT}/function 2>&1)"
 
 echo "=============Provisioning program"
-load_file_veracruz "${FUNCTION_NAME}" "program" "/program/detector.wasm" "$PROGRAM_PATH/detector.wasm" 
-#pretty_print_wget "$(wget -q --content-on-error -nv  -O- --post-file=$PROGRAM_PATH/detector.wasm --header='Content-Type:application/json' http://${CCFAAS_HOST}:${CCFAAS_PORT}/function/${FUNCTION_NAME}/program/$(echo -n "/program/detector.wasm" | base64) 2>&1)"
+load_file_veracruz "${FUNCTION_NAME}" "program" "/program/detector.wasm" "${BUNDLE_PATH}/detector.wasm" 
 
 echo "=============Provisioning data"
-load_file_veracruz "${FUNCTION_NAME}" "data_file" "/program_data/coco.names" "$BUNDLE_PATH/input/coco.names"
-load_file_veracruz "${FUNCTION_NAME}" "data_file" "/program_data/yolov3.cfg" "$BUNDLE_PATH/input/yolov3.cfg"
-load_file_veracruz "${FUNCTION_NAME}" "data_file" "/program_data/yolov3.weights" "$BUNDLE_PATH/input/yolov3.weights"
+load_file_veracruz "${FUNCTION_NAME}" "data_file" "/program_data/coco.names" "${BUNDLE_PATH}/coco.names"
+load_file_veracruz "${FUNCTION_NAME}" "data_file" "/program_data/yolov3.cfg" "${BUNDLE_PATH}/yolov3.cfg"
+load_file_veracruz "${FUNCTION_NAME}" "data_file" "/program_data/yolov3.weights" "${BUNDLE_PATH}/yolov3.weights"
