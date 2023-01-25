@@ -1,6 +1,6 @@
 # i-poc
 
-The i_poc is an end-to-end example of using veracruz to run confidentail computing functions in the cloud. The example runs on AWS and utlizes AWS Nitro.
+The i_poc is an end-to-end example of using veracruz to run confidential computing functions in the cloud. The example runs on AWS and utilizes AWS Nitro.
 
 This is the high level Iotex PoC description.  The key here is that the processing of the video is triggered by the user from their laptop (in the example), and the object detection happens in Nitro Enclaves on top of Veracruz.  
 
@@ -19,7 +19,7 @@ The primary components of the example are:
 * Cloud infrastructure that runs on kubernetes
    * VaaS (Veracruz as a Service)
    * CCFaaS (Confidential Computing Function as a Service)
-   * iotex-s3-app: copies files fom S3 to a veracruz instance
+   * iotex-s3-app: copies files from S3 to a veracruz instance
 * iotex-user-app: represents the end user application
 * VOD: veracruz application that process the decrypt and process the video 
 
@@ -67,7 +67,7 @@ A timeline of a full operation is described below.
    * Upper pink FaaS arrow
 1. Iotex S3 app starts an instance of itself that connects to AWS S3 and  Veracruz instance and sends the encrypted key and then reads the video file and sends it to the Veracruz instance
 1. Iotex S3 app instance closes the connection to Veracruz at the end of the file and terminates itself.
-1. User application exectutes the program inside the enclave using rhe provided video
+1. User application executes the program inside the enclave using the provided video
 1. Veracruz instance process the video and send the results to the output file
 1. User application receives the last results and terminates the Veracruz instance using CCFaaS
 1. EC2 nitro instance is returned to the pool of free instances to be allocated.
@@ -136,7 +136,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
     }
    ```
 
-   This policy defines two identities. The first one only has write access to the directory /s3_app_input/. The other Has access to execute programs on the diretory "/program" and read/write access to /user_input/,/output/,stdout and stderr.
+   This policy defines two identities. The first one only has write access to the directory /s3_app_input/. The other Has access to execute programs on the directory "/program" and read/write access to /user_input/,/output/,stdout and stderr.
  
    The following json-schema describes the schema allowed when an user policy is provided. CCFaaS only accepts user policies that pass this schema.
 
@@ -367,9 +367,9 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
 
    * <strong>function</strong>: identifies the function name to register
    * <strong>execution_strategy</strong>: normally "Interpretation" but other modes may be supported in the future
-   * <strong>max_memory_mib</strong>: iminimum amount of memory on the enclave to run this application
+   * <strong>max_memory_mib</strong>: minimum amount of memory on the enclave to run this application
    * <strong>debug</strong>: running on debug mode if true
-   * <strong>enable_clock</strong>: clock in encleve has current time and date if true
+   * <strong>enable_clock</strong>: clock in enclave has current time and date if true
    * <strong>programs</strong>: list of programs (executables) that is part of the computation for this function (all of them are instantiated for this function to execute correctly)
    * <strong>file_rights</strong>: List of filenames and permissions associated with this program
    * <strong>pi_hash</strong>: sha256 hash of the executable or data file
@@ -505,7 +505,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
     }
    ```
 
-   This policy is the corresponding policy that CCFaaS sends to VaaS whan the function "vod" is instantiated as "instance1". It also represents a policy that VaaS requires when a veracruz instance is requested.
+   This policy is the corresponding policy that CCFaaS sends to VaaS when the function "vod" is instantiated as "instance1". It also represents a policy that VaaS requires when a veracruz instance is requested.
    In this policy a third identity is provided "-----BEGIN CERTIFICATE-----\nPPPPPPPPP\n-----END CERTIFICATE-----" that allows the programs to be provided. It only allows writing to the programs and program_data directory so it can provision the program.
 
    The following json-schema describes the schema allowed. 
@@ -752,11 +752,11 @@ VaaS provides a REST (CD) interface that allows multiple instances of Veracruz t
 
 VaaS require a valid VaaS policy (essentially a Program policy and User policy together) as input and provides a Veracruz instance loaded with a full policy (Infrastructure policy is added by VaaS) returning that policy if the instance is successfully allocated.
 
-|Action	| HTTP method | URL| URL Parametera | Input Object | Output Object |
+|Action	| HTTP method | URL| URL Parameter | Input Object | Output Object |
 | -- | --- | --- | --- | --- | --- |
-|CREATE	|POST |	/veracruz | | VasS Policy | |
+|CREATE	|POST |	/veracruz | | VaaS Policy | |
 |READ |	GET | /veracruz |  instance_Id instance_Hash | | List of Veracruz instances |
-|READ|	GET | /veracruz/\<name\> | | Statis of Veracruz Instance |
+|READ|	GET | /veracruz/\<name\> | | Information of Veracruz Instance |
 |DELETE	|DELETE | /veracruz/\<name\> |  instance_id instance_hash | | |
 
 ## CCFaaS (Confidential Computing Function as a Service)
@@ -765,7 +765,7 @@ CCFaaS provides a REST (CRD) interface that allows confidential computing functi
 CCFaaS has three main concepts. Function, Program and Instances. Function represents a computation to be executed in Veracruz and it is mainly the program policy information. Program allows the CCFaaS to pre-load executables into Veracruz, and instance is a instance of a function running in a Veracruz. An instance to be created requires a user policy a reference to a registered function.
 Multiple instances can be created from the same registered function. 
 
-|Action	| HTTP method | URL| URL Parametera | Input Object | Output Object |
+|Action	| HTTP method | URL| URL Parameter | Input Object | Output Object |
 | -- | --- | --- | --- | --- | --- |
 | CREATE | POST	 | /function  | | CCFaaS policy | |
 | READ | GET	 | /function  | | | List of functions registered |
@@ -786,9 +786,9 @@ Multiple instances can be created from the same registered function.
 
 # Iotex-S3 description
 
-Iotex-S3-app provides an interface from S3 to veracruz so the file can be piped through the cloud instead of bewing downloaded to the user computer and uploaded again.
+Iotex-S3-app provides an interface from S3 to veracruz so the file can be piped through the cloud instead of being downloaded to the user computer and uploaded again.
 
-|Action | HTTP method | URL| URL Parametera | Input Object | Output Object |
+|Action | HTTP method | URL| URL Parameter | Input Object | Output Object |
 | -- | --- | --- | --- | --- | --- |
 |CREATE |POST | /s3_stream_veracruz | | iotex-s3-app object  | |
 
@@ -828,13 +828,13 @@ Iotex-S3-app provides an interface from S3 to veracruz so the file can be piped 
    * <strong>region_name</strong>: Optional region that this S3 object resides
    * <strong>bucket</strong>: Bucket of this S3 object
    * <strong>filename</strong>: filename of the S3 object
-   * <strong>aws_access_key_id</strong>: Optionsl AWS authemntication for CLI S3 access of this object (only read to this object is required)
-   * <strong>aws_secret_access_key</strong>: Optional AWS authemntication for CLI S3 access of this object (only read to this object is required)
-   * <strong>aws_session_token</strong>: Optional AWS authemntication for CLI S3 access of this object (only read to this object is required)
+   * <strong>aws_access_key_id</strong>: Optional AWS authentication for CLI S3 access of this object (only read to this object is required)
+   * <strong>aws_secret_access_key</strong>: Optional AWS authentication for CLI S3 access of this object (only read to this object is required)
+   * <strong>aws_session_token</strong>: Optional AWS authentication for CLI S3 access of this object (only read to this object is required)
    * <strong>veracruz</strong>: Veracruz instance to access and authentication/authorization information
    * <strong>filename</strong>: Filename in Veracruz instance to copy the S3 file to
    * <strong>policy</strong>: policy information for the Veracruz instance
-   * <strong>certificatie</strong>: certificate to use by this application to authenticate to the veracruz instance
+   * <strong>certificate</strong>: certificate to use by this application to authenticate to the veracruz instance
    * <strong>key</strong>: key that correspond to the certificate provided
 
 # Running demo application (including Veracruz) as a service under k3s/k8s 
@@ -876,15 +876,15 @@ The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz
 ### Hugepages on nitro nodes
 
 * Nitro nodes require higepages enabled in the kernel.
-  * Creata a file /etc/sysctl.d/99-hugepages.conf with the contents below. The example uses up to 2.2GB (2@MB pages * 1100 pages)
+  * Create a file /etc/sysctl.d/99-hugepages.conf with the contents below. The example uses up to 2.2GB (2@MB pages * 1100 pages)
    ```
    vm.nr_hugepages=1100
    ```
-  * to enable a current running kernl the following command can be used
+  * to enable a current running kernel the following command can be used
    ```bash
    sysctl -w vm.nr_hugepages=1100
    ```
-  * Udate the /etc/nitro_enclaves/allocator.yaml with the size t is smaller or equal to the size allocated for hughpages
+  * Update the /etc/nitro_enclaves/allocator.yaml with the size t is smaller or equal to the size allocated for hugepages
 
 ## Veracruz services
 
@@ -1129,7 +1129,7 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
     * uniqueID: defines a unique name for this instance
     * URL of CCFaaS: where to find CCFaaS, normally should be like http:://<IP>:5010
     * URL of iotex-S3: where to find iotex-s3-app, normally should be like http:://<IP>:5020
-    * decryption key path: path of the key to decrypt the vide
+    * decryption key path: path of the key to decrypt the video
     * decryption IV path: path of where to put the decryption key on the enclave
     * S3 authentication>: set of "key=value" that contains the authentication to access the video in S3
 
@@ -1142,7 +1142,7 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
    S3_BUCKET="<REPLACE WITH S3 BUCKET"
    S3_FILE="<REPLACE WITH S3 FILE?"
    ```
-   The script assumes that the file requires authentication to be accessed. All the AWS credentiails and S3_REGION are optional and can be removed from the script including the entry on ./iotex-user-app.py line
+   The script assumes that the file requires authentication to be accessed. All the AWS credentials and S3_REGION are optional and can be removed from the script including the entry on ./iotex-user-app.py line
 
 1. Registering the function in CCFaaS
 
@@ -1377,5 +1377,5 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
 * Remove CCFaaS instances if the corresponding Veracruz instance dies
 * Allow installation within a defined namespace
 * Convert YAML files to helm charts
-* Remote program repositories so a function can be instantiated by asking a remote repository to  downlowd specified programs at the instance
-  * API to communicate with remote rpositories, key management.TBD
+* Remote program repositories so a function can be instantiated by asking a remote repository to  download specified programs at the instance
+  * API to communicate with remote repositories, key management.TBD
