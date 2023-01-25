@@ -8,7 +8,6 @@ echo "Acessing CCFaaS at ${CCFAAS_HOST}:${CCFAAS_PORT}"
 FUNCTION_NAME="vod_big"
 
 BUNDLE_PATH="big"
-client_path="../../veracruz-client"
 
 TAG="iotex-demo-v1.3.0"
 
@@ -18,7 +17,7 @@ echo "=============Downloading tarball containing the program, program data (mod
 if [ ! -e "${BUNDLE_PATH}/detector.wasm" ]; then
 		wget -q --content-on-error -nv https://github.com/veracruz-project/video-object-detection/releases/download/${TAG}/bundle_big.tar.gz
 		mkdir ${BUNDLE_PATH}
-		tar -xf bundle_small.tar.gz -C ${BUNDLE_PATH}
+		tar -xf bundle_big.tar.gz -C ${BUNDLE_PATH}
 fi
 PROGRAM_HASH=$(sha256sum "${BUNDLE_PATH}/detector.wasm" | cut -d " "  -f 1)
 COCO_HASH=$(sha256sum "${BUNDLE_PATH}/coco.names" | cut -d " "  -f 1)

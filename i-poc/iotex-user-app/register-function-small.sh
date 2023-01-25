@@ -8,7 +8,6 @@ echo "Acessing CCFaaS at ${CCFAAS_HOST}:${CCFAAS_PORT}"
 FUNCTION_NAME="vod_small"
 
 BUNDLE_PATH="small"
-client_path="../../veracruz-client"
 
 TAG="iotex-demo-v1.3.0"
 
