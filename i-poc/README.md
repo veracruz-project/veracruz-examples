@@ -1,6 +1,6 @@
 # i-poc
 
-The i_poc is an end-to-end example of using veracruz to run confidential computing functions in the cloud. The example runs on AWS and utilizes AWS Nitro.
+The i-PoC is an end-to-end example of using veracruz to run confidential computing functions in the cloud. The example runs on AWS and utilizes AWS Nitro.
 
 This is the high level Iotex PoC description.  The key here is that the processing of the video is triggered by the user from their laptop (in the example), and the object detection happens in Nitro Enclaves on top of Veracruz.  
 
@@ -15,6 +15,7 @@ graph LR;
 ```
 
 The primary components of the example are:
+
 * Veracruz runtime
 * Cloud infrastructure that runs on kubernetes
    * VaaS (Veracruz as a Service)
@@ -188,6 +189,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
    * <strong>file_rights</strong>: List of filenames and permissions associated with that file for this identity
    * <strong>file_name</strong>: file that permissions apply (this file should exist on the registered function):
    * <strong>rights</strong>: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table below
+
       ```
       FD_DATASYNC               = 2^0 = 1
       FD_READ                   = 2^1 = 2
@@ -220,6 +222,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
       SOCK_SHUTDOWN             = 2^28 = 268435456
       FILE_EXECUTE              = 2^29 = 536870912
       ```
+
       In the example above:
 
          * 533572 = 2^2 + 2^6 + 2^10 + 2^13 + 2^19
@@ -752,8 +755,10 @@ VaaS provides a REST (CD) interface that allows multiple instances of Veracruz t
 
 VaaS require a valid VaaS policy (essentially a Program policy and User policy together) as input and provides a Veracruz instance loaded with a full policy (Infrastructure policy is added by VaaS) returning that policy if the instance is successfully allocated.
 
+
+
 |Action	| HTTP method | URL| URL Parameter | Input Object | Output Object |
-| -- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 |CREATE	|POST |	/veracruz | | VaaS Policy | |
 |READ |	GET | /veracruz |  instance_Id instance_Hash | | List of Veracruz instances |
 |READ|	GET | /veracruz/\<name\> | | Information of Veracruz Instance |
@@ -766,7 +771,7 @@ CCFaaS has three main concepts. Function, Program and Instances. Function repres
 Multiple instances can be created from the same registered function. 
 
 |Action	| HTTP method | URL| URL Parameter | Input Object | Output Object |
-| -- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 | CREATE | POST	 | /function  | | CCFaaS policy | |
 | READ | GET	 | /function  | | | List of functions registered |
 | READ | GET	   | /function/\<name\> |  | CCFaaS policy  |
@@ -789,7 +794,7 @@ Multiple instances can be created from the same registered function.
 Iotex-S3-app provides an interface from S3 to veracruz so the file can be piped through the cloud instead of being downloaded to the user computer and uploaded again.
 
 |Action | HTTP method | URL| URL Parameter | Input Object | Output Object |
-| -- | --- | --- | --- | --- | --- |
+| --- | --- | --- | --- | --- | --- |
 |CREATE |POST | /s3_stream_veracruz | | iotex-s3-app object  | |
 
    ```json
@@ -1037,6 +1042,7 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 #### VaaS
 
 1. Load the yaml files for the VaaS
+
    ```bash
    kubectl apply -f veracruz-vaas-app-service.yaml
    kubectl apply -f veracruz-vaas-app-deploy.yaml
@@ -1044,10 +1050,12 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 
    ```
 1. Verify that everything is installed and running
+
    ```bash
    kubectl get all
    ```
    The result should be at least those objects, additional objects can exist if other things are running
+   
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX
@@ -1075,6 +1083,7 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 #### CCFaaS
 
 1. Load the yaml files for the CCFaaS
+
    ```bash
    kubectl apply -f veracruz-ccfaas-app-configmap.yaml
    kubectl apply -f veracruz-ccfaas-app-service.yaml
@@ -1082,10 +1091,12 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 
    ```
 1. Verify that everything is installed and running
+
    ```bash
    kubectl get all
    ```
    The result should be at least those objects, additional objects can exist if other things are running
+
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX
@@ -1119,6 +1130,7 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 The iotex-user-app directory on the repository will execute the I-PoC example end-to-end according the timeline described above
 
 1. iotex-user-app.py accepts the following command line
+
    ```bash
 	python iotex-user-app.py <function name> <uniqueID> <URL of CCFaaS> <URL of iotex-S3> <bucket of S3> <File in S3> <decryption key path> <decryption IV path> <S3 authentication>")
    ```
@@ -1134,6 +1146,7 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
     * S3 authentication>: set of "key=value" that contains the authentication to access the video in S3
 
 1. Edit the file iotex-user-app.sh to set the correct information of the S3 file and S3 authentication to use:
+
    ```bash
    export AWS_ACCESS_KEY_ID="<REPLACE WITH AWS_ACCESS_KEY_ID>"
    export AWS_SECRET_ACCESS_KEY="<REPLACE WITH AWS_SECRET_ACCESS_KEY>"
