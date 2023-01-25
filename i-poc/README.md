@@ -1269,6 +1269,13 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
        Create linear-regression  program linear-regression.wasm
            <p>function loaded!</p>
      ```
+
+1. Adding the video file to S3
+
+   The example assumes that a file on a S3 bucket contains the encrypted video. So a S3 bucket needs to be created, if a suitable one is not available, and credentials to read that S3 bucket and file have to be provided. Those credentials will be used by the iotex-user-app to instantiate an application that copies that file to the enclave.
+   
+    Copy the file small/in_enc.h264 or big/in_enc.h264 to the S3 Bucket (both are equal). We will need the bucket name, 
+ 
 1. Running the example
 
    1. Small model example
@@ -1278,8 +1285,8 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
                                 0 \
                                 http://<CCFaaS Host IP>:5010 \
                                 http://<Iotex S3 APP Host IP>:5020 \
-                                rsh-veracruz-iotex-use-case \
-                                small/in_enc.h264 \
+                                <AWS S3 bucket name> \
+                                <AWS S3 file name> \
                                 small/key \
                                 small/iv \
                                 region_name="<AWS Region Name>" \
@@ -1314,8 +1321,8 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
                                 0 \
                                 http://<CCFaaS Host IP>:5010 \
                                 http://<Iotex S3 APP Host IP>:5020 \
-                                rsh-veracruz-iotex-use-case \
-                                big/in_enc.h264 \
+                                <AWS S3 bucket name> \
+                                <AWS S3 file name> \
                                 big/key \
                                 big/iv \
                                 region_name="<AWS Region Name>" \
