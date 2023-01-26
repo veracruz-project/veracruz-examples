@@ -1159,7 +1159,8 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
 
 1. Registering the function in CCFaaS
 
-  Two examples are available on [VOD](https://github.com/veracruz-project/video-object-detection.git). The difference is the size of the model utilized with the big being around 300MB in size.
+  Two examples are available on [VOD](https://github.com/veracruz-project/video-object-detection.git). The difference between big and small is the size of the model, small being in 30MBs and big being around 300MBs.
+  The current version VOD in use is v1.3.3.
 
   1. Small model
  

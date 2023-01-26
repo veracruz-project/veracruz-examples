@@ -7,14 +7,15 @@ echo "Acessing CCFaaS at ${CCFAAS_HOST}:${CCFAAS_PORT}"
 
 FUNCTION_NAME="vod_big"
 
-BUNDLE_PATH="big"
 
-TAG="iotex-demo-v1.3.0"
+TAG="iotex-demo-v1.3.3"
+
+BUNDLE_PATH="big-"${TAG}
 
 . register-function-aux.sh
 
-echo "=============Downloading tarball containing the program, program data (model and configuration) and inputs (encrypted video, key, IV)"
 if [ ! -e "${BUNDLE_PATH}/detector.wasm" ]; then
+		echo "=============Downloading tarball containing the program, program data (model and configuration) and example inputs (encrypted video, key, IV)"
 		wget -q --content-on-error -nv https://github.com/veracruz-project/video-object-detection/releases/download/${TAG}/bundle_big.tar.gz
 		mkdir ${BUNDLE_PATH}
 		tar -xf bundle_big.tar.gz -C ${BUNDLE_PATH}
