@@ -734,7 +734,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
         "runtime_manager_hash_nitro": "f2ae0de7bec92bcdbd4a96e2ae08d85a575f1aa64acb797bc4afa6b1d3cc8798",
         "runtime_manager_hash_sgx": "",
         "runtime_manager_hash_tz": "",
-        "veracruz_server_url": "ec2-54-216-123-218.eu-west-1.compute.amazonaws.com:3014"
+        "veracruz_server_url": "<Veracruz instance IP>:<Veracruz instance Port>"
     }
    ```
    The additional fields returned with the policy are:
@@ -1139,7 +1139,7 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
 
     * function name: determines the specific CCFaaS function to instantiate
     * uniqueID: defines a unique name for this instance
-    * URL of CCFaaS: where to find CCFaaS, normally should be like http:://<IP>:5010
+    * URL of CCFaaS: where to find CCFaaS, normally should be like http:://<IP>:<CCFaaS Host Port>
     * URL of iotex-S3: where to find iotex-s3-app, normally should be like http:://<IP>:5020
     * decryption key path: path of the key to decrypt the video
     * decryption IV path: path of where to put the decryption key on the enclave
@@ -1171,56 +1171,21 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
      The result should be similar to the one presented below
 
      ```bash
-     Accessing CCFaaS at XXX.XXX.XXX.XXX:5010
-       Getting function/linear-regression
-       Not found
-       linear-regression function with data below
-       {
-         "function": "linear-regression",
-         "execution_strategy": "Interpretation",
-         "programs": [
-           {
-             "id": 0,
-             "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-             "program_file_name": "linear-regression.wasm",
-             "file_rights": [
-               {
-                 "file_name": "input-0",
-                 "rights": 8198
-               },
-               {
-                 "file_name": "output",
-                 "rights": 533572
-               }
-             ]
-           }
-         ]
-       }
-       Register linear-regression function
-           {
-             "execution_strategy": "Interpretation",
-             "function": "linear-regression",
-             "programs": [
-               {
-                  "file_rights": [
-                   {
-                    "file_name": "input-0",
-                     "rights": 8198
-                   },
-                   {
-                     "file_name": "output",
-                     "rights": 533572
-                   }
-                 ],
-                 "id": 0,
-                 "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-                 "program_file_name": "linear-regression.wasm"
-                }
-             ]
-            }
-       
-       Create linear-regression  program linear-regression.wasm
-           <p>function loaded!</p>
+     Acessing CCFaaS at <CCFaas Host IP>:<CCFaaS Host Port>
+     =============Deleting function
+       % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                      Dload  Upload   Total   Spent    Left  Speed
+       0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+     100    53  100    53    0     0  18675      0 --:--:-- --:--:-- --:--:-- 26500
+     <p>Veracruz instance 'vod_small' does not existe!</p>
+     =============Registering function
+     {"data_files":[{"data_file":"/program_data/coco.names","pi_hash":"634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"},{"data_file":"/program_data/yolov3.cfg","pi_hash":"15bd05a05354738b051e5f5b1ad6d2eb800b866c63be3d1766bf168960e8d950"},{"data_file":"/program_data/yolov3.weights","pi_hash":"dccea06f59b781ec1234ddf8d1e94b9519a97f4245748a7d4db75d5b7080a42c"}],"debug":true,"enable_clock":true,"execution_strategy":"JIT","file_rights":[{"file_name":"/program/","rights":534084},{"file_name":"/program_data/","rights":534084}],"function":"vod_small","max_memory_mib":2000,"programs":[{"file_rights":[{"file_name":"/program_data/","rights":24582},{"file_name":"/s3_app_input/","rights":24582},{"file_name":"/user_input/","rights":24582},{"file_name":"/output/","rights":550470},{"file_name":"/program_internal/","rights":550470},{"file_name":"stdout","rights":534084},{"file_name":"stderr","rights":534084}],"id":0,"pi_hash":"1324be50d91ec6496ea5f8a18d2d898e0ddda1b3e7497682c990e917d4661c3c","program_file_name":"/program/detector.wasm"}]}
+     =============Provisioning program
+     <p>function loaded!</p>
+     =============Provisioning data
+     <p>data_file /program_data/coco.names loaded!</p>
+     <p>data_file /program_data/yolov3.cfg loaded!</p>
+     <p>data_file /program_data/yolov3.weights loaded!</p>
      ```
  
   2. Big model
@@ -1232,56 +1197,21 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
      The result should be similar to the one presented below
   
      ```bash
-     Accessing CCFaaS at XXX.XXX.XXX.XXX:5010
-       Getting function/linear-regression
-       Not found
-       linear-regression function with data below
-       {
-         "function": "linear-regression",
-         "execution_strategy": "Interpretation",
-         "programs": [
-           {
-             "id": 0,
-             "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-             "program_file_name": "linear-regression.wasm",
-             "file_rights": [
-               {
-                 "file_name": "input-0",
-                 "rights": 8198
-               },
-               {
-                 "file_name": "output",
-                 "rights": 533572
-               }
-             ]
-           }
-         ]
-       }
-       Register linear-regression function
-           {
-             "execution_strategy": "Interpretation",
-             "function": "linear-regression",
-             "programs": [
-               {
-                  "file_rights": [
-                   {
-                    "file_name": "input-0",
-                     "rights": 8198
-                   },
-                   {
-                     "file_name": "output",
-                     "rights": 533572
-                   }
-                 ],
-                 "id": 0,
-                 "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-                 "program_file_name": "linear-regression.wasm"
-                }
-             ]
-            }
-       
-       Create linear-regression  program linear-regression.wasm
-           <p>function loaded!</p>
+     Acessing CCFaaS at <CCFaas Host IP>:<CCFaaS Host Port>
+     =============Deleting function
+       % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                      Dload  Upload   Total   Spent    Left  Speed
+       0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+     100    51  100    51    0     0  24926      0 --:--:-- --:--:-- --:--:-- 51000
+     <p>Veracruz instance 'vod_big' does not existe!</p>
+     =============Registering function
+     {"data_files":[{"data_file":"/program_data/coco.names","pi_hash":"634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"},{"data_file":"/program_data/yolov3.cfg","pi_hash":"2ca0ab366618b5c005931e057e9cef2e40a1988e2481b3cbd960047c8ec11995"},{"data_file":"/program_data/yolov3.weights","pi_hash":"523e4e69e1d015393a1b0a441cef1d9c7659e3eb2d7e15f793f060a21b32f297"}],"debug":true,"enable_clock":true,"execution_strategy":"JIT","file_rights":[{"file_name":"/program/","rights":534084},{"file_name":"/program_data/","rights":534084}],"function":"vod_big","max_memory_mib":2000,"programs":[{"file_rights":[{"file_name":"/program_data/","rights":24582},{"file_name":"/s3_app_input/","rights":24582},{"file_name":"/user_input/","rights":24582},{"file_name":"/output/","rights":550470},{"file_name":"/program_internal/","rights":550470},{"file_name":"stdout","rights":534084},{"file_name":"stderr","rights":534084}],"id":0,"pi_hash":"1324be50d91ec6496ea5f8a18d2d898e0ddda1b3e7497682c990e917d4661c3c","program_file_name":"/program/detector.wasm"}]}
+     =============Provisioning program
+     <p>function loaded!</p>
+     =============Provisioning data
+     <p>data_file /program_data/coco.names loaded!</p>
+     <p>data_file /program_data/yolov3.cfg loaded!</p>
+     <p>data_file /program_data/yolov3.weights loaded!</p>
      ```
 
 1. Adding the video file to S3
@@ -1297,7 +1227,7 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
       ```bash
       python3 iotex-user-app.py vod_small \
                                 0 \
-                                http://<CCFaaS Host IP>:5010 \
+                                http://<CCFaaS Host IP>:<CCFaaS Host Port> \
                                 http://<Iotex S3 APP Host IP>:5020 \
                                 <AWS S3 bucket name> \
                                 <AWS S3 file name> \
@@ -1311,21 +1241,70 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
       The result should be similar to one presented below
 
       ```bash
-      CCFaaS in http://XXX.XXX.XXX.XXX:5010 and Iotex-s3 Faas in http://XXX.XXX.XXX.XXX:5020
       User certificate loaded from USERcert.pem and key from USERkey.pem
       S3 certificate created
-      Creating instance URL=http://XXX.XXX.XXX.XXX:5010/instance
+      Creating instance URL=http://<CCFaaS Host IP>:<CCFaaS Host Port>/instance
       Response = <Response [200]>
-      Writing policy to policy_test1
-      Creating s3 app URL=http://XXX.XXX.XXX.XXX:5020/s3_stream_veracruz
-      execute: ./execute_program.sh policy_test1 USERcert.pem USERkey.pem  linear-regression.wasm linear-regression.dat.output
-      writing RSA key
-      /home/ubuntu/i-poc/iotex-user-app/veracruz-client policy_test1 --results linear-regression.wasm=linear-regression.dat.output --identity USERcert.pem --key USERkey.pem
-      Loaded policy policy_test1 bf6469a15394ba244166fe1159883ba44ce9ebb714e267d0fe36d25f71116952
-      Connecting to veracruz-nitro-server:3014
-      Reading <enclave>/linear-regression.wasm into linear-regression.dat.output
+      Writing policy to policy_0
+      Creating s3 app URL=http://<Iotex S3 APP Host IP>:5020/s3_stream_veracruz
+      execute: ./execute_program.sh policy_0 USERcert.pem USERkey.pem /output/prediction.0.jpg in_enc.h264.output /program/detector.wasm small-iotex-demo-v1.3.3/key small-iotex-demo-v1.3.3/iv
+      ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --data /user_input/key=small-iotex-demo-v1.3.3/key --data /user_input/iv=small-iotex-demo-v1.3.3/iv --identity USERcert.pem --key USERkey.pem
+      ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --compute /program/detector.wasm --identity USERcert.pem --key USERkey.pem
+      ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --result stdout=- --result stderr=- --result /output/prediction.0.jpg=in_enc.h264.output --identity USERcert.pem --key USERkey.pem
+      Loaded policy policy_0 9ece68a0ccc7bff445373d83e70b7e7af6a33b85c71a68cc563cee04d9f1e9fd
+      Connecting to <Veracruz instance IP>:<Veracruz instance Port>
+      Reading <enclave>/stdout into <stdout>
+      Decrypting video...
+      Initializing detector...
+      Arguments loaded and network parsed: 0.449878 seconds
+      Starting decoding...
+      ------------------------------------------------------
+      Image 0 ===========================
+      Image normalized and resized: 0.067714 seconds
+      Starting prediction...
+      Prediction duration: 0.773984 seconds
+      Detection probabilities:
+      Saving prediction to output/prediction.0.jpg...
+      Write duration: 0.074901 seconds
+      Detector run: 0.848959 seconds
+      Finished decoding: 1.019139 seconds
+      Reading <enclave>/stderr into <stdout>
+      layer     filters    size              input                output
+          0 conv     16  3 x 3 / 1   416 x 416 x   3   ->   416 x 416 x  16  0.150 BFLOPs
+          1 max          2 x 2 / 2   416 x 416 x  16   ->   208 x 208 x  16
+          2 conv     32  3 x 3 / 1   208 x 208 x  16   ->   208 x 208 x  32  0.399 BFLOPs
+          3 max          2 x 2 / 2   208 x 208 x  32   ->   104 x 104 x  32
+          4 conv     64  3 x 3 / 1   104 x 104 x  32   ->   104 x 104 x  64  0.399 BFLOPs
+          5 max          2 x 2 / 2   104 x 104 x  64   ->    52 x  52 x  64
+          6 conv    128  3 x 3 / 1    52 x  52 x  64   ->    52 x  52 x 128  0.399 BFLOPs
+          7 max          2 x 2 / 2    52 x  52 x 128   ->    26 x  26 x 128
+          8 conv    256  3 x 3 / 1    26 x  26 x 128   ->    26 x  26 x 256  0.399 BFLOPs
+          9 max          2 x 2 / 2    26 x  26 x 256   ->    13 x  13 x 256
+         10 conv    512  3 x 3 / 1    13 x  13 x 256   ->    13 x  13 x 512  0.399 BFLOPs
+         11 max          2 x 2 / 1    13 x  13 x 512   ->    13 x  13 x 512
+         12 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+         13 conv    256  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 256  0.089 BFLOPs
+         14 conv    512  3 x 3 / 1    13 x  13 x 256   ->    13 x  13 x 512  0.399 BFLOPs
+         15 conv    255  1 x 1 / 1    13 x  13 x 512   ->    13 x  13 x 255  0.044 BFLOPs
+         16 yolo
+         17 route  13
+         18 conv    128  1 x 1 / 1    13 x  13 x 256   ->    13 x  13 x 128  0.011 BFLOPs
+         19 upsample            2x    13 x  13 x 128   ->    26 x  26 x 128
+         20 route  19 8
+         21 conv    256  3 x 3 / 1    26 x  26 x 384   ->    26 x  26 x 256  1.196 BFLOPs
+         22 conv    255  1 x 1 / 1    26 x  26 x 256   ->    26 x  26 x 255  0.088 BFLOPs
+         23 yolo
+      Loading weights from program_data/yolov3.weights...Done!
+      H264 source file name: program_internal/in.h264..
+      -------------------------------------------------------
+      iWidth:     1920
+      height:     1080
+      Frames:     1
+      decode time:    0.098741 sec
+      FPS:        10.127505 fps
+      -------------------------------------------------------
+      Reading <enclave>//output/prediction.0.jpg into in_enc.h264.output
       Shutting down enclave
-      Deleting instance URL=http://XXX.XXX.XXX.XXX:5010/instance/test1
       ```
   
    1. Big model example
@@ -1333,52 +1312,185 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
       ```bash
       python3 iotex-user-app.py vod_big \
                                 0 \
-                                http://<CCFaaS Host IP>:5010 \
+                                http://<CCFaaS Host IP>:<CCFaaS Host Port> \
                                 http://<Iotex S3 APP Host IP>:5020 \
                                 <AWS S3 bucket name> \
                                 <AWS S3 file name> \
                                 big/key \
                                 big/iv \
                                 region_name="<AWS Region Name>" \
-                                aws_access_key_id="<AWS Access Key" \
-                                aws_secret_access_key="<AWS Secret Access Key>"
+                            aws_access_key_id="<AWS Access Key" \
+                            aws_secret_access_key="<AWS Secret Access Key>"
       ```
-  
+
       The result should be similar to one presented below
 
-      ```bash
-      CCFaaS in http://XXX.XXX.XXX.XXX:5010 and Iotex-s3 Faas in http://XXX.XXX.XXX.XXX:5020
-      User certificate loaded from USERcert.pem and key from USERkey.pem
-      S3 certificate created
-      Creating instance URL=http://XXX.XXX.XXX.XXX:5010/instance
-      Response = <Response [200]>
-      Writing policy to policy_test1
-      Creating s3 app URL=http://XXX.XXX.XXX.XXX:5020/s3_stream_veracruz
-      execute: ./execute_program.sh policy_test1 USERcert.pem USERkey.pem  linear-regression.wasm linear-regression.dat.output
-      writing RSA key
-      /home/ubuntu/i-poc/iotex-user-app/veracruz-client policy_test1 --results linear-regression.wasm=linear-regression.dat.output --identity USERcert.pem --key USERkey.pem
-      Loaded policy policy_test1 bf6469a15394ba244166fe1159883ba44ce9ebb714e267d0fe36d25f71116952
-      Connecting to veracruz-nitro-server:3014
-      Reading <enclave>/linear-regression.wasm into linear-regression.dat.output
-      Shutting down enclave
-      Deleting instance URL=http://XXX.XXX.XXX.XXX:5010/instance/test1
-      ```
+     ```bash
+     User certificate loaded from USERcert.pem and key from USERkey.pem
+     S3 certificate created
+     Creating instance URL=http://<CCFaaS Host IP>:<CCFaaS Host Port>/instance
+     Response = <Response [200]>
+     Writing policy to policy_0
+     Creating s3 app URL=http://<Iotex S3 APP Host IP>:5020/s3_stream_veracruz
+     execute: ./execute_program.sh policy_0 USERcert.pem USERkey.pem /output/prediction.0.jpg in_enc.h264.output /program/detector.wasm big-iotex-demo-v1.3.3/key big-iotex-demo-v1.3.3/iv
+     ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --data /user_input/key=big-iotex-demo-v1.3.3/key --data /user_input/iv=big-iotex-demo-v1.3.3/iv --identity USERcert.pem --key USERkey.pem
+     ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --compute /program/detector.wasm --identity USERcert.pem --key USERkey.pem
+     ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --result stdout=- --result stderr=- --result /output/prediction.0.jpg=in_enc.h264.output --identity USERcert.pem --key USERkey.pem
+     Loaded policy policy_0 b850c63bd999efc03e2ce2b38af314ab01051a1de56b0b133f7e614d3e84e784
+     Connecting to <Veracruz instance IP>:<Veracruz instance Port>
+     Reading <enclave>/stdout into <stdout>
+     Decrypting video...
+     Initializing detector...
+     Arguments loaded and network parsed: 2.969170 seconds
+     Starting decoding...
+     ------------------------------------------------------
+     Image 0 ===========================
+     Image normalized and resized: 0.067985 seconds
+     Starting prediction...
+     Prediction duration: 8.174153 seconds
+     Detection probabilities:
+     bottle: 12%
+     bear: 33%
+     Saving prediction to output/prediction.0.jpg...
+     Write duration: 0.075309 seconds
+     Detector run: 8.249756 seconds
+     Finished decoding: 8.420150 seconds
+     Reading <enclave>/stderr into <stdout>
+     layer     filters    size              input                output
+         0 conv     32  3 x 3 / 1   416 x 416 x   3   ->   416 x 416 x  32  0.299 BFLOPs
+         1 conv     64  3 x 3 / 2   416 x 416 x  32   ->   208 x 208 x  64  1.595 BFLOPs
+         2 conv     32  1 x 1 / 1   208 x 208 x  64   ->   208 x 208 x  32  0.177 BFLOPs
+         3 conv     64  3 x 3 / 1   208 x 208 x  32   ->   208 x 208 x  64  1.595 BFLOPs
+         4 res    1                 208 x 208 x  64   ->   208 x 208 x  64
+         5 conv    128  3 x 3 / 2   208 x 208 x  64   ->   104 x 104 x 128  1.595 BFLOPs
+         6 conv     64  1 x 1 / 1   104 x 104 x 128   ->   104 x 104 x  64  0.177 BFLOPs
+         7 conv    128  3 x 3 / 1   104 x 104 x  64   ->   104 x 104 x 128  1.595 BFLOPs
+         8 res    5                 104 x 104 x 128   ->   104 x 104 x 128
+         9 conv     64  1 x 1 / 1   104 x 104 x 128   ->   104 x 104 x  64  0.177 BFLOPs
+        10 conv    128  3 x 3 / 1   104 x 104 x  64   ->   104 x 104 x 128  1.595 BFLOPs
+        11 res    8                 104 x 104 x 128   ->   104 x 104 x 128
+        12 conv    256  3 x 3 / 2   104 x 104 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        13 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        14 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        15 res   12                  52 x  52 x 256   ->    52 x  52 x 256
+        16 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        17 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        18 res   15                  52 x  52 x 256   ->    52 x  52 x 256
+        19 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        20 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        21 res   18                  52 x  52 x 256   ->    52 x  52 x 256
+        22 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        23 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        24 res   21                  52 x  52 x 256   ->    52 x  52 x 256
+        25 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        26 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        27 res   24                  52 x  52 x 256   ->    52 x  52 x 256
+        28 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        29 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        30 res   27                  52 x  52 x 256   ->    52 x  52 x 256
+        31 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        32 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        33 res   30                  52 x  52 x 256   ->    52 x  52 x 256
+        34 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        35 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        36 res   33                  52 x  52 x 256   ->    52 x  52 x 256
+        37 conv    512  3 x 3 / 2    52 x  52 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        38 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        39 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        40 res   37                  26 x  26 x 512   ->    26 x  26 x 512
+        41 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        42 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        43 res   40                  26 x  26 x 512   ->    26 x  26 x 512
+        44 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        45 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        46 res   43                  26 x  26 x 512   ->    26 x  26 x 512
+        47 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        48 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        49 res   46                  26 x  26 x 512   ->    26 x  26 x 512
+        50 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        51 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        52 res   49                  26 x  26 x 512   ->    26 x  26 x 512
+        53 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        54 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        55 res   52                  26 x  26 x 512   ->    26 x  26 x 512
+        56 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        57 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        58 res   55                  26 x  26 x 512   ->    26 x  26 x 512
+        59 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        60 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        61 res   58                  26 x  26 x 512   ->    26 x  26 x 512
+        62 conv   1024  3 x 3 / 2    26 x  26 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        63 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        64 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        65 res   62                  13 x  13 x1024   ->    13 x  13 x1024
+        66 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        67 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        68 res   65                  13 x  13 x1024   ->    13 x  13 x1024
+        69 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        70 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        71 res   68                  13 x  13 x1024   ->    13 x  13 x1024
+        72 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        73 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        74 res   71                  13 x  13 x1024   ->    13 x  13 x1024
+        75 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        76 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        77 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        78 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        79 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        80 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        81 conv    255  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 255  0.088 BFLOPs
+        82 yolo
+        83 route  79
+        84 conv    256  1 x 1 / 1    13 x  13 x 512   ->    13 x  13 x 256  0.044 BFLOPs
+        85 upsample            2x    13 x  13 x 256   ->    26 x  26 x 256
+        86 route  85 61
+        87 conv    256  1 x 1 / 1    26 x  26 x 768   ->    26 x  26 x 256  0.266 BFLOPs
+        88 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        89 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        90 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        91 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        92 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        93 conv    255  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 255  0.177 BFLOPs
+        94 yolo
+        95 route  91
+        96 conv    128  1 x 1 / 1    26 x  26 x 256   ->    26 x  26 x 128  0.044 BFLOPs
+        97 upsample            2x    26 x  26 x 128   ->    52 x  52 x 128
+        98 route  97 36
+        99 conv    128  1 x 1 / 1    52 x  52 x 384   ->    52 x  52 x 128  0.266 BFLOPs
+       100 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+       101 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+       102 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+       103 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+       104 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+       105 conv    255  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 255  0.353 BFLOPs
+       106 yolo
+     Loading weights from program_data/yolov3.weights...Done!
+     H264 source file name: program_internal/in.h264..
+     -------------------------------------------------------
+     iWidth:		1920
+     height:		1080
+     Frames:		1
+     decode time:	0.098700 sec
+     FPS:		10.131712 fps
+     -------------------------------------------------------
+     Reading <enclave>//output/prediction.0.jpg into in_enc.h264.output
+     Shutting down enclave
+     ```
   
 1. Troubleshooting:
 
    * Incorrect S3 credential will result in a similar output to the one presented below.
 
-    ```bash
-    CCFaaS in http://XXX.XXX.XXX.XXX:5010 and Iotex-s3 Faas in http://XXX.XXX.XXX>XXX:5020
-    User certificate loaded from USERcert.pem and key from USERkey.pem
-    S3 certificate created
-    Creating instance URL=http://XXX.XXX.XXX.XXX:5010/instance
-    Response = <Response [200]>
-    Writing policy to policy_test1
-    Creating s3 app URL=http://XXX.XXX.XXX.XXX:5020/s3_stream_veracruz
-    Http request to S3 app returned <p>Not able to read bucket rsh-veracruz-test file linear-regression.dat from S3: ClientError<p>
-    Deleting instance URL=http://XXX.XXX.XXX.XXX:5010/instance/test1
-    ```
+     ```bash
+     User certificate loaded from USERcert.pem and key from USERkey.pem
+     S3 certificate created
+     Creating instance URL=http://<CCFaaS Host IP>:<CCFaaS Host Port>/instance
+     Response = <Response [200]>
+     Writing policy to policy_0
+     Creating s3 app URL=http://<Iotex S3 APP Host IP>:5020/s3_stream_veracruz
+     Http request to S3 app returned <p>Not able to read bucket <AWS S3 bucket> file in.h264 from S3: ClientError<p>
+     Shutting down enclave
+     ```
 
 # WIP:
 
