@@ -927,18 +927,24 @@ The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz
 
 1. Clone the repository https://gitlab.com/arm-research/security/i-poc.git 
 1. Move to directory i-poc
+
    ```bash
    cd i-poc
    ```
+   
 1. Copy file i-poc/main-k3s/config.vars.template to i-poc/i-poc/main-k3s/config.vars and update the values according to your installation
 1. If desired to create the container images locally, execute
+
    ```bash
    make images
    ```
+   
 1. The following step create all the keys, certificates and update all the YAML files from the templates and loads them into k8s/k3s
+
    ```bash
    make k8s-all
    ```
+
 1. If more control is desired change to directory i-poc/main-k3s
    
    ```bash
@@ -956,16 +962,20 @@ The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz
 
 Even at EKS a new updated configuration of smarter-device-manager need to be be installed
 1. Load the yaml files for smarter-device-manager
+
    ```bash
    kubectl apply -f smarter-device-manager-configmap-ec2-nitro.yaml
    kubectl apply -f smarter-device-manager-ds-with-configmap-ec2-nitro.yaml
    ```
 
 1. Verify that everything is installed and running
+
    ```bash
    kubectl get all
    ```
+   
    The result should be at least those object, at least one pod per nitro-enabled node should exist, additional objects can exist if other things are running
+   
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX
@@ -976,11 +986,15 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
    NAME                                              DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR                    AGE
    daemonset.apps/smarter-device-manager-ec2-nitro   X         X         X       X            X           smarter-device-manager=enabled   X
    ```
+   
    There should be 1 pod/smarter-device-manager-ec2-nitro-XXXXX per node on the k3s cluster. All the nodes that are nitro enabled should have these resources when described
+   
    ```bash
    kubectl describe node <node name>
    ```
-   The node should have the label "smarter-device-manager=enabled" 
+   
+   The node should have the label "smarter-device-manager=enabled"
+    
    ```
    Labels:             beta.kubernetes.io/arch=amd64
                        beta.kubernetes.io/instance-type=k3s
@@ -992,11 +1006,15 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
                        node.kubernetes.io/instance-type=k3s
                        smarter-device-manager=enabled
    ```
+   
    If the label do not appear use the command
+   
    ```bash
    kubectl label node <node name> smarter-device-manager=enabled
    ```
+   
    When correct the following resources should be available:
+   
    ```
    smarter-devices/nitro_enclaves:  1
    smarter-devices/rtc0:            20
@@ -1010,16 +1028,21 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 #### Attestation service
 
 1. Load the yaml files for the attestation service
+
    ```bash
    kubectl apply -f veracruz-nitro-proxy-configmap.yaml
    kubectl apply -f veracruz-nitro-proxy-service.yaml
    kubectl apply -f veracruz-nitro-proxy-deploy.yaml
    ```
+   
 1. Verify that everything is installed and running
+
    ```bash
    kubectl get all
    ```
+   
    The result should be at least those objects, additional objects can exist if other things are running
+   
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX
@@ -1179,7 +1202,74 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
      100    53  100    53    0     0  18675      0 --:--:-- --:--:-- --:--:-- 26500
      <p>Veracruz instance 'vod_small' does not existe!</p>
      =============Registering function
-     {"data_files":[{"data_file":"/program_data/coco.names","pi_hash":"634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"},{"data_file":"/program_data/yolov3.cfg","pi_hash":"15bd05a05354738b051e5f5b1ad6d2eb800b866c63be3d1766bf168960e8d950"},{"data_file":"/program_data/yolov3.weights","pi_hash":"dccea06f59b781ec1234ddf8d1e94b9519a97f4245748a7d4db75d5b7080a42c"}],"debug":true,"enable_clock":true,"execution_strategy":"JIT","file_rights":[{"file_name":"/program/","rights":534084},{"file_name":"/program_data/","rights":534084}],"function":"vod_small","max_memory_mib":2000,"programs":[{"file_rights":[{"file_name":"/program_data/","rights":24582},{"file_name":"/s3_app_input/","rights":24582},{"file_name":"/user_input/","rights":24582},{"file_name":"/output/","rights":550470},{"file_name":"/program_internal/","rights":550470},{"file_name":"stdout","rights":534084},{"file_name":"stderr","rights":534084}],"id":0,"pi_hash":"1324be50d91ec6496ea5f8a18d2d898e0ddda1b3e7497682c990e917d4661c3c","program_file_name":"/program/detector.wasm"}]}
+     {
+       "data_files": [
+         {
+           "data_file": "/program_data/coco.names",
+           "pi_hash": "634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"
+         },
+         {
+           "data_file": "/program_data/yolov3.cfg",
+           "pi_hash": "15bd05a05354738b051e5f5b1ad6d2eb800b866c63be3d1766bf168960e8d950"
+         },
+         {
+           "data_file": "/program_data/yolov3.weights",
+           "pi_hash": "dccea06f59b781ec1234ddf8d1e94b9519a97f4245748a7d4db75d5b7080a42c"
+         }
+       ],
+       "debug": true,
+       "enable_clock": true,
+       "execution_strategy": "JIT",
+       "file_rights": [
+         {
+           "file_name": "/program/",
+           "rights": 534084
+         },
+         {
+           "file_name": "/program_data/",
+           "rights": 534084
+         }
+       ],
+       "function": "vod_small",
+       "max_memory_mib": 2000,
+       "programs": [
+         {
+           "file_rights": [
+             {
+               "file_name": "/program_data/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/s3_app_input/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/user_input/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/output/",
+               "rights": 550470
+             },
+             {
+               "file_name": "/program_internal/",
+               "rights": 550470
+             },
+             {
+               "file_name": "stdout",
+               "rights": 534084
+             },
+             {
+               "file_name": "stderr",
+               "rights": 534084
+             }
+           ],
+           "id": 0,
+           "pi_hash": "1324be50d91ec6496ea5f8a18d2d898e0ddda1b3e7497682c990e917d4661c3c",
+           "program_file_name": "/program/detector.wasm"
+         }
+       ]
+     }
      =============Provisioning program
      <p>function loaded!</p>
      =============Provisioning data
@@ -1205,7 +1295,74 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
      100    51  100    51    0     0  24926      0 --:--:-- --:--:-- --:--:-- 51000
      <p>Veracruz instance 'vod_big' does not existe!</p>
      =============Registering function
-     {"data_files":[{"data_file":"/program_data/coco.names","pi_hash":"634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"},{"data_file":"/program_data/yolov3.cfg","pi_hash":"2ca0ab366618b5c005931e057e9cef2e40a1988e2481b3cbd960047c8ec11995"},{"data_file":"/program_data/yolov3.weights","pi_hash":"523e4e69e1d015393a1b0a441cef1d9c7659e3eb2d7e15f793f060a21b32f297"}],"debug":true,"enable_clock":true,"execution_strategy":"JIT","file_rights":[{"file_name":"/program/","rights":534084},{"file_name":"/program_data/","rights":534084}],"function":"vod_big","max_memory_mib":2000,"programs":[{"file_rights":[{"file_name":"/program_data/","rights":24582},{"file_name":"/s3_app_input/","rights":24582},{"file_name":"/user_input/","rights":24582},{"file_name":"/output/","rights":550470},{"file_name":"/program_internal/","rights":550470},{"file_name":"stdout","rights":534084},{"file_name":"stderr","rights":534084}],"id":0,"pi_hash":"1324be50d91ec6496ea5f8a18d2d898e0ddda1b3e7497682c990e917d4661c3c","program_file_name":"/program/detector.wasm"}]}
+     {
+       "data_files": [
+         {
+           "data_file": "/program_data/coco.names",
+           "pi_hash": "634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"
+         },
+         {
+           "data_file": "/program_data/yolov3.cfg",
+           "pi_hash": "2ca0ab366618b5c005931e057e9cef2e40a1988e2481b3cbd960047c8ec11995"
+         },
+         {
+           "data_file": "/program_data/yolov3.weights",
+           "pi_hash": "523e4e69e1d015393a1b0a441cef1d9c7659e3eb2d7e15f793f060a21b32f297"
+         }
+       ],
+       "debug": true,
+       "enable_clock": true,
+       "execution_strategy": "JIT",
+       "file_rights": [
+         {
+           "file_name": "/program/",
+           "rights": 534084
+         },
+         {
+           "file_name": "/program_data/",
+           "rights": 534084
+         }
+       ],
+       "function": "vod_big",
+       "max_memory_mib": 2000,
+       "programs": [
+         {
+           "file_rights": [
+             {
+               "file_name": "/program_data/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/s3_app_input/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/user_input/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/output/",
+               "rights": 550470
+             },
+             {
+               "file_name": "/program_internal/",
+               "rights": 550470
+             },
+             {
+               "file_name": "stdout",
+               "rights": 534084
+             },
+             {
+               "file_name": "stderr",
+               "rights": 534084
+             }
+           ],
+           "id": 0,
+           "pi_hash": "1324be50d91ec6496ea5f8a18d2d898e0ddda1b3e7497682c990e917d4661c3c",
+           "program_file_name": "/program/detector.wasm"
+         }
+       ]
+     }
      =============Provisioning program
      <p>function loaded!</p>
      =============Provisioning data
