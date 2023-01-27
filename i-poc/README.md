@@ -880,7 +880,7 @@ The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz
 
 ### Hugepages on nitro nodes
 
-* Nitro nodes require higepages enabled in the kernel.
+* Nitro nodes require hugepages enabled in the kernel.
   * Create a file /etc/sysctl.d/99-hugepages.conf with the contents below. The example uses up to 2.2GB (2@MB pages * 1100 pages)
    ```
    vm.nr_hugepages=1100
@@ -925,38 +925,44 @@ The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz
 
 ### Installing Veracruz services on k8s/k3s
 
-1. Clone the repository https://gitlab.com/arm-research/security/i-poc.git 
+1. Clone the repository https://github.com/veracruz-project/veracruz-examples.git
 1. Move to directory i-poc
 
    ```bash
    cd i-poc
    ```
    
-1. Copy file i-poc/main-k3s/config.vars.template to i-poc/i-poc/main-k3s/config.vars and update the values according to your installation
-1. If desired to create the container images locally, execute
+1. Copy file main-k3s/config.vars.template to main-k3s/config.vars and update the values according to your installation and run make
 
    ```bash
-   make images
+   make
    ```
+
+1. Some optional steps:
+
+   1. If desired to create the container images locally, execute (this step is optional since the images are available on the ghcr.io
    
-1. The following step create all the keys, certificates and update all the YAML files from the templates and loads them into k8s/k3s
-
-   ```bash
-   make k8s-all
-   ```
-
-1. If more control is desired change to directory i-poc/main-k3s
+      ```bash
+      make images
+      ```
+      
+   1. The following step create all the keys, certificates and update all the YAML files from the templates and loads them into k8s/k3s
    
-   ```bash
-   make k8s-smarter-device-manager
-   make k8s-attestation-service
-   make k8s-vaas
-   make k8s-ccfaas
-   make k8s-iotex-s3-app
-   ```
-
-   there is also <entry>-check to verify if the services are running correctly
-
+      ```bash
+      make k8s-all
+      ```
+   
+   1. If more control is desired change to directory i-poc/main-k3s
+      
+      ```bash
+      make k8s-smarter-device-manager
+      make k8s-attestation-service
+      make k8s-vaas
+      make k8s-ccfaas
+      make k8s-iotex-s3-app
+      ```
+   
+      there is also <entry>-check to verify if the services are running correctly
 
 #### Smarter-device-manager
 
@@ -1148,7 +1154,7 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
    replicaset.apps/ccfaas-server-app-XXXXXXXXXX     1         1         1       XX
    ```
 
-## Running applications on Veracruz
+## Running VOD (i-PoC wasm video decoder) on Veracruz
 
 The iotex-user-app directory on the repository will execute the I-PoC example end-to-end according the timeline described above
 
@@ -1167,18 +1173,6 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
     * decryption key path: path of the key to decrypt the video
     * decryption IV path: path of where to put the decryption key on the enclave
     * S3 authentication>: set of "key=value" that contains the authentication to access the video in S3
-
-1. Edit the file iotex-user-app.sh to set the correct information of the S3 file and S3 authentication to use:
-
-   ```bash
-   export AWS_ACCESS_KEY_ID="<REPLACE WITH AWS_ACCESS_KEY_ID>"
-   export AWS_SECRET_ACCESS_KEY="<REPLACE WITH AWS_SECRET_ACCESS_KEY>"
- 
-   S3_REGION="<REPLACE WITH S3 REGION>"
-   S3_BUCKET="<REPLACE WITH S3 BUCKET"
-   S3_FILE="<REPLACE WITH S3 FILE?"
-   ```
-   The script assumes that the file requires authentication to be accessed. All the AWS credentials and S3_REGION are optional and can be removed from the script including the entry on ./iotex-user-app.py line
 
 1. Registering the function in CCFaaS
 
