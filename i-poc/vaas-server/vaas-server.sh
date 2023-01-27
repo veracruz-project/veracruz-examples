@@ -9,6 +9,7 @@
 #
 # See the `LICENSE_MIT.markdown` file in the Veracruz I-PoC
 # example repository root directory for copyright and licensing information.
+#!/bin/bash
 
 if [ -z "${PROXY_ENDPOINT}" -o -z "${PROXY_CERTIFICATE}" -o -z "${RUNTIME_MANAGER_HASH_NITRO}" -o -z "${VERACRUZ_PORT_MIN}" -o -z "${VERACRUZ_PORT_MAX}" ]
 then
