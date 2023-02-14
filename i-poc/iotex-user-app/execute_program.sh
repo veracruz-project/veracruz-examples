@@ -42,11 +42,8 @@ DECRYPTION_IV_PATH=$8
 check_if_file_exists "${POLICY}" "Policy"
 check_if_file_exists "${CERTIFICATE_OUT}" "Certificate_out"
 check_if_file_exists "${KEY_OUT}" "Key_out"
-<<<<<<< HEAD
 check_if_file_exists "${DECRYPTION_KEY_PATH}" "Decryption key"
 check_if_file_exists "${DECRYPTION_IV_PATH}" "Decryption IV"
-=======
->>>>>>> parent of 7aba0ef (Updated to veracruz/veracruz-examples main)
 
 VERACRUZ_URL=$(grep veracruz_server_url "${POLICY}" | sed -e 's/^[^:]*: *\"//' -e 's/".*//')
 VERACRUZ_HOST=$(echo "${VERACRUZ_URL}" | cut -d ":" -f 1)
