@@ -15,7 +15,6 @@ graph LR;
 ```
 
 The primary components of the example are:
-
 * Veracruz runtime
 * Cloud infrastructure that runs on kubernetes
    * VaaS (Veracruz as a Service)
@@ -137,7 +136,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
     }
    ```
 
-   This policy defines two identities. The first one only has write access to the directory /s3_app_input/. The other Has access to execute programs on the directory "/program" and read/write access to /user_input/,/output/,stdout and stderr.
+   This policy defines two identities. The first one only has write access to the directory /s3_app_input/. The other has access to execute programs on the directory "/program" and read/write access to /user_input/,/output/,stdout and stderr.
  
    The following json-schema describes the schema allowed when an user policy is provided. CCFaaS only accepts user policies that pass this schema.
 
@@ -755,8 +754,6 @@ VaaS provides a REST (CD) interface that allows multiple instances of Veracruz t
 
 VaaS require a valid VaaS policy (essentially a Program policy and User policy together) as input and provides a Veracruz instance loaded with a full policy (Infrastructure policy is added by VaaS) returning that policy if the instance is successfully allocated.
 
-
-
 |Action	| HTTP method | URL| URL Parameter | Input Object | Output Object |
 | --- | --- | --- | --- | --- | --- |
 |CREATE	|POST |	/veracruz | | VaaS Policy | |
@@ -931,7 +928,6 @@ The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz
    ```bash
    cd i-poc
    ```
-   
 1. Copy file main-k3s/config.vars.template to main-k3s/config.vars and update the values according to your installation and run make
 
    ```bash
@@ -1083,8 +1079,9 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
    ```bash
    kubectl get all
    ```
+
    The result should be at least those objects, additional objects can exist if other things are running
-   
+
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX
@@ -1124,6 +1121,7 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
    ```bash
    kubectl get all
    ```
+
    The result should be at least those objects, additional objects can exist if other things are running
 
    ```

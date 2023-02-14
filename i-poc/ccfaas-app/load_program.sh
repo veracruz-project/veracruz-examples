@@ -9,7 +9,6 @@
 #
 # See the `LICENSE_MIT.markdown` file in the Veracruz I-PoC
 # example repository root directory for copyright and licensing information.
-#!/bin/bash
 
 VERACRUZ_CLIENT=$(pwd)/veracruz-client
 
@@ -52,15 +51,24 @@ then
 	exit 1
 fi
 
+# Check server availability
+echo "Waiting for server..."
+VERACRUZ_SERVER_URL=$(cat ${POLICY} | grep veracruz_server_url | sed -e 's/^.*": //' -e 's/:/ /' -e 's/"//g')
+for i in $(seq 1 30); do
+	echo "\n" | nc $(echo "${VERACRUZ_SERVER_URL}" | cut -d " " -f 1) $(echo "${VERACRUZ_SERVER_URL}" | cut -d " " -f 2) -w 1 | grep "Bad Request" &>/dev/null && break
+	sleep 1
+done
+echo "Server is available"
+
 while [ $# -gt 0 ]
 do
-	PROGRAM_FILE=$1
+	PROGRAM_FILE_BASE64=$1
 	
-        pushd ${PROGRAM_DIR} > /dev/null
 # 	echo "Executing: ${VERACRUZ_CLIENT} ${POLICY} -p ${PROGRAM_FILE} --identity ${CERTIFICATE} --key ${KEY}" >> /tmp/log.txt
-	OUTPUT=$(${VERACRUZ_CLIENT} ${POLICY} -p "${PROGRAM_FILE}" --identity "${CERTIFICATE}" --key "${KEY}" 2>&1)
+
+    PROGRAM_FILE=$(echo -n "${PROGRAM_FILE_BASE64}" | base64 -d)
+	OUTPUT=$(${VERACRUZ_CLIENT} ${POLICY} --program "${PROGRAM_FILE}=${PROGRAM_DIR}/${PROGRAM_FILE_BASE64}" --identity "${CERTIFICATE}" --key "${KEY}" 2>&1)
 	RESULT_CODE=$?
-	popd > /dev/null
 	echo "${OUTPUT}"
 
 	NOK=$(echo "${OUTPUT}" | grep "Error")
