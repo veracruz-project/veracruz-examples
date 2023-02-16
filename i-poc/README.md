@@ -58,18 +58,18 @@ A timeline of a full operation is described below.
 1. CCFaaS and VaaS waits for the next request (it will not interact with this request anymore)
 1. User Application receives the policy 
 1. User Application connects directly to Veracruz instance (using the connection information provided in the policy) and verify that the policy hash matches and the certificate provided by Veracruz instance is valid (attested by the proxy)
-1. User application creates a file in Veracruz instance with the video decoding key
+1. User application creates a file in Veracruz instance with the video decrypting key
 1. User application creates a json object with the following information:
    * AWS S3 bucket, file name of the desired video and credentials to access the file
    * Veracruz instance endpoint (host, IP).
    * temporary certificate and key generated previously to access Veracruz instance
 1. User application executes a remote procedure call request to the Iotex S3 app with previously created json object
    * Upper pink FaaS arrow
-1. Iotex S3 app starts an instance of itself that connects to AWS S3 and  Veracruz instance and sends the encrypted key and then reads the video file and sends it to the Veracruz instance
+1. Iotex S3 app starts an instance of itself that connects to AWS S3 and Veracruz instance, reads the video file and sends it to the Veracruz instance
 1. Iotex S3 app instance closes the connection to Veracruz at the end of the file and terminates itself.
 1. User application executes the program inside the enclave using the provided video
-1. Veracruz instance process the video and send the results to the output file
-1. User application receives the last results and terminates the Veracruz instance using CCFaaS
+1. Veracruz instance process the video and writes the results to the output file
+1. User application reads results file and terminates the Veracruz instance using CCFaaS
 1. EC2 nitro instance is returned to the pool of free instances to be allocated.
 
 # VOD
