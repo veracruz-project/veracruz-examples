@@ -872,9 +872,10 @@ In this README there are two different ways to install veracruz on AWS. The firs
 ### Deploying on EC2 instances on an user installed k8s/k3s
 
 * Infrastructure
-  * At least 1 server and 1 node with the nodes that are supporting Veracruz instances must be nitro enabled. 
-* A simple installation of k3s on AWS EC2 is described at [Zero to k3s Kubeconfig in seconds with k3sup](https://rancher.com/blog/2019/k3s-kubeconfig-in-seconds/)
-* Use kubernetes documentation on [Getting started](https://kubernetes.io/docs/setup/) or [Production environment](https://kubernetes.io/docs/setup/production-environment/) to install a working kubernetes on AWS EC2 instances.
+  * At least 2 EC2 instances need to be allocated with one used for the k3s server and the others used as k3s nodes. K3s nodes that will support Veracruz instances must be nitro enabled. 
+* The following tutorials/instructions can be used to install k3s in a EC2 instance. Please choose one.
+  * A simple installation of k3s on AWS EC2 is described at [Zero to k3s Kubeconfig in seconds with k3sup](https://rancher.com/blog/2019/k3s-kubeconfig-in-seconds/)
+  * Use kubernetes documentation on [Getting started](https://kubernetes.io/docs/setup/) or [Production environment](https://kubernetes.io/docs/setup/production-environment/) to install a working kubernetes on AWS EC2 instances.
 
 ### Hugepages on nitro nodes
 
