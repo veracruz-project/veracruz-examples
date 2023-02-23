@@ -861,6 +861,7 @@ On this environment a full orchestrated end-to-end application is deployed using
 ### Veracruz runtime
 
 The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz-project/veracruz) was used to run this example. Use this tag compiled for nitro if it is desired to recreate the image used by VaaS.
+In this README there are two different ways to install veracruz on AWS. The first one, using AWS EKS, is recommended if the user is familiar with terraform/AWS and want a more scalable and managed solution. It uses terraform to describe and install the infrastruture and uses EKS and auto-scaling. The second one uses only EC2 instances and do not require other tools but it is less scalable and harder to manage but it is recommended as simpler to debug.
 
 ### Deploying on AWS EKS
 
