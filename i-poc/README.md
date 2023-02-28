@@ -950,9 +950,10 @@ In this README there are two different ways to install veracruz on AWS. The firs
       make k8s-all
       ```
    
-   1. If more control is desired change to directory i-poc/main-k3s
+   1. If more control is desired change to directory main-k3s
       
       ```bash
+      cd main-k3s
       make k8s-smarter-device-manager
       make k8s-attestation-service
       make k8s-vaas
