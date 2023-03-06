@@ -932,6 +932,36 @@ In this README there are two different ways to install veracruz on AWS. The firs
    ```
 1. Copy file main-k3s/config.vars.template to main-k3s/config.vars and update the values according to your installation and run make
 
+   Recommended values when using EC2 instances:
+
+   * EXTERNAL\_IP\_USE
+   
+      Use the private IP of one of worker nodes. Any of the worker nodes is OK.
+      
+   * VERACRUZ\_MIN\_PORT\_USE
+   
+      3014 is the recomended value
+      
+   * VERACRUZ\_MAX\_PORT\_USE
+
+      3014 + Max number of expected worker nodes (3015 if only node is used)
+      
+   * VERACRUZ\_ENDPOINT\_HOSTNAME\_USE
+    
+      Use the public DNS name for the worker node EC2 instance private IP used for the variable EXTERNAL_IP_USE
+      
+   * RUNTIME\_HUGHEPAGES\_SIZE\_USE
+      
+      2048 reserves 2GB for Nitro enclaves
+        
+   * RUNTIME\_POD\_SIZE\_USE
+      
+      Reserves 500MB for the container running outside of the enclave (no need to change this, user applications do not run on this container)
+      
+   * RUNTIME\_CPU\_SIZE\_USE
+      
+      Reserves 1 CPU for the container running outside of the enclave (no need to change this, user applications do not run on this container)
+
    ```bash
    make
    ```
