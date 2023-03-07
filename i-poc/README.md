@@ -952,7 +952,7 @@ In this README there are two different ways to install veracruz on AWS. The firs
       
    * RUNTIME\_HUGHEPAGES\_SIZE\_USE
       
-      2048 reserves 2GB for Nitro enclaves
+      2048 reserves 2GB for Nitro enclaves. The VoD example executing  big YOLOv3 model requires 2GB to be able to run that model in Veracruz.
         
    * RUNTIME\_POD\_SIZE\_USE
       
