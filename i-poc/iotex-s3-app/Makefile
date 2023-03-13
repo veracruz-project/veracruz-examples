@@ -19,7 +19,7 @@ veracruz-client: ../veracruz-client
 	cp ../veracruz-client veracruz-client
 
 iotex-s3-veracruz-app.imageOK: Dockerfile iotex-s3-app.py veracruz-client
-	docker build -t iotex-s3-veracruz-app:$(VERSION) .
+	docker build --output type=docker -t iotex-s3-veracruz-app:$(VERSION) .
 	touch iotex-s3-veracruz-app.imageOK
 
 image: iotex-s3-veracruz-app.imageOK
