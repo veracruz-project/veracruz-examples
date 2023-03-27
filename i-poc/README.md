@@ -1192,7 +1192,7 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
 1. Registering the function in CCFaaS
 
   Two examples are available on [VOD](https://github.com/veracruz-project/video-object-detection.git). The difference between big and small is the size of the model, small being in 30MBs and big being around 300MBs.
-  The current version VOD in use is v1.3.3.
+  The current version VOD in use is v1.3.3. The function is registered as "vod_small" for the small model and "vod_big" for the big model. You should register one of them at least but registering both is not required.
 
   1. Small model
  
@@ -1394,7 +1394,7 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
   
    Where:
 
-    * function name: determines the specific CCFaaS function to instantiate
+    * function name: determines the specific CCFaaS function to instantiate (vod_small or vod_big)
     * uniqueID: defines a unique name for this instance
     * URL of CCFaaS: where to find CCFaaS, normally should be like http:://<IP>:<CCFaaS Host Port>
     * URL of iotex-S3: where to find iotex-s3-app, normally should be like http:://<IP>:5020
