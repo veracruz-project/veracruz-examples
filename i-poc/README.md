@@ -1189,22 +1189,6 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 
 The iotex-user-app directory on the repository will execute the I-PoC example end-to-end according the timeline described above
 
-1. iotex-user-app.py accepts the following command line
-
-   ```bash
-	python iotex-user-app.py <function name> <uniqueID> <URL of CCFaaS> <URL of iotex-S3> <bucket of S3> <File in S3> <decryption key path> <decryption IV path> <S3 authentication>")
-   ```
-  
-   Where:
-
-    * function name: determines the specific CCFaaS function to instantiate
-    * uniqueID: defines a unique name for this instance
-    * URL of CCFaaS: where to find CCFaaS, normally should be like http:://<IP>:<CCFaaS Host Port>
-    * URL of iotex-S3: where to find iotex-s3-app, normally should be like http:://<IP>:5020
-    * decryption key path: path of the key to decrypt the video
-    * decryption IV path: path of where to put the decryption key on the enclave
-    * S3 authentication>: set of "key=value" that contains the authentication to access the video in S3
-
 1. Registering the function in CCFaaS
 
   Two examples are available on [VOD](https://github.com/veracruz-project/video-object-detection.git). The difference between big and small is the size of the model, small being in 30MBs and big being around 300MBs.
@@ -1402,9 +1386,25 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
    
     Copy the file small/in_enc.h264 or big/in_enc.h264 to the S3 Bucket (both are equal). We will need the bucket name, file name and credentials for the next step.
  
-1. Running the example
+1. iotex-user-app.py accepts the following command line
 
-   1. Small model example
+   ```bash
+	python iotex-user-app.py <function name> <uniqueID> <URL of CCFaaS> <URL of iotex-S3> <bucket of S3> <File in S3> <decryption key path> <decryption IV path> <S3 authentication>")
+   ```
+  
+   Where:
+
+    * function name: determines the specific CCFaaS function to instantiate
+    * uniqueID: defines a unique name for this instance
+    * URL of CCFaaS: where to find CCFaaS, normally should be like http:://<IP>:<CCFaaS Host Port>
+    * URL of iotex-S3: where to find iotex-s3-app, normally should be like http:://<IP>:5020
+    * decryption key path: path of the key to decrypt the video
+    * decryption IV path: path of where to put the decryption key on the enclave
+    * S3 authentication>: set of "key=value" that contains the authentication to access the video in S3
+
+   1. Running the example
+
+      1. Small model example
 
       ```bash
       python3 iotex-user-app.py vod_small \
@@ -1489,7 +1489,7 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
       Shutting down enclave
       ```
   
-   1. Big model example
+      1. Big model example
 
       ```bash
       python3 iotex-user-app.py vod_big \
