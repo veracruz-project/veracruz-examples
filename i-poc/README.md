@@ -1009,7 +1009,7 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
    kubectl get all
    ```
    
-   The result should be at least those object, at least one pod per nitro-enabled node should exist, additional objects can exist if other things are running
+   The result should similar to the one presented below. At least these objects: pods, services and daemonsets should be present and at least one pod of Smarter-device-manager  per nitro-enabled node should exist. Other additional objects can also be present.
    
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
