@@ -7,15 +7,15 @@
     "data_files": [
         {
             "data_file": "/program_data/coco.names",
-            "pi_hash": "634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"
+            "pi_hash": "COCO_HASH"
         },
         {
             "data_file": "/program_data/yolov3.cfg",
-            "pi_hash": "15bd05a05354738b051e5f5b1ad6d2eb800b866c63be3d1766bf168960e8d950"
+            "pi_hash": "YOLOV3_CFG_HASH"
         },
         {
             "data_file": "/program_data/yolov3.weights",
-            "pi_hash": "dccea06f59b781ec1234ddf8d1e94b9519a97f4245748a7d4db75d5b7080a42c"
+            "pi_hash": "YOLOV3_WEIGHTS_HASH"
         }
     ],
     "programs": [
@@ -51,7 +51,7 @@
                 }
             ],
             "id": 0,
-            "pi_hash": "7612e3490f14a9ee523f357e86f97098a94678f4e06c8202cf307d163db9f7aa",
+            "pi_hash": "PROGRAM_HASH",
             "program_file_name": "/program/detector.wasm"
         }
     ],

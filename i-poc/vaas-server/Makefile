@@ -11,12 +11,12 @@
 #
 #
 #
-VERSION=0.86.10
+VERSION=0.86.11
 
 all: image
 
 veracruz-vaas-server.imageOK: Dockerfile vaas-server.py vaas-server.sh veracruz-clean-leftover-k8s-objects.sh
-	docker build -t veracruz-vaas-server:$(VERSION) .
+	docker build --output type=docker -t veracruz-vaas-server:$(VERSION) .
 	touch veracruz-vaas-server.imageOK
 
 .PHONY:

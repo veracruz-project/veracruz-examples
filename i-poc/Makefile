@@ -12,11 +12,12 @@
 #
 
 IMAGE_SUBDIRS=vaas-server ccfaas-app iotex-s3-app
+VERACRUZ_NITRO_IMAGE=veracruz/veracruz-nitro:v1.3.3
 
 all: veracruz-client k8s-config
 
 veracruz-client:
-	CONTAINERID=$(shell docker create veracruz/veracruz-nitro:v1.2.0); \
+	CONTAINERID=$(shell docker create $(VERACRUZ_NITRO_IMAGE)); \
 	docker cp $$CONTAINERID:/work/veracruz-client/veracruz-client veracruz-client; \
 	docker cp $$CONTAINERID:/work/veracruz-client/hash hash; \
 	docker rm $$CONTAINERID

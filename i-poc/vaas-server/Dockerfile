@@ -10,7 +10,7 @@
 # and copyright information.
 #
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 RUN apt-get update -y;apt-get upgrade -y;apt-get install -y curl python3-pip;apt-get -y clean
 
