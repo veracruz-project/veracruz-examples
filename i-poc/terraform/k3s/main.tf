@@ -62,7 +62,8 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" >> /home/ubuntu/.profile
 echo "export KUBECONFIG=/etc/rancher/k3s/k3s.yaml" >> /home/ubuntu/.bashrc
 echo "----- git clone veracruz-examples"
-sudo su - ubuntu bash -c "git clone https://github.com/veracruz-project/veracruz-examples.git;cd veracruz-examples;make veracruz-client;cd main-k3s;make CACert.pem PROGCert.pem"
+#sudo su - ubuntu bash -c "git clone https://github.com/veracruz-project/veracruz-examples.git;cd veracruz-examples/i-poc;make veracruz-client;cd main-k3s;make CACert.pem PROGCert.pem"
+sudo su - ubuntu bash -c "git clone https://github.com/alexandref75/veracruz-examples.git;cd veracruz-examples;git checkout terraform-helm;cd i-poc;make veracruz-client;cd main-k3s;make CACert.pem PROGCert.pem"
 echo "----- Waiting for k3s to start"
 until [ -f /etc/rancher/k3s/k3s.yaml ]
 do
