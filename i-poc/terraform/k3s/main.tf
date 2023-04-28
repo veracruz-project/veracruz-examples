@@ -69,6 +69,7 @@ until [ -f /etc/rancher/k3s/k3s.yaml ]
 do
      sleep 5
 done
+sudo su - ubuntu bash -c "cd veracruz-examples/i-poc/charts/veracruz-nitro-demo;./helm-script.sh"
 EOF
     content_type = "text/x-shellscript"
   }
