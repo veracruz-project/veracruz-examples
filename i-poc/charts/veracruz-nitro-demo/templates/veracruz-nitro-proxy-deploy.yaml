@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: veracruz-nitro-proxy
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      veracruz-nitro: proxy
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        veracruz-nitro: proxy
+    spec:
+      containers:
+      - name: veracruz-nitro-proxy
+        image: veracruz/veracruz-nitro:{{ .Values.veracruzNitroContainer.image }}
+        imagePullPolicy: IfNotPresent
+        command: ['/work/proxy-attestation-server/proxy-attestation-server','0.0.0.0:3010','--ca-cert','/work/proxy-config-files/CACert.pem','--ca-key','/work/proxy-config-files/CAKey.pem']
+        ports:
+        - containerPort: 3010
+          protocol: TCP
+        volumeMounts:
+          - name: config
+            mountPath: /work/proxy-config-files
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+      dnsPolicy: Default
+      priorityClassName: system-cluster-critical
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: config
+          configMap:
+             name: veracruz-nitro-proxy

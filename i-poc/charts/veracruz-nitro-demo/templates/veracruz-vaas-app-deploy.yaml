@@ -1,0 +1,104 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vaas-server-app
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: vaas-server-app
+rules:
+  - apiGroups:
+      - ''
+      - 'core'
+      - 'discovery.k8s.io'
+    resources:
+      - pods
+      - pods/status
+      - configmaps
+      - endpointslices
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name:  vaas-server-app
+roleRef:
+  kind: ClusterRole
+  name:  vaas-server-app
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name:  vaas-server-app
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vaas-server-app
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      vaas-server: app
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        vaas-server: app
+    spec:
+      containers:
+      - name: vaas-server-app
+        image: veracruz/veracruz-vaas-server:{{ .Values.veracruzVaas.image }}
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PROXY_ENDPOINT
+          value: "veracruz-nitro-proxy:3010"
+        - name: VERACRUZ_PORT_MIN
+          value: "{{ .Values.config.veracruzMinPort }}"
+        - name: VERACRUZ_PORT_MAX
+          value: "{{ .Values.config.veracruzMaxPort }}"
+        - name: VERACRUZ_ENDPOINT_HOSTNAME
+          value: "{{ .Values.config.veracruzEndpointHostname }}"
+        - name: RUNTIME_HUGHEPAGES_SIZE
+          value: "{{ .Values.config.runtimeHugePageSize }}"
+        - name: RUNTIME_POD_SIZE
+          value: "{{ .Values.config.runtimePodMemSize }}"
+        - name: RUNTIME_CPU_SIZE
+          value: "{{ .Values.config.runtimePodCpuSize }}"
+        - name: PROXY_CERTIFICATE
+          value: {{ toJson .Values.config.CACERT }}
+        - name: RUNTIME_MANAGER_IMAGE
+          value: "veracruz/veracruz-nitro:{{ .Values.veracruzNitroContainer.image }}"
+        - name: RUNTIME_MANAGER_HASH_NITRO
+          value: {{ toJson .Values.config.nitroHash }}
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+        resources:
+          limits:
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 100Mi
+      priorityClassName: system-cluster-critical
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      serviceAccountName: vaas-server-app

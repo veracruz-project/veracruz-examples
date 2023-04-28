@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: veracruz-nitro-server
+spec:
+  ports:
+    {{- $initialPort := (.Values.config.veracruzMinPort | int) -}}
+    {{- $endPort := (add .Values.config.veracruzMaxPort 1 | int) -}}
+    {{- range $_, $p := untilStep $initialPort $endPort 1 }}
+    - protocol: TCP
+      port: {{ $p }}
+      name: veracruz-{{ $p }}
+    {{- end }}
+  externalIPs:
+    - {{ .Values.config.externalIPUse }}

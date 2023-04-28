@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: veracruz-ccfaas-app
+data:
+  PROGCert.pem: {{ toJson .Values.config.PROGCERT }}
+  PROGKey.pem: {{ toJson .Values.config.PROGKEY }}

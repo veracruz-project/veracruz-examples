@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: vaas-server-app
+spec:
+  selector:
+    vaas-server: app
+  ports:
+    - protocol: TCP
+      port: 5000
+      name: vaas-server-app
+  externalIPs:
+    - {{ .Values.config.externalIPUse }}

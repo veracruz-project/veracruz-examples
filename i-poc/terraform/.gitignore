@@ -1,0 +1,4 @@
+.terraform.lock.hcl
+.terraform
+ssh
+terraform.tfstate
