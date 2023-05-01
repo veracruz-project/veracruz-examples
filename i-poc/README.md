@@ -861,7 +861,38 @@ On this environment a full orchestrated end-to-end application is deployed using
 ### Veracruz runtime
 
 The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz-project/veracruz) was used to run this example. Use this tag compiled for nitro if it is desired to recreate the image used by VaaS.
-In this README there are two different ways to install veracruz on AWS. The first one, using AWS EKS, is recommended if the user is familiar with terraform/AWS and want a more scalable and managed solution. It uses terraform to describe and install the infrastruture and uses EKS and auto-scaling. The second one uses only EC2 instances and do not require other tools but it is less scalable and harder to manage but it is recommended as simpler to debug.
+In this README there are three different ways to install veracruz on AWS. The first one, using terraform/helm, is recommended since it is the simplest one to install. It uses terraform to allocate two ECS nodes and installs k3s on them with the second node being Nitro-enabled. The second option using AWS EKS, is recommended if the user is familiar with terraform/AWS EKS and want a more scalable and managed solution. It uses terraform to describe and install the infrastruture and uses EKS and auto-scaling. The third one gives users full control but is more complex to install requiring more steps..
+
+### Deploying using terraform/helm chars
+
+Veracruz i-PoC example can be installed using a terraform script provided in the repo located at i-poc/terraform at the (veracruz-examples repository)[https://github.com/veracruz-project/veracruz-examples.git].
+The script assumes that valid AWS credentias are stored in environment variables: AWS\_ACCESS\_KEY\_ID, AWS\_SECRET\_ACCESS\_KEY and AWS\_SESSION\_TOKEN.
+The only required variable is:
+
+* letsencrypt\_email
+
+Optional variables are:
+
+* deployment\_name: Prefix to apply to object names.
+* AWS\_EC2\_instance\_type: instance type to be used
+* AWS\_EC2\_agent\_instance\_type: instance type to be used for worker nodes (should be enclave-enabled)
+* AWS\_VPC\_subnet\_id: subnet_id use the default of the VPC if this is not defined
+
+#### Run the following commands if setting the variables on the command line
+
+```
+terraform init
+# optional: terraform plan -var "letsencrypt_email=<valid email>"
+terraform apply -var "letsencrypt_email=<valid email>"
+```
+
+at the end of installation, the command to access the two allocated nodes will be printed and the first node should have k3s server installed with the second node as a nitro-enabled worker node. The helm chat should be installed and veracruz should be fully configured and ready to run the example.
+
+To stop the nodes execute:
+
+```
+terraform destroy -var "letsencrypt_email=<valid email>"
+```
 
 ### Deploying on AWS EKS
 
