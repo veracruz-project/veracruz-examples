@@ -24,7 +24,7 @@ function check_if_file_exists() {
 
 VERACRUZ_CLIENT=$(pwd)/veracruz-client
 
-if [ $# -lt 6 ]
+if [ $# -lt 8 ]
 then
 	echo "$0: <policy> <certificate file out> <key file out> <output file veracruz> <output file name> <program> <decryption key path> <decryption IV path>"
 	exit 1
@@ -42,6 +42,8 @@ DECRYPTION_IV_PATH=$8
 check_if_file_exists "${POLICY}" "Policy"
 check_if_file_exists "${CERTIFICATE_OUT}" "Certificate_out"
 check_if_file_exists "${KEY_OUT}" "Key_out"
+check_if_file_exists "${DECRYPTION_KEY_PATH}" "Decryption key"
+check_if_file_exists "${DECRYPTION_IV_PATH}" "Decryption IV"
 
 VERACRUZ_URL=$(grep veracruz_server_url "${POLICY}" | sed -e 's/^[^:]*: *\"//' -e 's/".*//')
 VERACRUZ_HOST=$(echo "${VERACRUZ_URL}" | cut -d ":" -f 1)

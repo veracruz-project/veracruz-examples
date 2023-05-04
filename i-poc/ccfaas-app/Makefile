@@ -10,7 +10,7 @@
 # example repository root directory for copyright and licensing information.
 #
 #
-VERSION=0.87.26
+VERSION=0.87.28
 
 all: image
 
@@ -18,7 +18,7 @@ veracruz-client: ../veracruz-client
 	cp ../veracruz-client veracruz-client
 
 veracruz-ccfaas-server.imageOK: Dockerfile ccfaas-server.py ccfaas-server.sh veracruz-client load_program.sh load_data.sh
-	docker build -t veracruz-ccfaas-server:$(VERSION) .
+	docker build --output type=docker -t veracruz-ccfaas-server:$(VERSION) .
 	touch veracruz-ccfaas-server.imageOK
 
 image: veracruz-ccfaas-server.imageOK

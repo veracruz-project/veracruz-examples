@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: smarter-device-manager-ec2-nitro
+data:
+  conf.yaml: |
+        - devicematch: ^nitro_enclaves$
+          nummaxdevices: 1
+        - devicematch: ^vsock$
+          nummaxdevices: 1
+        - devicematch: ^rtc0$
+          nummaxdevices: 20
+        - devicematch: ^ttyUSB[0-9]*$
+          nummaxdevices: 1
+        - devicematch: ^ttyACM[0-9]*$
+          nummaxdevices: 1
+        - devicematch: ^ttyTHS[0-9]*$
+          nummaxdevices: 1
+        - devicematch: ^ttyS[0-9]*$
+          nummaxdevices: 1

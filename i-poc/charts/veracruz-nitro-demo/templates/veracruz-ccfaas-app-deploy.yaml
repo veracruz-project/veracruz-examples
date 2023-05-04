@@ -1,22 +1,14 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: default
-  labels:
-    name: default
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: veracruz-nitro-proxy
-  namespace: default
+  name: ccfaas-server-app
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      veracruz-nitro: proxy
+      ccfaas-server: app
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -25,19 +17,18 @@ spec:
   template:
     metadata:
       labels:
-        veracruz-nitro: proxy
+        ccfaas-server: app
     spec:
       containers:
-      - name: veracruz-nitro-proxy
-        image: veracruz/veracruz-nitro:v1.3.3
+      - name: ccfaas-server-app
+        image: veracruz/veracruz-ccfaas-server:{{ .Values.veracruzCCFaas.image }}
         imagePullPolicy: IfNotPresent
-        command: ['/work/proxy-attestation-server/proxy-attestation-server','0.0.0.0:3010','--ca-cert','/work/proxy-config-files/CACert.pem','--ca-key','/work/proxy-config-files/CAKey.pem']
+        env:
+        - name: VAAS_ACCESS_URL
+          value: "http://vaas-server-app:5000"
         ports:
-        - containerPort: 3010
+        - containerPort: 5000
           protocol: TCP
-        volumeMounts:
-          - name: config
-            mountPath: /work/proxy-config-files
         securityContext:
           allowPrivilegeEscalation: false
           capabilities:
@@ -49,7 +40,9 @@ spec:
           requests:
             cpu: 100m
             memory: 100Mi
-      dnsPolicy: Default
+        volumeMounts:
+          - name: config
+            mountPath: /root/config
       priorityClassName: system-cluster-critical
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -57,4 +50,4 @@ spec:
       volumes:
         - name: config
           configMap:
-             name: veracruz-nitro-proxy
+             name: veracruz-ccfaas-app

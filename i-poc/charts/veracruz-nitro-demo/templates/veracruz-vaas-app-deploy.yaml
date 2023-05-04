@@ -1,16 +1,7 @@
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: default
-  labels:
-    name: default
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: vaas-server-app
-  namespace: default
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -44,13 +35,12 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name:  vaas-server-app
-    namespace: default
+    namespace: {{ .Release.Namespace }}
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: vaas-server-app
-  namespace: default
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
@@ -70,30 +60,29 @@ spec:
     spec:
       containers:
       - name: vaas-server-app
-        image: veracruz/veracruz-vaas-server:0.86.10
+        image: veracruz/veracruz-vaas-server:{{ .Values.veracruzVaas.image }}
         imagePullPolicy: IfNotPresent
         env:
         - name: PROXY_ENDPOINT
           value: "veracruz-nitro-proxy:3010"
         - name: VERACRUZ_PORT_MIN
-          value: "VERACRUZ_MIN_PORT_USE"
+          value: "{{ .Values.config.veracruzMinPort }}"
         - name: VERACRUZ_PORT_MAX
-          value: "VERACRUZ_MAX_PORT_USE"
+          value: "{{ .Values.config.veracruzMaxPort }}"
         - name: VERACRUZ_ENDPOINT_HOSTNAME
-          value: "VERACRUZ_ENDPOINT_HOSTNAME_USE"
+          value: "{{ .Values.config.veracruzEndpointHostname }}"
         - name: RUNTIME_HUGHEPAGES_SIZE
-          value: "RUNTIME_HUGHEPAGES_SIZE_USE"
+          value: "{{ .Values.config.runtimeHugePageSize }}"
         - name: RUNTIME_POD_SIZE
-          value: "RUNTIME_POD_SIZE_USE"
+          value: "{{ .Values.config.runtimePodMemSize }}"
         - name: RUNTIME_CPU_SIZE
-          value: "RUNTIME_CPU_SIZE_USE"
+          value: "{{ .Values.config.runtimePodCpuSize }}"
         - name: PROXY_CERTIFICATE
-          value: |
-               REPLACE_CACERT_PEM
+          value: {{ toJson .Values.config.CACERT }}
         - name: RUNTIME_MANAGER_IMAGE
-          value: "veracruz/veracruz-nitro:v1.3.3"
+          value: "veracruz/veracruz-nitro:{{ .Values.veracruzNitroContainer.image }}"
         - name: RUNTIME_MANAGER_HASH_NITRO
-          value: RUNTIME_MANAGER_HASH_NITRO_USE
+          value: {{ toJson .Values.config.nitroHash }}
         ports:
         - containerPort: 5000
           protocol: TCP

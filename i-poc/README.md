@@ -1,6 +1,6 @@
 # i-poc
 
-The i_poc is an end-to-end example of using veracruz to run confidentail computing functions in the cloud. The example runs on AWS and utlizes AWS Nitro.
+The i-PoC is an end-to-end example of using veracruz to run confidential computing functions in the cloud. The example runs on AWS and utilizes AWS Nitro.
 
 This is the high level Iotex PoC description.  The key here is that the processing of the video is triggered by the user from their laptop (in the example), and the object detection happens in Nitro Enclaves on top of Veracruz.  
 
@@ -19,7 +19,7 @@ The primary components of the example are:
 * Cloud infrastructure that runs on kubernetes
    * VaaS (Veracruz as a Service)
    * CCFaaS (Confidential Computing Function as a Service)
-   * iotex-s3-app: copies files fom S3 to a veracruz instance
+   * iotex-s3-app: copies files from S3 to a veracruz instance
 * iotex-user-app: represents the end user application
 * VOD: veracruz application that process the decrypt and process the video 
 
@@ -58,18 +58,18 @@ A timeline of a full operation is described below.
 1. CCFaaS and VaaS waits for the next request (it will not interact with this request anymore)
 1. User Application receives the policy 
 1. User Application connects directly to Veracruz instance (using the connection information provided in the policy) and verify that the policy hash matches and the certificate provided by Veracruz instance is valid (attested by the proxy)
-1. User application creates a file in Veracruz instance with the video decoding key
+1. User application creates a file in Veracruz instance with the video decrypting key
 1. User application creates a json object with the following information:
    * AWS S3 bucket, file name of the desired video and credentials to access the file
    * Veracruz instance endpoint (host, IP).
    * temporary certificate and key generated previously to access Veracruz instance
 1. User application executes a remote procedure call request to the Iotex S3 app with previously created json object
    * Upper pink FaaS arrow
-1. Iotex S3 app starts an instance of itself that connects to AWS S3 and  Veracruz instance and sends the encrypted key and then reads the video file and sends it to the Veracruz instance
+1. Iotex S3 app starts an instance of itself that connects to AWS S3 and Veracruz instance, reads the video file and sends it to the Veracruz instance
 1. Iotex S3 app instance closes the connection to Veracruz at the end of the file and terminates itself.
-1. User application exectutes the program inside the enclave using rhe provided video
-1. Veracruz instance process the video and send the results to the output file
-1. User application receives the last results and terminates the Veracruz instance using CCFaaS
+1. User application executes the program inside the enclave using the provided video
+1. Veracruz instance process the video and writes the results to the output file
+1. User application reads results file and terminates the Veracruz instance using CCFaaS
 1. EC2 nitro instance is returned to the pool of free instances to be allocated.
 
 # VOD
@@ -136,7 +136,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
     }
    ```
 
-   This policy defines two identities. The first one only has write access to the directory /s3_app_input/. The other Has access to execute programs on the diretory "/program" and read/write access to /user_input/,/output/,stdout and stderr.
+   This policy defines two identities. The first one only has write access to the directory /s3_app_input/. The other has access to execute programs on the directory "/program" and read/write access to /user_input/,/output/,stdout and stderr.
  
    The following json-schema describes the schema allowed when an user policy is provided. CCFaaS only accepts user policies that pass this schema.
 
@@ -188,6 +188,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
    * <strong>file_rights</strong>: List of filenames and permissions associated with that file for this identity
    * <strong>file_name</strong>: file that permissions apply (this file should exist on the registered function):
    * <strong>rights</strong>: Permissions that will be granted for that identity and file_name. Interpreted as a binary number according to the table below
+
       ```
       FD_DATASYNC               = 2^0 = 1
       FD_READ                   = 2^1 = 2
@@ -220,6 +221,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
       SOCK_SHUTDOWN             = 2^28 = 268435456
       FILE_EXECUTE              = 2^29 = 536870912
       ```
+
       In the example above:
 
          * 533572 = 2^2 + 2^6 + 2^10 + 2^13 + 2^19
@@ -367,9 +369,9 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
 
    * <strong>function</strong>: identifies the function name to register
    * <strong>execution_strategy</strong>: normally "Interpretation" but other modes may be supported in the future
-   * <strong>max_memory_mib</strong>: iminimum amount of memory on the enclave to run this application
+   * <strong>max_memory_mib</strong>: minimum amount of memory on the enclave to run this application
    * <strong>debug</strong>: running on debug mode if true
-   * <strong>enable_clock</strong>: clock in encleve has current time and date if true
+   * <strong>enable_clock</strong>: clock in enclave has current time and date if true
    * <strong>programs</strong>: list of programs (executables) that is part of the computation for this function (all of them are instantiated for this function to execute correctly)
    * <strong>file_rights</strong>: List of filenames and permissions associated with this program
    * <strong>pi_hash</strong>: sha256 hash of the executable or data file
@@ -505,7 +507,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
     }
    ```
 
-   This policy is the corresponding policy that CCFaaS sends to VaaS whan the function "vod" is instantiated as "instance1". It also represents a policy that VaaS requires when a veracruz instance is requested.
+   This policy is the corresponding policy that CCFaaS sends to VaaS when the function "vod" is instantiated as "instance1". It also represents a policy that VaaS requires when a veracruz instance is requested.
    In this policy a third identity is provided "-----BEGIN CERTIFICATE-----\nPPPPPPPPP\n-----END CERTIFICATE-----" that allows the programs to be provided. It only allows writing to the programs and program_data directory so it can provision the program.
 
    The following json-schema describes the schema allowed. 
@@ -731,7 +733,7 @@ The syntax of the policies will be described using [json Schema](ttps://json-sch
         "runtime_manager_hash_nitro": "f2ae0de7bec92bcdbd4a96e2ae08d85a575f1aa64acb797bc4afa6b1d3cc8798",
         "runtime_manager_hash_sgx": "",
         "runtime_manager_hash_tz": "",
-        "veracruz_server_url": "ec2-54-216-123-218.eu-west-1.compute.amazonaws.com:3014"
+        "veracruz_server_url": "<Veracruz instance IP>:<Veracruz instance Port>"
     }
    ```
    The additional fields returned with the policy are:
@@ -752,11 +754,11 @@ VaaS provides a REST (CD) interface that allows multiple instances of Veracruz t
 
 VaaS require a valid VaaS policy (essentially a Program policy and User policy together) as input and provides a Veracruz instance loaded with a full policy (Infrastructure policy is added by VaaS) returning that policy if the instance is successfully allocated.
 
-|Action	| HTTP method | URL| URL Parametera | Input Object | Output Object |
-| -- | --- | --- | --- | --- | --- |
-|CREATE	|POST |	/veracruz | | VasS Policy | |
+|Action	| HTTP method | URL| URL Parameter | Input Object | Output Object |
+| --- | --- | --- | --- | --- | --- |
+|CREATE	|POST |	/veracruz | | VaaS Policy | |
 |READ |	GET | /veracruz |  instance_Id instance_Hash | | List of Veracruz instances |
-|READ|	GET | /veracruz/\<name\> | | Statis of Veracruz Instance |
+|READ|	GET | /veracruz/\<name\> | | Information of Veracruz Instance |
 |DELETE	|DELETE | /veracruz/\<name\> |  instance_id instance_hash | | |
 
 ## CCFaaS (Confidential Computing Function as a Service)
@@ -765,8 +767,8 @@ CCFaaS provides a REST (CRD) interface that allows confidential computing functi
 CCFaaS has three main concepts. Function, Program and Instances. Function represents a computation to be executed in Veracruz and it is mainly the program policy information. Program allows the CCFaaS to pre-load executables into Veracruz, and instance is a instance of a function running in a Veracruz. An instance to be created requires a user policy a reference to a registered function.
 Multiple instances can be created from the same registered function. 
 
-|Action	| HTTP method | URL| URL Parametera | Input Object | Output Object |
-| -- | --- | --- | --- | --- | --- |
+|Action	| HTTP method | URL| URL Parameter | Input Object | Output Object |
+| --- | --- | --- | --- | --- | --- |
 | CREATE | POST	 | /function  | | CCFaaS policy | |
 | READ | GET	 | /function  | | | List of functions registered |
 | READ | GET	   | /function/\<name\> |  | CCFaaS policy  |
@@ -786,10 +788,10 @@ Multiple instances can be created from the same registered function.
 
 # Iotex-S3 description
 
-Iotex-S3-app provides an interface from S3 to veracruz so the file can be piped through the cloud instead of bewing downloaded to the user computer and uploaded again.
+Iotex-S3-app provides an interface from S3 to veracruz so the file can be piped through the cloud instead of being downloaded to the user computer and uploaded again.
 
-|Action | HTTP method | URL| URL Parametera | Input Object | Output Object |
-| -- | --- | --- | --- | --- | --- |
+|Action | HTTP method | URL| URL Parameter | Input Object | Output Object |
+| --- | --- | --- | --- | --- | --- |
 |CREATE |POST | /s3_stream_veracruz | | iotex-s3-app object  | |
 
    ```json
@@ -828,13 +830,13 @@ Iotex-S3-app provides an interface from S3 to veracruz so the file can be piped 
    * <strong>region_name</strong>: Optional region that this S3 object resides
    * <strong>bucket</strong>: Bucket of this S3 object
    * <strong>filename</strong>: filename of the S3 object
-   * <strong>aws_access_key_id</strong>: Optionsl AWS authemntication for CLI S3 access of this object (only read to this object is required)
-   * <strong>aws_secret_access_key</strong>: Optional AWS authemntication for CLI S3 access of this object (only read to this object is required)
-   * <strong>aws_session_token</strong>: Optional AWS authemntication for CLI S3 access of this object (only read to this object is required)
+   * <strong>aws_access_key_id</strong>: Optional AWS authentication for CLI S3 access of this object (only read to this object is required)
+   * <strong>aws_secret_access_key</strong>: Optional AWS authentication for CLI S3 access of this object (only read to this object is required)
+   * <strong>aws_session_token</strong>: Optional AWS authentication for CLI S3 access of this object (only read to this object is required)
    * <strong>veracruz</strong>: Veracruz instance to access and authentication/authorization information
    * <strong>filename</strong>: Filename in Veracruz instance to copy the S3 file to
    * <strong>policy</strong>: policy information for the Veracruz instance
-   * <strong>certificatie</strong>: certificate to use by this application to authenticate to the veracruz instance
+   * <strong>certificate</strong>: certificate to use by this application to authenticate to the veracruz instance
    * <strong>key</strong>: key that correspond to the certificate provided
 
 # Running demo application (including Veracruz) as a service under k3s/k8s 
@@ -859,6 +861,38 @@ On this environment a full orchestrated end-to-end application is deployed using
 ### Veracruz runtime
 
 The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz-project/veracruz) was used to run this example. Use this tag compiled for nitro if it is desired to recreate the image used by VaaS.
+In this README there are three different ways to install veracruz on AWS. The first one, using terraform/helm, is recommended since it is the simplest one to install. It uses terraform to allocate two ECS nodes and installs k3s on them with the second node being Nitro-enabled. The second option using AWS EKS, is recommended if the user is familiar with terraform/AWS EKS and want a more scalable and managed solution. It uses terraform to describe and install the infrastruture and uses EKS and auto-scaling. The third one gives users full control but is more complex to install requiring more steps..
+
+### Deploying using terraform/helm chars
+
+Veracruz i-PoC example can be installed using a terraform script provided in the repo located at i-poc/terraform at the (veracruz-examples repository)[https://github.com/veracruz-project/veracruz-examples.git].
+The script assumes that valid AWS credentias are stored in environment variables: AWS\_ACCESS\_KEY\_ID, AWS\_SECRET\_ACCESS\_KEY and AWS\_SESSION\_TOKEN.
+The only required variable is:
+
+* letsencrypt\_email
+
+Optional variables are:
+
+* deployment\_name: Prefix to apply to object names.
+* AWS\_EC2\_instance\_type: instance type to be used
+* AWS\_EC2\_agent\_instance\_type: instance type to be used for worker nodes (should be enclave-enabled)
+* AWS\_VPC\_subnet\_id: subnet_id use the default of the VPC if this is not defined
+
+#### Run the following commands if setting the variables on the command line
+
+```
+terraform init
+# optional: terraform plan -var "letsencrypt_email=<valid email>"
+terraform apply -var "letsencrypt_email=<valid email>"
+```
+
+at the end of installation, the command to access the two allocated nodes will be printed and the first node should have k3s server installed with the second node as a nitro-enabled worker node. The helm chat should be installed and veracruz should be fully configured and ready to run the example.
+
+To stop the nodes execute:
+
+```
+terraform destroy -var "letsencrypt_email=<valid email>"
+```
 
 ### Deploying on AWS EKS
 
@@ -869,22 +903,23 @@ The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz
 ### Deploying on EC2 instances on an user installed k8s/k3s
 
 * Infrastructure
-  * At least 1 server and 1 node with the nodes that are supporting Veracruz instances must be nitro enabled. 
-* A simple installation of k3s on AWS EC2 is described at [Zero to k3s Kubeconfig in seconds with k3sup](https://rancher.com/blog/2019/k3s-kubeconfig-in-seconds/)
-* Use kubernetes documentation on [Getting started](https://kubernetes.io/docs/setup/) or [Production environment](https://kubernetes.io/docs/setup/production-environment/) to install a working kubernetes on AWS EC2 instances.
+  * At least 2 EC2 instances need to be allocated with one used for the k3s server and the others used as k3s nodes. K3s nodes that will support Veracruz instances must be nitro enabled. 
+* The following tutorials/instructions can be used to install k3s in a EC2 instance. Please choose one.
+  * A simple installation of k3s on AWS EC2 is described at [Zero to k3s Kubeconfig in seconds with k3sup](https://rancher.com/blog/2019/k3s-kubeconfig-in-seconds/)
+  * Use kubernetes documentation on [Getting started](https://kubernetes.io/docs/setup/) or [Production environment](https://kubernetes.io/docs/setup/production-environment/) to install a working kubernetes on AWS EC2 instances.
 
 ### Hugepages on nitro nodes
 
-* Nitro nodes require higepages enabled in the kernel.
-  * Creata a file /etc/sysctl.d/99-hugepages.conf with the contents below. The example uses up to 2.2GB (2@MB pages * 1100 pages)
+* Nitro nodes require hugepages enabled in the kernel.
+  * Create a file /etc/sysctl.d/99-hugepages.conf with the contents below. The example uses up to 2.2GB (2@MB pages * 1100 pages)
    ```
    vm.nr_hugepages=1100
    ```
-  * to enable a current running kernl the following command can be used
+  * to enable a current running kernel the following command can be used
    ```bash
    sysctl -w vm.nr_hugepages=1100
    ```
-  * Udate the /etc/nitro_enclaves/allocator.yaml with the size t is smaller or equal to the size allocated for hughpages
+  * Update the /etc/nitro_enclaves/allocator.yaml with the size t is smaller or equal to the size allocated for hugepages
 
 ## Veracruz services
 
@@ -920,47 +955,93 @@ The tag iotex-demo-v1.3.0 from [veracruz repository](https://github.com/veracruz
 
 ### Installing Veracruz services on k8s/k3s
 
-1. Clone the repository https://gitlab.com/arm-research/security/i-poc.git 
+1. Clone the repository https://github.com/veracruz-project/veracruz-examples.git
 1. Move to directory i-poc
+
    ```bash
    cd i-poc
    ```
-1. Copy file i-poc/main-k3s/config.vars.template to i-poc/i-poc/main-k3s/config.vars and update the values according to your installation
-1. If desired to create the container images locally, execute
-   ```bash
-   make images
-   ```
-1. The following step create all the keys, certificates and update all the YAML files from the templates and loads them into k8s/k3s
-   ```bash
-   make k8s-all
-   ```
-1. If more control is desired change to directory i-poc/main-k3s
+1. Copy file main-k3s/config.vars.template to main-k3s/config.vars and update the values according to your installation and run make
+
+   Recommended values when using EC2 instances:
+
+   * EXTERNAL\_IP\_USE
    
+      Use the private IP of one of worker nodes. Any of the worker nodes is OK.
+      
+   * VERACRUZ\_MIN\_PORT\_USE
+   
+      3014 is the recomended value
+      
+   * VERACRUZ\_MAX\_PORT\_USE
+
+      3014 + Max number of expected worker nodes (3015 if only node is used)
+      
+   * VERACRUZ\_ENDPOINT\_HOSTNAME\_USE
+    
+      Use the public DNS name for the worker node EC2 instance private IP used for the variable EXTERNAL_IP_USE
+      
+   * RUNTIME\_HUGHEPAGES\_SIZE\_USE
+      
+      2048 reserves 2GB for Nitro enclaves. The VoD example executing  big YOLOv3 model requires 2GB to be able to run that model in Veracruz.
+        
+   * RUNTIME\_POD\_SIZE\_USE
+      
+      Reserves 500MB for the container running outside of the enclave (no need to change this, user applications do not run on this container)
+      
+   * RUNTIME\_CPU\_SIZE\_USE
+      
+      Reserves 1 CPU for the container running outside of the enclave (no need to change this, user applications do not run on this container)
+
    ```bash
-   make k8s-smarter-device-manager
-   make k8s-attestation-service
-   make k8s-vaas
-   make k8s-ccfaas
-   make k8s-iotex-s3-app
+   make
    ```
 
-   there is also <entry>-check to verify if the services are running correctly
+1. Some optional steps:
 
+   1. If desired to create the container images locally, execute (this step is optional since the images are available on the ghcr.io
+   
+      ```bash
+      make images
+      ```
+      
+   1. The following step create all the keys, certificates and update all the YAML files from the templates and loads them into k8s/k3s
+   
+      ```bash
+      make k8s-all
+      ```
+   
+   1. If more control is desired change to directory main-k3s
+      
+      ```bash
+      cd main-k3s
+      make k8s-smarter-device-manager
+      make k8s-attestation-service
+      make k8s-vaas
+      make k8s-ccfaas
+      make k8s-iotex-s3-app
+      ```
+   
+      there is also <entry>-check to verify if the services are running correctly
 
 #### Smarter-device-manager
 
 Even at EKS a new updated configuration of smarter-device-manager need to be be installed
 1. Load the yaml files for smarter-device-manager
+
    ```bash
    kubectl apply -f smarter-device-manager-configmap-ec2-nitro.yaml
    kubectl apply -f smarter-device-manager-ds-with-configmap-ec2-nitro.yaml
    ```
 
 1. Verify that everything is installed and running
+
    ```bash
    kubectl get all
    ```
-   The result should be at least those object, at least one pod per nitro-enabled node should exist, additional objects can exist if other things are running
+   
+   The result should similar to the one presented below. At least these objects: pods, services and daemonsets should be present and at least one pod of Smarter-device-manager  per nitro-enabled node should exist. Other additional objects can also be present.
+   
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX
@@ -971,11 +1052,15 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
    NAME                                              DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR                    AGE
    daemonset.apps/smarter-device-manager-ec2-nitro   X         X         X       X            X           smarter-device-manager=enabled   X
    ```
+   
    There should be 1 pod/smarter-device-manager-ec2-nitro-XXXXX per node on the k3s cluster. All the nodes that are nitro enabled should have these resources when described
+   
    ```bash
    kubectl describe node <node name>
    ```
-   The node should have the label "smarter-device-manager=enabled" 
+   
+   The node should have the label "smarter-device-manager=enabled"
+    
    ```
    Labels:             beta.kubernetes.io/arch=amd64
                        beta.kubernetes.io/instance-type=k3s
@@ -987,11 +1072,15 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
                        node.kubernetes.io/instance-type=k3s
                        smarter-device-manager=enabled
    ```
+   
    If the label do not appear use the command
+   
    ```bash
    kubectl label node <node name> smarter-device-manager=enabled
    ```
+   
    When correct the following resources should be available:
+   
    ```
    smarter-devices/nitro_enclaves:  1
    smarter-devices/rtc0:            20
@@ -1005,16 +1094,21 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 #### Attestation service
 
 1. Load the yaml files for the attestation service
+
    ```bash
    kubectl apply -f veracruz-nitro-proxy-configmap.yaml
    kubectl apply -f veracruz-nitro-proxy-service.yaml
    kubectl apply -f veracruz-nitro-proxy-deploy.yaml
    ```
+   
 1. Verify that everything is installed and running
+
    ```bash
    kubectl get all
    ```
+   
    The result should be at least those objects, additional objects can exist if other things are running
+   
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX
@@ -1037,6 +1131,7 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 #### VaaS
 
 1. Load the yaml files for the VaaS
+
    ```bash
    kubectl apply -f veracruz-vaas-app-service.yaml
    kubectl apply -f veracruz-vaas-app-deploy.yaml
@@ -1044,10 +1139,13 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 
    ```
 1. Verify that everything is installed and running
+
    ```bash
    kubectl get all
    ```
+
    The result should be at least those objects, additional objects can exist if other things are running
+
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX
@@ -1075,6 +1173,7 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 #### CCFaaS
 
 1. Load the yaml files for the CCFaaS
+
    ```bash
    kubectl apply -f veracruz-ccfaas-app-configmap.yaml
    kubectl apply -f veracruz-ccfaas-app-service.yaml
@@ -1082,10 +1181,13 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
 
    ```
 1. Verify that everything is installed and running
+
    ```bash
    kubectl get all
    ```
+
    The result should be at least those objects, additional objects can exist if other things are running
+
    ```
    NAME                                         READY   STATUS    RESTARTS   AGE
    pod/smarter-device-manager-ec2-nitro-XXXXX   1/1     Running   XX         XX
@@ -1114,134 +1216,494 @@ Even at EKS a new updated configuration of smarter-device-manager need to be be 
    replicaset.apps/ccfaas-server-app-XXXXXXXXXX     1         1         1       XX
    ```
 
-## Running applications on Veracruz
+## Running VOD (i-PoC wasm video decoder) on Veracruz
 
 The iotex-user-app directory on the repository will execute the I-PoC example end-to-end according the timeline described above
 
+1. Registering the function in CCFaaS
+
+  Two examples are available on [VOD](https://github.com/veracruz-project/video-object-detection.git). The difference between big and small is the size of the model, small being in 30MBs and big being around 300MBs.
+  The current version VOD in use is v1.3.3. The function is registered as "vod_small" for the small model and "vod_big" for the big model. You should register one of them at least but registering both is not required.
+
+  1. Small model
+ 
+     ```bash
+      ./register-function-small.sh
+     ```
+   
+     The result should be similar to the one presented below
+
+     ```bash
+     Acessing CCFaaS at <CCFaas Host IP>:<CCFaaS Host Port>
+     =============Deleting function
+       % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                      Dload  Upload   Total   Spent    Left  Speed
+       0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+     100    53  100    53    0     0  18675      0 --:--:-- --:--:-- --:--:-- 26500
+     <p>Veracruz instance 'vod_small' does not existe!</p>
+     =============Registering function
+     {
+       "data_files": [
+         {
+           "data_file": "/program_data/coco.names",
+           "pi_hash": "634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"
+         },
+         {
+           "data_file": "/program_data/yolov3.cfg",
+           "pi_hash": "15bd05a05354738b051e5f5b1ad6d2eb800b866c63be3d1766bf168960e8d950"
+         },
+         {
+           "data_file": "/program_data/yolov3.weights",
+           "pi_hash": "dccea06f59b781ec1234ddf8d1e94b9519a97f4245748a7d4db75d5b7080a42c"
+         }
+       ],
+       "debug": true,
+       "enable_clock": true,
+       "execution_strategy": "JIT",
+       "file_rights": [
+         {
+           "file_name": "/program/",
+           "rights": 534084
+         },
+         {
+           "file_name": "/program_data/",
+           "rights": 534084
+         }
+       ],
+       "function": "vod_small",
+       "max_memory_mib": 2000,
+       "programs": [
+         {
+           "file_rights": [
+             {
+               "file_name": "/program_data/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/s3_app_input/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/user_input/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/output/",
+               "rights": 550470
+             },
+             {
+               "file_name": "/program_internal/",
+               "rights": 550470
+             },
+             {
+               "file_name": "stdout",
+               "rights": 534084
+             },
+             {
+               "file_name": "stderr",
+               "rights": 534084
+             }
+           ],
+           "id": 0,
+           "pi_hash": "1324be50d91ec6496ea5f8a18d2d898e0ddda1b3e7497682c990e917d4661c3c",
+           "program_file_name": "/program/detector.wasm"
+         }
+       ]
+     }
+     =============Provisioning program
+     <p>function loaded!</p>
+     =============Provisioning data
+     <p>data_file /program_data/coco.names loaded!</p>
+     <p>data_file /program_data/yolov3.cfg loaded!</p>
+     <p>data_file /program_data/yolov3.weights loaded!</p>
+     ```
+ 
+  2. Big model
+ 
+     ```bash
+      ./register-function-big.sh
+     ```
+   
+     The result should be similar to the one presented below
+  
+     ```bash
+     Acessing CCFaaS at <CCFaas Host IP>:<CCFaaS Host Port>
+     =============Deleting function
+       % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                      Dload  Upload   Total   Spent    Left  Speed
+       0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+     100    51  100    51    0     0  24926      0 --:--:-- --:--:-- --:--:-- 51000
+     <p>Veracruz instance 'vod_big' does not existe!</p>
+     =============Registering function
+     {
+       "data_files": [
+         {
+           "data_file": "/program_data/coco.names",
+           "pi_hash": "634a1132eb33f8091d60f2c346ababe8b905ae08387037aed883953b7329af84"
+         },
+         {
+           "data_file": "/program_data/yolov3.cfg",
+           "pi_hash": "2ca0ab366618b5c005931e057e9cef2e40a1988e2481b3cbd960047c8ec11995"
+         },
+         {
+           "data_file": "/program_data/yolov3.weights",
+           "pi_hash": "523e4e69e1d015393a1b0a441cef1d9c7659e3eb2d7e15f793f060a21b32f297"
+         }
+       ],
+       "debug": true,
+       "enable_clock": true,
+       "execution_strategy": "JIT",
+       "file_rights": [
+         {
+           "file_name": "/program/",
+           "rights": 534084
+         },
+         {
+           "file_name": "/program_data/",
+           "rights": 534084
+         }
+       ],
+       "function": "vod_big",
+       "max_memory_mib": 2000,
+       "programs": [
+         {
+           "file_rights": [
+             {
+               "file_name": "/program_data/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/s3_app_input/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/user_input/",
+               "rights": 24582
+             },
+             {
+               "file_name": "/output/",
+               "rights": 550470
+             },
+             {
+               "file_name": "/program_internal/",
+               "rights": 550470
+             },
+             {
+               "file_name": "stdout",
+               "rights": 534084
+             },
+             {
+               "file_name": "stderr",
+               "rights": 534084
+             }
+           ],
+           "id": 0,
+           "pi_hash": "1324be50d91ec6496ea5f8a18d2d898e0ddda1b3e7497682c990e917d4661c3c",
+           "program_file_name": "/program/detector.wasm"
+         }
+       ]
+     }
+     =============Provisioning program
+     <p>function loaded!</p>
+     =============Provisioning data
+     <p>data_file /program_data/coco.names loaded!</p>
+     <p>data_file /program_data/yolov3.cfg loaded!</p>
+     <p>data_file /program_data/yolov3.weights loaded!</p>
+     ```
+
+1. Adding the video file to S3
+
+   The example assumes that a file on a S3 bucket contains the encrypted video. So a S3 bucket needs to be created, if a suitable one is not available, and credentials to read that S3 bucket and file have to be provided. Those credentials will be used by the iotex-user-app to instantiate an application that copies that file to the enclave.
+   
+    Copy the file small/in_enc.h264 or big/in_enc.h264 to the S3 Bucket (both are equal). We will need the bucket name, file name and credentials for the next step.
+ 
 1. iotex-user-app.py accepts the following command line
+
    ```bash
 	python iotex-user-app.py <function name> <uniqueID> <URL of CCFaaS> <URL of iotex-S3> <bucket of S3> <File in S3> <decryption key path> <decryption IV path> <S3 authentication>")
    ```
   
    Where:
 
-    * function name: determines the specific CCFaaS function to instantiate
+    * function name: determines the specific CCFaaS function to instantiate (vod_small or vod_big)
     * uniqueID: defines a unique name for this instance
-    * URL of CCFaaS: where to find CCFaaS, normally should be like http:://<IP>:5010
+    * URL of CCFaaS: where to find CCFaaS, normally should be like http:://<IP>:<CCFaaS Host Port>
     * URL of iotex-S3: where to find iotex-s3-app, normally should be like http:://<IP>:5020
-    * decryption key path: path of the key to decrypt the vide
+    * decryption key path: path of the key to decrypt the video
     * decryption IV path: path of where to put the decryption key on the enclave
     * S3 authentication>: set of "key=value" that contains the authentication to access the video in S3
 
-1. Edit the file iotex-user-app.sh to set the correct information of the S3 file and S3 authentication to use:
-   ```bash
-   export AWS_ACCESS_KEY_ID="<REPLACE WITH AWS_ACCESS_KEY_ID>"
-   export AWS_SECRET_ACCESS_KEY="<REPLACE WITH AWS_SECRET_ACCESS_KEY>"
- 
-   S3_REGION="<REPLACE WITH S3 REGION>"
-   S3_BUCKET="<REPLACE WITH S3 BUCKET"
-   S3_FILE="<REPLACE WITH S3 FILE?"
-   ```
-   The script assumes that the file requires authentication to be accessed. All the AWS credentiails and S3_REGION are optional and can be removed from the script including the entry on ./iotex-user-app.py line
+   1. Running the example
 
-1. Registering the function in CCFaaS
- 
-   ```bash
-    ./register-function-example.sh
-   ```
- 
-   The result should be simmilar to the one presented below
-   ```bash
-   Accessing CCFaaS at XXX.XXX.XXX.XXX:5010
-     Getting function/linear-regression
-     Not found
-     linear-regression function with data below
-     {
-       "function": "linear-regression",
-       "execution_strategy": "Interpretation",
-       "programs": [
-         {
-           "id": 0,
-           "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-           "program_file_name": "linear-regression.wasm",
-           "file_rights": [
-             {
-               "file_name": "input-0",
-               "rights": 8198
-             },
-             {
-               "file_name": "output",
-               "rights": 533572
-             }
-           ]
-         }
-       ]
-     }
-     Register linear-regression function
-         {
-           "execution_strategy": "Interpretation",
-           "function": "linear-regression",
-           "programs": [
-             {
-                "file_rights": [
-                 {
-                  "file_name": "input-0",
-                   "rights": 8198
-                 },
-                 {
-                   "file_name": "output",
-                   "rights": 533572
-                 }
-               ],
-               "id": 0,
-               "pi_hash": "3fc011587de8a340c0ee36d733c3e52a42babc5fe6b12a074d94204495fd5877",
-               "program_file_name": "linear-regression.wasm"
-              }
-           ]
-          }
-     
-     Create linear-regression  program linear-regression.wasm
-         <p>function loaded!</p>
-   ```
- 
-1. Running the example
-   ```bash
-   ./iotex-user-app.sh
-    ```
+      1. Small model example
 
-    The result should be similar to one presented below
-    ```bash
-    CCFaaS in http://XXX.XXX.XXX.XXX:5010 and Iotex-s3 Faas in http://XXX.XXX.XXX.XXX:5020
-    User certificate loaded from USERcert.pem and key from USERkey.pem
-    S3 certificate created
-    Creating instance URL=http://XXX.XXX.XXX.XXX:5010/instance
-    Response = <Response [200]>
-    Writing policy to policy_test1
-    Creating s3 app URL=http://XXX.XXX.XXX.XXX:5020/s3_stream_veracruz
-    execute: ./execute_program.sh policy_test1 USERcert.pem USERkey.pem  linear-regression.wasm linear-regression.dat.output
-    writing RSA key
-    /home/ubuntu/i-poc/iotex-user-app/veracruz-client policy_test1 --results linear-regression.wasm=linear-regression.dat.output --identity USERcert.pem --key USERkey.pem
-    Loaded policy policy_test1 bf6469a15394ba244166fe1159883ba44ce9ebb714e267d0fe36d25f71116952
-    Connecting to veracruz-nitro-server:3014
-    Reading <enclave>/linear-regression.wasm into linear-regression.dat.output
-    Shutting down enclave
-    Deleting instance URL=http://XXX.XXX.XXX.XXX:5010/instance/test1
-    ```
+      ```bash
+      python3 iotex-user-app.py vod_small \
+                                0 \
+                                http://<CCFaaS Host IP>:<CCFaaS Host Port> \
+                                http://<Iotex S3 APP Host IP>:5020 \
+                                <AWS S3 bucket name> \
+                                <AWS S3 file name> \
+                                small/key \
+                                small/iv \
+                                region_name="<AWS Region Name>" \
+                                aws_access_key_id="<AWS Access Key" \
+                                aws_secret_access_key="<AWS Secret Access Key>"
+      ```
+  
+      The result should be similar to one presented below
 
+      ```bash
+      User certificate loaded from USERcert.pem and key from USERkey.pem
+      S3 certificate created
+      Creating instance URL=http://<CCFaaS Host IP>:<CCFaaS Host Port>/instance
+      Response = <Response [200]>
+      Writing policy to policy_0
+      Creating s3 app URL=http://<Iotex S3 APP Host IP>:5020/s3_stream_veracruz
+      execute: ./execute_program.sh policy_0 USERcert.pem USERkey.pem /output/prediction.0.jpg in_enc.h264.output /program/detector.wasm small-iotex-demo-v1.3.3/key small-iotex-demo-v1.3.3/iv
+      ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --data /user_input/key=small-iotex-demo-v1.3.3/key --data /user_input/iv=small-iotex-demo-v1.3.3/iv --identity USERcert.pem --key USERkey.pem
+      ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --compute /program/detector.wasm --identity USERcert.pem --key USERkey.pem
+      ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --result stdout=- --result stderr=- --result /output/prediction.0.jpg=in_enc.h264.output --identity USERcert.pem --key USERkey.pem
+      Loaded policy policy_0 9ece68a0ccc7bff445373d83e70b7e7af6a33b85c71a68cc563cee04d9f1e9fd
+      Connecting to <Veracruz instance IP>:<Veracruz instance Port>
+      Reading <enclave>/stdout into <stdout>
+      Decrypting video...
+      Initializing detector...
+      Arguments loaded and network parsed: 0.449878 seconds
+      Starting decoding...
+      ------------------------------------------------------
+      Image 0 ===========================
+      Image normalized and resized: 0.067714 seconds
+      Starting prediction...
+      Prediction duration: 0.773984 seconds
+      Detection probabilities:
+      Saving prediction to output/prediction.0.jpg...
+      Write duration: 0.074901 seconds
+      Detector run: 0.848959 seconds
+      Finished decoding: 1.019139 seconds
+      Reading <enclave>/stderr into <stdout>
+      layer     filters    size              input                output
+          0 conv     16  3 x 3 / 1   416 x 416 x   3   ->   416 x 416 x  16  0.150 BFLOPs
+          1 max          2 x 2 / 2   416 x 416 x  16   ->   208 x 208 x  16
+          2 conv     32  3 x 3 / 1   208 x 208 x  16   ->   208 x 208 x  32  0.399 BFLOPs
+          3 max          2 x 2 / 2   208 x 208 x  32   ->   104 x 104 x  32
+          4 conv     64  3 x 3 / 1   104 x 104 x  32   ->   104 x 104 x  64  0.399 BFLOPs
+          5 max          2 x 2 / 2   104 x 104 x  64   ->    52 x  52 x  64
+          6 conv    128  3 x 3 / 1    52 x  52 x  64   ->    52 x  52 x 128  0.399 BFLOPs
+          7 max          2 x 2 / 2    52 x  52 x 128   ->    26 x  26 x 128
+          8 conv    256  3 x 3 / 1    26 x  26 x 128   ->    26 x  26 x 256  0.399 BFLOPs
+          9 max          2 x 2 / 2    26 x  26 x 256   ->    13 x  13 x 256
+         10 conv    512  3 x 3 / 1    13 x  13 x 256   ->    13 x  13 x 512  0.399 BFLOPs
+         11 max          2 x 2 / 1    13 x  13 x 512   ->    13 x  13 x 512
+         12 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+         13 conv    256  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 256  0.089 BFLOPs
+         14 conv    512  3 x 3 / 1    13 x  13 x 256   ->    13 x  13 x 512  0.399 BFLOPs
+         15 conv    255  1 x 1 / 1    13 x  13 x 512   ->    13 x  13 x 255  0.044 BFLOPs
+         16 yolo
+         17 route  13
+         18 conv    128  1 x 1 / 1    13 x  13 x 256   ->    13 x  13 x 128  0.011 BFLOPs
+         19 upsample            2x    13 x  13 x 128   ->    26 x  26 x 128
+         20 route  19 8
+         21 conv    256  3 x 3 / 1    26 x  26 x 384   ->    26 x  26 x 256  1.196 BFLOPs
+         22 conv    255  1 x 1 / 1    26 x  26 x 256   ->    26 x  26 x 255  0.088 BFLOPs
+         23 yolo
+      Loading weights from program_data/yolov3.weights...Done!
+      H264 source file name: program_internal/in.h264..
+      -------------------------------------------------------
+      iWidth:     1920
+      height:     1080
+      Frames:     1
+      decode time:    0.098741 sec
+      FPS:        10.127505 fps
+      -------------------------------------------------------
+      Reading <enclave>//output/prediction.0.jpg into in_enc.h264.output
+      Shutting down enclave
+      ```
+  
+      1. Big model example
+
+      ```bash
+      python3 iotex-user-app.py vod_big \
+                                0 \
+                                http://<CCFaaS Host IP>:<CCFaaS Host Port> \
+                                http://<Iotex S3 APP Host IP>:5020 \
+                                <AWS S3 bucket name> \
+                                <AWS S3 file name> \
+                                big/key \
+                                big/iv \
+                                region_name="<AWS Region Name>" \
+                            aws_access_key_id="<AWS Access Key" \
+                            aws_secret_access_key="<AWS Secret Access Key>"
+      ```
+
+      The result should be similar to one presented below
+
+     ```bash
+     User certificate loaded from USERcert.pem and key from USERkey.pem
+     S3 certificate created
+     Creating instance URL=http://<CCFaaS Host IP>:<CCFaaS Host Port>/instance
+     Response = <Response [200]>
+     Writing policy to policy_0
+     Creating s3 app URL=http://<Iotex S3 APP Host IP>:5020/s3_stream_veracruz
+     execute: ./execute_program.sh policy_0 USERcert.pem USERkey.pem /output/prediction.0.jpg in_enc.h264.output /program/detector.wasm big-iotex-demo-v1.3.3/key big-iotex-demo-v1.3.3/iv
+     ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --data /user_input/key=big-iotex-demo-v1.3.3/key --data /user_input/iv=big-iotex-demo-v1.3.3/iv --identity USERcert.pem --key USERkey.pem
+     ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --compute /program/detector.wasm --identity USERcert.pem --key USERkey.pem
+     ZZZZZZZZ/veracruz-examples/i-poc/iotex-user-app/veracruz-client policy_0 --result stdout=- --result stderr=- --result /output/prediction.0.jpg=in_enc.h264.output --identity USERcert.pem --key USERkey.pem
+     Loaded policy policy_0 b850c63bd999efc03e2ce2b38af314ab01051a1de56b0b133f7e614d3e84e784
+     Connecting to <Veracruz instance IP>:<Veracruz instance Port>
+     Reading <enclave>/stdout into <stdout>
+     Decrypting video...
+     Initializing detector...
+     Arguments loaded and network parsed: 2.969170 seconds
+     Starting decoding...
+     ------------------------------------------------------
+     Image 0 ===========================
+     Image normalized and resized: 0.067985 seconds
+     Starting prediction...
+     Prediction duration: 8.174153 seconds
+     Detection probabilities:
+     bottle: 12%
+     bear: 33%
+     Saving prediction to output/prediction.0.jpg...
+     Write duration: 0.075309 seconds
+     Detector run: 8.249756 seconds
+     Finished decoding: 8.420150 seconds
+     Reading <enclave>/stderr into <stdout>
+     layer     filters    size              input                output
+         0 conv     32  3 x 3 / 1   416 x 416 x   3   ->   416 x 416 x  32  0.299 BFLOPs
+         1 conv     64  3 x 3 / 2   416 x 416 x  32   ->   208 x 208 x  64  1.595 BFLOPs
+         2 conv     32  1 x 1 / 1   208 x 208 x  64   ->   208 x 208 x  32  0.177 BFLOPs
+         3 conv     64  3 x 3 / 1   208 x 208 x  32   ->   208 x 208 x  64  1.595 BFLOPs
+         4 res    1                 208 x 208 x  64   ->   208 x 208 x  64
+         5 conv    128  3 x 3 / 2   208 x 208 x  64   ->   104 x 104 x 128  1.595 BFLOPs
+         6 conv     64  1 x 1 / 1   104 x 104 x 128   ->   104 x 104 x  64  0.177 BFLOPs
+         7 conv    128  3 x 3 / 1   104 x 104 x  64   ->   104 x 104 x 128  1.595 BFLOPs
+         8 res    5                 104 x 104 x 128   ->   104 x 104 x 128
+         9 conv     64  1 x 1 / 1   104 x 104 x 128   ->   104 x 104 x  64  0.177 BFLOPs
+        10 conv    128  3 x 3 / 1   104 x 104 x  64   ->   104 x 104 x 128  1.595 BFLOPs
+        11 res    8                 104 x 104 x 128   ->   104 x 104 x 128
+        12 conv    256  3 x 3 / 2   104 x 104 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        13 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        14 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        15 res   12                  52 x  52 x 256   ->    52 x  52 x 256
+        16 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        17 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        18 res   15                  52 x  52 x 256   ->    52 x  52 x 256
+        19 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        20 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        21 res   18                  52 x  52 x 256   ->    52 x  52 x 256
+        22 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        23 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        24 res   21                  52 x  52 x 256   ->    52 x  52 x 256
+        25 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        26 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        27 res   24                  52 x  52 x 256   ->    52 x  52 x 256
+        28 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        29 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        30 res   27                  52 x  52 x 256   ->    52 x  52 x 256
+        31 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        32 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        33 res   30                  52 x  52 x 256   ->    52 x  52 x 256
+        34 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+        35 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+        36 res   33                  52 x  52 x 256   ->    52 x  52 x 256
+        37 conv    512  3 x 3 / 2    52 x  52 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        38 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        39 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        40 res   37                  26 x  26 x 512   ->    26 x  26 x 512
+        41 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        42 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        43 res   40                  26 x  26 x 512   ->    26 x  26 x 512
+        44 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        45 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        46 res   43                  26 x  26 x 512   ->    26 x  26 x 512
+        47 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        48 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        49 res   46                  26 x  26 x 512   ->    26 x  26 x 512
+        50 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        51 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        52 res   49                  26 x  26 x 512   ->    26 x  26 x 512
+        53 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        54 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        55 res   52                  26 x  26 x 512   ->    26 x  26 x 512
+        56 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        57 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        58 res   55                  26 x  26 x 512   ->    26 x  26 x 512
+        59 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        60 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        61 res   58                  26 x  26 x 512   ->    26 x  26 x 512
+        62 conv   1024  3 x 3 / 2    26 x  26 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        63 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        64 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        65 res   62                  13 x  13 x1024   ->    13 x  13 x1024
+        66 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        67 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        68 res   65                  13 x  13 x1024   ->    13 x  13 x1024
+        69 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        70 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        71 res   68                  13 x  13 x1024   ->    13 x  13 x1024
+        72 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        73 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        74 res   71                  13 x  13 x1024   ->    13 x  13 x1024
+        75 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        76 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        77 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        78 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        79 conv    512  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 512  0.177 BFLOPs
+        80 conv   1024  3 x 3 / 1    13 x  13 x 512   ->    13 x  13 x1024  1.595 BFLOPs
+        81 conv    255  1 x 1 / 1    13 x  13 x1024   ->    13 x  13 x 255  0.088 BFLOPs
+        82 yolo
+        83 route  79
+        84 conv    256  1 x 1 / 1    13 x  13 x 512   ->    13 x  13 x 256  0.044 BFLOPs
+        85 upsample            2x    13 x  13 x 256   ->    26 x  26 x 256
+        86 route  85 61
+        87 conv    256  1 x 1 / 1    26 x  26 x 768   ->    26 x  26 x 256  0.266 BFLOPs
+        88 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        89 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        90 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        91 conv    256  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 256  0.177 BFLOPs
+        92 conv    512  3 x 3 / 1    26 x  26 x 256   ->    26 x  26 x 512  1.595 BFLOPs
+        93 conv    255  1 x 1 / 1    26 x  26 x 512   ->    26 x  26 x 255  0.177 BFLOPs
+        94 yolo
+        95 route  91
+        96 conv    128  1 x 1 / 1    26 x  26 x 256   ->    26 x  26 x 128  0.044 BFLOPs
+        97 upsample            2x    26 x  26 x 128   ->    52 x  52 x 128
+        98 route  97 36
+        99 conv    128  1 x 1 / 1    52 x  52 x 384   ->    52 x  52 x 128  0.266 BFLOPs
+       100 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+       101 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+       102 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+       103 conv    128  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 128  0.177 BFLOPs
+       104 conv    256  3 x 3 / 1    52 x  52 x 128   ->    52 x  52 x 256  1.595 BFLOPs
+       105 conv    255  1 x 1 / 1    52 x  52 x 256   ->    52 x  52 x 255  0.353 BFLOPs
+       106 yolo
+     Loading weights from program_data/yolov3.weights...Done!
+     H264 source file name: program_internal/in.h264..
+     -------------------------------------------------------
+     iWidth:		1920
+     height:		1080
+     Frames:		1
+     decode time:	0.098700 sec
+     FPS:		10.131712 fps
+     -------------------------------------------------------
+     Reading <enclave>//output/prediction.0.jpg into in_enc.h264.output
+     Shutting down enclave
+     ```
+  
 1. Troubleshooting:
 
    * Incorrect S3 credential will result in a similar output to the one presented below.
-    ```bash
-    CCFaaS in http://XXX.XXX.XXX.XXX:5010 and Iotex-s3 Faas in http://XXX.XXX.XXX>XXX:5020
-    User certificate loaded from USERcert.pem and key from USERkey.pem
-    S3 certificate created
-    Creating instance URL=http://XXX.XXX.XXX.XXX:5010/instance
-    Response = <Response [200]>
-    Writing policy to policy_test1
-    Creating s3 app URL=http://XXX.XXX.XXX.XXX:5020/s3_stream_veracruz
-    Http request to S3 app returned <p>Not able to read bucket rsh-veracruz-test file linear-regression.dat from S3: ClientError<p>
-    Deleting instance URL=http://XXX.XXX.XXX.XXX:5010/instance/test1
-    ```
+
+     ```bash
+     User certificate loaded from USERcert.pem and key from USERkey.pem
+     S3 certificate created
+     Creating instance URL=http://<CCFaaS Host IP>:<CCFaaS Host Port>/instance
+     Response = <Response [200]>
+     Writing policy to policy_0
+     Creating s3 app URL=http://<Iotex S3 APP Host IP>:5020/s3_stream_veracruz
+     Http request to S3 app returned <p>Not able to read bucket <AWS S3 bucket> file in.h264 from S3: ClientError<p>
+     Shutting down enclave
+     ```
 
 # WIP:
 
@@ -1254,5 +1716,5 @@ The iotex-user-app directory on the repository will execute the I-PoC example en
 * Remove CCFaaS instances if the corresponding Veracruz instance dies
 * Allow installation within a defined namespace
 * Convert YAML files to helm charts
-* Remote program repositories so a function can be instantiated by asking a remote repository to  downlowd specified programs at the instance
-  * API to communicate with remote rpositories, key management.TBD
+* Remote program repositories so a function can be instantiated by asking a remote repository to  download specified programs at the instance
+  * API to communicate with remote repositories, key management.TBD

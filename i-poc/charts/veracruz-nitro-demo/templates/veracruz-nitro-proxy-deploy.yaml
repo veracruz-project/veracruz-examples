@@ -1,15 +1,7 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: default
-  labels:
-    name: default
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: veracruz-nitro-proxy
-  namespace: default
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
@@ -29,7 +21,7 @@ spec:
     spec:
       containers:
       - name: veracruz-nitro-proxy
-        image: veracruz/veracruz-nitro:v1.3.3
+        image: veracruz/veracruz-nitro:{{ .Values.veracruzNitroContainer.image }}
         imagePullPolicy: IfNotPresent
         command: ['/work/proxy-attestation-server/proxy-attestation-server','0.0.0.0:3010','--ca-cert','/work/proxy-config-files/CACert.pem','--ca-key','/work/proxy-config-files/CAKey.pem']
         ports:

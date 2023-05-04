@@ -1,0 +1,72 @@
+# Default values for smarter-cloud.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+smarterDeviceManager:
+  image: "v1.20.7"
+
+iotexS3Veracruz:
+  image: "0.8.6"
+
+iotexVeracruz:
+  image: "0.5"
+
+veracruzCCFaas:
+  image: "0.87.28"
+
+veracruzNitroContainer:
+  image: "v1.3.3"
+
+veracruzVaas:
+  image: "0.86.10"
+
+config:
+   # In this example ports 3014,3015 and 3016 will be available so 3 nitro instances are supported
+   veracruzMinPort: !!int 3014
+   veracruzMaxPort: !!int 3016
+   runtimeHugePageSize: !!int 2200
+   runtimePodMemSize: !!int 500
+   runtimePodCpuSize: !!int 1000
+#  CACERT: |
+#    -----BEGIN CERTIFICATE-----
+#    MIICBzCCAa6gAwIBAgIJAMQZr1LMf0EeMAoGCCqGSM49BAMCMF8xCzAJBgNVBAYT
+#    AlVTMQ4wDAYDVQQIDAVUZXhhczEPMA0GA1UEBwwGQXVzdGluMREwDwYDVQQKDAhW
+#    ZXJhY3J1ejEcMBoGA1UEAwwTVmVyYWNydXpQcm94eVNlcnZlcjAeFw0yMjA5MTQx
+#    MjMwMDZaFw0yMjEwMTQxMjMwMDZaMF8xCzAJBgNVBAYTAlVTMQ4wDAYDVQQIDAVU
+#    ZXhhczEPMA0GA1UEBwwGQXVzdGluMREwDwYDVQQKDAhWZXJhY3J1ejEcMBoGA1UE
+#    AwwTVmVyYWNydXpQcm94eVNlcnZlcjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IA
+#    BEbxosmzVJy2+bQGSAxgXshwCbtHRrbUQ9a51ZxrEL9NtumAa7MnA3KmEj42oiOE
+#    r0m/GK5KWnANkLxlQIy6uBqjUzBRMB0GA1UdDgQWBBS1qOPPY/lsvGyqblZL2Qke
+#    CRxT3DAfBgNVHSMEGDAWgBS1qOPPY/lsvGyqblZL2QkeCRxT3DAPBgNVHRMBAf8E
+#    BTADAQH/MAoGCCqGSM49BAMCA0cAMEQCIGNuaeqdrkrNQubjljloAGfEa36JjzIm
+#    FHHmHYbMRv6gAiB+lhI5EMPbMHclwg8yiP1SVdUEjG3g+uv8Iyqy/tb92A==
+#    -----END CERTIFICATE-----
+#  CAKEY: |
+#    -----BEGIN EC PRIVATE KEY-----
+#    MHcCAQEEID3suCSR1nK2vYczi97mF+rEK4xER8CAdhpH3+87vTjWoAoGCCqGSM49
+#    AwEHoUQDQgAERvGiybNUnLb5tAZIDGBeyHAJu0dGttRD1rnVnGsQv0226YBrsycD
+#    cqYSPjaiI4SvSb8YrkpacA2QvGVAjLq4Gg==
+#     -----END EC PRIVATE KEY-----
+#  PROGCERT: |
+#    -----BEGIN CERTIFICATE-----
+#    MIICBzCCAa6gAwIBAgIJAMQZr1LMf0EeMAoGCCqGSM49BAMCMF8xCzAJBgNVBAYT
+#    AlVTMQ4wDAYDVQQIDAVUZXhhczEPMA0GA1UEBwwGQXVzdGluMREwDwYDVQQKDAhW
+#    ZXJhY3J1ejEcMBoGA1UEAwwTVmVyYWNydXpQcm94eVNlcnZlcjAeFw0yMjA5MTQx
+#    MjMwMDZaFw0yMjEwMTQxMjMwMDZaMF8xCzAJBgNVBAYTAlVTMQ4wDAYDVQQIDAVU
+#    ZXhhczEPMA0GA1UEBwwGQXVzdGluMREwDwYDVQQKDAhWZXJhY3J1ejEcMBoGA1UE
+#    AwwTVmVyYWNydXpQcm94eVNlcnZlcjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IA
+#    BEbxosmzVJy2+bQGSAxgXshwCbtHRrbUQ9a51ZxrEL9NtumAa7MnA3KmEj42oiOE
+#    r0m/GK5KWnANkLxlQIy6uBqjUzBRMB0GA1UdDgQWBBS1qOPPY/lsvGyqblZL2Qke
+#    CRxT3DAfBgNVHSMEGDAWgBS1qOPPY/lsvGyqblZL2QkeCRxT3DAPBgNVHRMBAf8E
+#    BTADAQH/MAoGCCqGSM49BAMCA0cAMEQCIGNuaeqdrkrNQubjljloAGfEa36JjzIm
+#    FHHmHYbMRv6gAiB+lhI5EMPbMHclwg8yiP1SVdUEjG3g+uv8Iyqy/tb92A==
+#    -----END CERTIFICATE-----
+#  PROGKEY: |
+#    -----BEGIN EC PRIVATE KEY-----
+#    MHcCAQEEID3suCSR1nK2vYczi97mF+rEK4xER8CAdhpH3+87vTjWoAoGCCqGSM49
+#    AwEHoUQDQgAERvGiybNUnLb5tAZIDGBeyHAJu0dGttRD1rnVnGsQv0226YBrsycD
+#    cqYSPjaiI4SvSb8YrkpacA2QvGVAjLq4Gg==
+#     -----END EC PRIVATE KEY-----
+#  externalIPUse: 172.10.10.10
+#  nitroHash: "hash of the nitro image to validate" 
+#  veracruzEndpointHostname: ec2-54-216-123-218.eu-west-1.compute.amazonaws.com
